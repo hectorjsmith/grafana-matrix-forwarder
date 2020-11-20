@@ -15,7 +15,7 @@ func SendAlert(client *mautrix.Client, alert grafana.AlertPayload, roomId string
 }
 
 func buildFormattedMessageFromAlert(alert grafana.AlertPayload) EventFormattedMessage {
-	message := fmt.Sprintf("❗️<b>ALERT</b> ❗<p>%s | <a href=\"%s\">%s</a></p>",
-		alert.Message, alert.RuleUrl, alert.RuleUrl)
+	message := fmt.Sprintf("❗️<b>ALERT</b> ❗<p>Rule: <a href=\"%s\">%s</a> | %s</p>",
+		alert.RuleUrl, alert.RuleName, alert.Message)
 	return newSimpleFormattedMessage(message)
 }
