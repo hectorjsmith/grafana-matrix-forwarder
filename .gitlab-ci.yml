@@ -1,0 +1,33 @@
+image: golang:latest
+
+before_script:
+  - make install-deps
+
+stages:
+  - test
+  - build
+
+format:
+  stage: test
+  script:
+    - make format
+
+dependencies:
+  stage: test
+  script:
+    - make go-mod-tidy
+
+test:
+  stage: test
+  script:
+    - make test
+
+build:
+  stage: build
+  script:
+    - git fetch --tags
+    - make build/local
+  artifacts:
+    paths:
+      - build/*.bin
+    expire_in: 1 day
