@@ -1,7 +1,8 @@
 package grafana
 
 type AlertPayload struct {
-	Title   string `json:"title"`
-	Message string `json:"message"`
-	RuleUrl string `json:"ruleUrl"`
+	Title    string `json:"title"`
+	Message  string `json:"message"`
+	RuleName string `json:"ruleName"`
+	RuleUrl  string `json:"ruleUrl"`
 }
