@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-func Start(ctx context.Context, matrixClient *mautrix.Client) (err error) {
+func Start(ctx context.Context, matrixClient *mautrix.Client, serverHost string, serverPort int) (err error) {
 	log.Print("starting webserver ...")
 	mux := http.NewServeMux()
 	mux.Handle("/api/v0/forward", http.HandlerFunc(
@@ -26,18 +26,20 @@ func Start(ctx context.Context, matrixClient *mautrix.Client) (err error) {
 		},
 	))
 
+	serverAddr := fmt.Sprintf("%s:%d", serverHost, serverPort)
 	srv := &http.Server{
-		Addr:    ":8081",
+		Addr:    serverAddr,
 		Handler: mux,
 	}
 
 	go func() {
 		if err = srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("listen: %+s\n", err)
+			log.Fatalf("server error: %+s\n", err)
 		}
 	}()
 
-	log.Printf("ready")
+	log.Printf("webserver listening at %s", serverAddr)
+	log.Print("ready")
 
 	<-ctx.Done()
 

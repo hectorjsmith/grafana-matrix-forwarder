@@ -20,11 +20,11 @@ func main() {
 
 	ctx, _ := listenForInterrupt()
 
-	cfg.Parse()
-	if cfg.VersionMode {
+	appSettings := cfg.Parse()
+	if appSettings.VersionMode {
 		printAppVersion()
 	} else {
-		err := run(ctx, cfg.UserId, cfg.UserPassword, cfg.HomeserverUrl)
+		err := run(ctx, appSettings)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -49,10 +49,10 @@ func printAppVersion() {
 	fmt.Println(appVersion)
 }
 
-func run(ctx context.Context, userId, userPassword, homeserverUrl string) error {
-	client, err := matrix.CreateClient(userId, userPassword, homeserverUrl)
+func run(ctx context.Context, appSettings cfg.AppSettings) error {
+	client, err := matrix.CreateClient(appSettings.UserId, appSettings.UserPassword, appSettings.HomeserverUrl)
 	if err != nil {
 		return err
 	}
-	return server.Start(ctx, client)
+	return server.Start(ctx, client, appSettings.ServerHost, appSettings.ServerPort)
 }
