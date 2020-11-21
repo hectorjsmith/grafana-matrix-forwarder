@@ -11,7 +11,12 @@ type AppSettings struct {
 	UserId        string
 	UserPassword  string
 	HomeserverUrl string
+	ServerHost    string
+	ServerPort    int
 }
+
+const minServerPort = 1000
+const maxServerPort = 65535
 
 func Parse() AppSettings {
 	appSettings := AppSettings{}
@@ -19,6 +24,8 @@ func Parse() AppSettings {
 	flag.StringVar(&appSettings.UserId, "user", "", "username used to login to matrix")
 	flag.StringVar(&appSettings.UserPassword, "password", "", "password used to login to matrix")
 	flag.StringVar(&appSettings.HomeserverUrl, "homeserver", "matrix.org", "url of the homeserver to connect to")
+	flag.StringVar(&appSettings.ServerHost, "host", "0.0.0.0", "host address the server connects to")
+	flag.IntVar(&appSettings.ServerPort, "port", 6000, "port to run the webserver on")
 
 	flag.Parse()
 	appSettings.validateFlags()
@@ -34,6 +41,11 @@ func (settings AppSettings) validateFlags() {
 		}
 		if settings.UserPassword == "" {
 			fmt.Println("missing flag 'password'")
+			flagsValid = false
+		}
+		if settings.ServerPort < minServerPort || settings.ServerPort > maxServerPort {
+			fmt.Printf("invalid server port, must be within %d and %d (found %d)\n",
+				minServerPort, maxServerPort, settings.ServerPort)
 			flagsValid = false
 		}
 	}
