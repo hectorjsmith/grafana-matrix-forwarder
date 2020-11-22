@@ -21,6 +21,8 @@ Once that webhook hits this tool, it will be converted into a message for Matrix
 
 **Run server**
 
+Run the forwarder by providing a matrix account to send messages.
+
 ```
 $ ./grafana-matrix-forwarder.bin --user @userId:matrix.org --password xxx --homeserver matrix.org
 2020/11/22 18:10:01 starting matrix client ...
@@ -28,6 +30,12 @@ $ ./grafana-matrix-forwarder.bin --user @userId:matrix.org --password xxx --home
 2020/11/22 18:10:02 webserver listening at 0.0.0.0:6000
 2020/11/22 18:10:02 ready
 ```
+
+**Configure grafana**
+
+Add a new **webhook** alert channel with the following URL: `http://<ip address>:6000/api/v0/forward?roomId=<roomId>`.
+
+*Replace with the server ID and matrix room ID.*
 
 **Usage documentation**
 
