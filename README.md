@@ -11,6 +11,8 @@ The purpose of this project is to provide a simple way to have alerts generated 
 This works by setting up a Grafana alert channel to send a webhook to this application.
 Once that webhook hits this tool, it will be converted into a message for Matrix and sent on to a specific room.
 
+![screenshot of matrix alert message](docs/alertExample.png)
+
 ## Features
 
   * **Simple** to use and run. Packaged as a single binary, the tool is easy to run with minimal configuration.
@@ -33,9 +35,11 @@ $ ./grafana-matrix-forwarder.bin --user @userId:matrix.org --password xxx --home
 
 **Configure grafana**
 
-Add a new **webhook** alert channel with the following URL: `http://<ip address>:6000/api/v0/forward?roomId=<roomId>`.
+Add a new **POST webhook** alert channel with the following URL: `http://<ip address>:6000/api/v0/forward?roomId=<roomId>`.
 
 *Replace with the server ID and matrix room ID.*
+
+![screenshot of grafana setup](docs/grafanaSetup.png)
 
 **Usage documentation**
 
