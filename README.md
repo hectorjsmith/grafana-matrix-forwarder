@@ -17,7 +17,7 @@ Once that webhook hits this tool, it will be converted into a message for Matrix
   * Forward alerts to **custom rooms**. Include the room ID to send the alert to in the forward URL.
   * Support **multiple channels**. Multiple Grafana alert channels can be setup using the same forwarder instance. 
  
- ## How to use
+## How to use
 
 **Run server**
 
