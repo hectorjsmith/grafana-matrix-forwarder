@@ -18,13 +18,14 @@ func SendAlert(client *mautrix.Client, alert grafana.AlertPayload, roomId string
 
 func buildFormattedMessageBodyFromAlert(alert grafana.AlertPayload) string {
 	var message string
-	if alert.State == "alerting" {
+	switch alert.State {
+	case grafana.AlertStateAlerting:
 		message = buildAlertMessage(alert)
-	} else if alert.State == "ok" {
+	case grafana.AlertStateResolved:
 		message = buildResolvedMessage(alert)
-	} else if alert.State == "no_data" {
+	case grafana.AlertStateNoData:
 		message = buildNoDataMessage(alert)
-	} else {
+	default:
 		log.Printf("alert received with unknown state: %s", alert.State)
 		message = buildUnknownStateMessage(alert)
 	}
