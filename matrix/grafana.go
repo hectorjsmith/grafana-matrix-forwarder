@@ -10,23 +10,26 @@ import (
 )
 
 func SendAlert(client *mautrix.Client, alert grafana.AlertPayload, roomId string) (err error) {
-	formattedMessage := buildFormattedMessageFromAlert(alert)
+	formattedMessageBody := buildFormattedMessageBodyFromAlert(alert)
+	formattedMessage := newSimpleFormattedMessage(formattedMessageBody)
 	_, err = client.SendMessageEvent(id.RoomID(roomId), event.EventMessage, formattedMessage)
 	return err
 }
 
-func buildFormattedMessageFromAlert(alert grafana.AlertPayload) EventFormattedMessage {
+func buildFormattedMessageBodyFromAlert(alert grafana.AlertPayload) string {
 	var message string
-	if alert.State == "alerting" {
+	switch alert.State {
+	case grafana.AlertStateAlerting:
 		message = buildAlertMessage(alert)
-	} else if alert.State == "ok" {
+	case grafana.AlertStateResolved:
 		message = buildResolvedMessage(alert)
-	} else {
+	case grafana.AlertStateNoData:
+		message = buildNoDataMessage(alert)
+	default:
 		log.Printf("alert received with unknown state: %s", alert.State)
 		message = buildUnknownStateMessage(alert)
 	}
-
-	return newSimpleFormattedMessage(message)
+	return message
 }
 
 func buildAlertMessage(alert grafana.AlertPayload) string {
@@ -36,6 +39,11 @@ func buildAlertMessage(alert grafana.AlertPayload) string {
 
 func buildResolvedMessage(alert grafana.AlertPayload) string {
 	return fmt.Sprintf("💚 ️<b>RESOLVED</b><p>Rule: <a href=\"%s\">%s</a> | %s</p>",
+		alert.RuleUrl, alert.RuleName, alert.Message)
+}
+
+func buildNoDataMessage(alert grafana.AlertPayload) string {
+	return fmt.Sprintf("❓️<b>NO DATA</b><ul><p>Rule: <a href=\"%s\">%s</a> | %s</p>",
 		alert.RuleUrl, alert.RuleName, alert.Message)
 }
 

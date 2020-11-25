@@ -1,5 +1,11 @@
 package grafana
 
+const (
+	AlertStateAlerting = "alerting"
+	AlertStateResolved = "ok"
+	AlertStateNoData   = "no_data"
+)
+
 type AlertPayload struct {
 	Title    string `json:"title"`
 	Message  string `json:"message"`
