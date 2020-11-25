@@ -4,6 +4,7 @@ import (
 	"log"
 	"maunium.net/go/mautrix"
 	"maunium.net/go/mautrix/id"
+	"regexp"
 )
 
 type EventFormattedMessage struct {
@@ -12,6 +13,11 @@ type EventFormattedMessage struct {
 	Format        string `json:"format"`
 	FormattedBody string `json:"formatted_body"`
 }
+
+var (
+	htmlTagRegex       = regexp.MustCompile(`<.*?>`)
+	htmlParagraphRegex = regexp.MustCompile(`</?p>`)
+)
 
 func CreateClient(userId, userPassword, homeserverUrl string) (*mautrix.Client, error) {
 	log.Print("starting matrix client ...")
@@ -34,8 +40,10 @@ func CreateClient(userId, userPassword, homeserverUrl string) (*mautrix.Client, 
 	return client, err
 }
 
-func newSimpleFormattedMessage(body string) EventFormattedMessage {
-	return newFormattedMessage(body, body)
+func newSimpleFormattedMessage(formattedBody string) EventFormattedMessage {
+	bodyWithoutParagraphs := htmlParagraphRegex.ReplaceAllString(formattedBody, " ")
+	plainBody := htmlTagRegex.ReplaceAllString(bodyWithoutParagraphs, "")
+	return newFormattedMessage(plainBody, formattedBody)
 }
 
 func newFormattedMessage(body, formattedBody string) EventFormattedMessage {
