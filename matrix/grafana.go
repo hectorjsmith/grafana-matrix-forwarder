@@ -10,12 +10,13 @@ import (
 )
 
 func SendAlert(client *mautrix.Client, alert grafana.AlertPayload, roomId string) (err error) {
-	formattedMessage := buildFormattedMessageFromAlert(alert)
+	formattedMessageBody := buildFormattedMessageBodyFromAlert(alert)
+	formattedMessage := newSimpleFormattedMessage(formattedMessageBody)
 	_, err = client.SendMessageEvent(id.RoomID(roomId), event.EventMessage, formattedMessage)
 	return err
 }
 
-func buildFormattedMessageFromAlert(alert grafana.AlertPayload) EventFormattedMessage {
+func buildFormattedMessageBodyFromAlert(alert grafana.AlertPayload) string {
 	var message string
 	if alert.State == "alerting" {
 		message = buildAlertMessage(alert)
@@ -27,8 +28,7 @@ func buildFormattedMessageFromAlert(alert grafana.AlertPayload) EventFormattedMe
 		log.Printf("alert received with unknown state: %s", alert.State)
 		message = buildUnknownStateMessage(alert)
 	}
-
-	return newSimpleFormattedMessage(message)
+	return message
 }
 
 func buildAlertMessage(alert grafana.AlertPayload) string {
