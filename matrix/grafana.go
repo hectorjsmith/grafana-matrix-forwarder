@@ -21,6 +21,8 @@ func buildFormattedMessageFromAlert(alert grafana.AlertPayload) EventFormattedMe
 		message = buildAlertMessage(alert)
 	} else if alert.State == "ok" {
 		message = buildResolvedMessage(alert)
+	} else if alert.State == "no_data" {
+		message = buildNoDataMessage(alert)
 	} else {
 		log.Printf("alert received with unknown state: %s", alert.State)
 		message = buildUnknownStateMessage(alert)
@@ -36,6 +38,11 @@ func buildAlertMessage(alert grafana.AlertPayload) string {
 
 func buildResolvedMessage(alert grafana.AlertPayload) string {
 	return fmt.Sprintf("💚 ️<b>RESOLVED</b><p>Rule: <a href=\"%s\">%s</a> | %s</p>",
+		alert.RuleUrl, alert.RuleName, alert.Message)
+}
+
+func buildNoDataMessage(alert grafana.AlertPayload) string {
+	return fmt.Sprintf("❓️<b>NO DATA</b><ul><p>Rule: <a href=\"%s\">%s</a> | %s</p>",
 		alert.RuleUrl, alert.RuleName, alert.Message)
 }
 
