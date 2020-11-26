@@ -9,18 +9,17 @@ import (
 	"grafana-matrix-forwarder/matrix"
 	"io/ioutil"
 	"log"
-	"maunium.net/go/mautrix"
 	"net/http"
 	"time"
 )
 
 type Server struct {
 	ctx          context.Context
-	matrixClient *mautrix.Client
+	matrixClient matrix.Messenger
 	settings     cfg.AppSettings
 }
 
-func BuildServer(ctx context.Context, matrixClient *mautrix.Client, settings cfg.AppSettings) Server {
+func BuildServer(ctx context.Context, matrixClient matrix.Messenger, settings cfg.AppSettings) Server {
 	return Server{
 		ctx:          ctx,
 		matrixClient: matrixClient,
@@ -65,7 +64,7 @@ func (server Server) Start() (err error) {
 		cancel()
 	}()
 
-	if _, err = server.matrixClient.Logout(); err != nil {
+	if err = server.matrixClient.Logout(); err != nil {
 		log.Fatalf("matrix client logout failed: %+s", err)
 	}
 	if err = srv.Shutdown(ctxShutDown); err != nil {

@@ -4,15 +4,12 @@ import (
 	"fmt"
 	"grafana-matrix-forwarder/grafana"
 	"log"
-	"maunium.net/go/mautrix"
-	"maunium.net/go/mautrix/event"
-	"maunium.net/go/mautrix/id"
 )
 
-func SendAlert(client *mautrix.Client, alert grafana.AlertPayload, roomId string) (err error) {
+func SendAlert(msg Messenger, alert grafana.AlertPayload, roomId string) (err error) {
 	formattedMessageBody := buildFormattedMessageBodyFromAlert(alert)
 	formattedMessage := newSimpleFormattedMessage(formattedMessageBody)
-	_, err = client.SendMessageEvent(id.RoomID(roomId), event.EventMessage, formattedMessage)
+	_, err = msg.SendMessageEvent(roomId, formattedMessage)
 	return err
 }
 
