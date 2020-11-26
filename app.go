@@ -54,5 +54,6 @@ func run(ctx context.Context, appSettings cfg.AppSettings) error {
 	if err != nil {
 		return err
 	}
-	return server.Start(ctx, client, appSettings)
+	writeCloser := matrix.BuildMatrixWriteCloser(client)
+	return server.BuildServer(ctx, writeCloser, appSettings).Start()
 }
