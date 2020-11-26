@@ -54,5 +54,5 @@ func run(ctx context.Context, appSettings cfg.AppSettings) error {
 	if err != nil {
 		return err
 	}
-	return server.Start(ctx, client, appSettings)
+	return server.BuildServer(ctx, client, appSettings).Start()
 }

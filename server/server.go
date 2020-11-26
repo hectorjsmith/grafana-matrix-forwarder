@@ -14,12 +14,26 @@ import (
 	"time"
 )
 
-func Start(ctx context.Context, matrixClient *mautrix.Client, settings cfg.AppSettings) (err error) {
+type Server struct {
+	ctx          context.Context
+	matrixClient *mautrix.Client
+	settings     cfg.AppSettings
+}
+
+func BuildServer(ctx context.Context, matrixClient *mautrix.Client, settings cfg.AppSettings) Server {
+	return Server{
+		ctx:          ctx,
+		matrixClient: matrixClient,
+		settings:     settings,
+	}
+}
+
+func (server Server) Start() (err error) {
 	log.Print("starting webserver ...")
 	mux := http.NewServeMux()
 	mux.Handle("/api/v0/forward", http.HandlerFunc(
 		func(response http.ResponseWriter, request *http.Request) {
-			err = handleGrafanaAlert(response, request, matrixClient, settings)
+			err = server.handleGrafanaAlert(response, request)
 			if err != nil {
 				log.Print(err)
 				response.WriteHeader(500)
@@ -27,7 +41,7 @@ func Start(ctx context.Context, matrixClient *mautrix.Client, settings cfg.AppSe
 		},
 	))
 
-	serverAddr := fmt.Sprintf("%s:%d", settings.ServerHost, settings.ServerPort)
+	serverAddr := fmt.Sprintf("%s:%d", server.settings.ServerHost, server.settings.ServerPort)
 	srv := &http.Server{
 		Addr:    serverAddr,
 		Handler: mux,
@@ -42,7 +56,7 @@ func Start(ctx context.Context, matrixClient *mautrix.Client, settings cfg.AppSe
 	log.Printf("webserver listening at %s", serverAddr)
 	log.Print("ready")
 
-	<-ctx.Done()
+	<-server.ctx.Done()
 
 	log.Printf("shutting down ...")
 
@@ -51,7 +65,7 @@ func Start(ctx context.Context, matrixClient *mautrix.Client, settings cfg.AppSe
 		cancel()
 	}()
 
-	if _, err = matrixClient.Logout(); err != nil {
+	if _, err = server.matrixClient.Logout(); err != nil {
 		log.Fatalf("matrix client logout failed: %+s", err)
 	}
 	if err = srv.Shutdown(ctxShutDown); err != nil {
@@ -64,12 +78,12 @@ func Start(ctx context.Context, matrixClient *mautrix.Client, settings cfg.AppSe
 	return
 }
 
-func handleGrafanaAlert(response http.ResponseWriter, request *http.Request, matrixClient *mautrix.Client, settings cfg.AppSettings) error {
+func (server Server) handleGrafanaAlert(response http.ResponseWriter, request *http.Request) error {
 	bodyBytes, err := getRequestBodyAsBytes(request)
 	if err != nil {
 		return err
 	}
-	if settings.LogPayload {
+	if server.settings.LogPayload {
 		logPayload(request, bodyBytes)
 	}
 
@@ -84,7 +98,7 @@ func handleGrafanaAlert(response http.ResponseWriter, request *http.Request, mat
 		return err
 	}
 
-	err = matrix.SendAlert(matrixClient, alert, roomId)
+	err = matrix.SendAlert(server.matrixClient, alert, roomId)
 	if err != nil {
 		return err
 	}
