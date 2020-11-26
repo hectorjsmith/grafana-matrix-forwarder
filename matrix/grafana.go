@@ -6,10 +6,10 @@ import (
 	"log"
 )
 
-func SendAlert(msg Messenger, alert grafana.AlertPayload, roomId string) (err error) {
+func SendAlert(wc WriteCloser, roomId string, alert grafana.AlertPayload) (err error) {
 	formattedMessageBody := buildFormattedMessageBodyFromAlert(alert)
 	formattedMessage := newSimpleFormattedMessage(formattedMessageBody)
-	_, err = msg.SendMessageEvent(roomId, formattedMessage)
+	_, err = wc.Write(roomId, formattedMessage)
 	return err
 }
 

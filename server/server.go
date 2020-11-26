@@ -14,16 +14,16 @@ import (
 )
 
 type Server struct {
-	ctx          context.Context
-	matrixClient matrix.Messenger
-	settings     cfg.AppSettings
+	ctx               context.Context
+	matrixWriteCloser matrix.WriteCloser
+	appSettings       cfg.AppSettings
 }
 
-func BuildServer(ctx context.Context, matrixClient matrix.Messenger, settings cfg.AppSettings) Server {
+func BuildServer(ctx context.Context, matrixWriteCloser matrix.WriteCloser, appSettings cfg.AppSettings) Server {
 	return Server{
-		ctx:          ctx,
-		matrixClient: matrixClient,
-		settings:     settings,
+		ctx:               ctx,
+		matrixWriteCloser: matrixWriteCloser,
+		appSettings:       appSettings,
 	}
 }
 
@@ -40,7 +40,7 @@ func (server Server) Start() (err error) {
 		},
 	))
 
-	serverAddr := fmt.Sprintf("%s:%d", server.settings.ServerHost, server.settings.ServerPort)
+	serverAddr := fmt.Sprintf("%s:%d", server.appSettings.ServerHost, server.appSettings.ServerPort)
 	srv := &http.Server{
 		Addr:    serverAddr,
 		Handler: mux,
@@ -64,7 +64,7 @@ func (server Server) Start() (err error) {
 		cancel()
 	}()
 
-	if err = server.matrixClient.Logout(); err != nil {
+	if err = server.matrixWriteCloser.Close(); err != nil {
 		log.Fatalf("matrix client logout failed: %+s", err)
 	}
 	if err = srv.Shutdown(ctxShutDown); err != nil {
@@ -82,7 +82,7 @@ func (server Server) handleGrafanaAlert(response http.ResponseWriter, request *h
 	if err != nil {
 		return err
 	}
-	if server.settings.LogPayload {
+	if server.appSettings.LogPayload {
 		logPayload(request, bodyBytes)
 	}
 
@@ -97,7 +97,7 @@ func (server Server) handleGrafanaAlert(response http.ResponseWriter, request *h
 		return err
 	}
 
-	err = matrix.SendAlert(server.matrixClient, alert, roomId)
+	err = matrix.SendAlert(server.matrixWriteCloser, roomId, alert)
 	if err != nil {
 		return err
 	}
