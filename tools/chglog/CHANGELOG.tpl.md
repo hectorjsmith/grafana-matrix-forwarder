@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 {{ range .Unreleased.CommitGroups -}}
 ### {{ .Title }}
 {{ range .Commits -}}
-- {{ if .Scope }}**{{ .Scope }}:** {{ end }}{{ .Subject }}
+- ({{ .Hash.Short }}) {{ if .Scope }}**{{ .Scope }}:** {{ end }}{{ .Subject }}
 {{ end }}
 {{ end -}}
 {{ end -}}
@@ -23,21 +23,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 {{ range .CommitGroups -}}
 ### {{ .Title }}
 {{ range .Commits -}}
-- {{ if .Scope }}**{{ .Scope }}:** {{ end }}{{ .Header }}
+- ({{ .Hash.Short }}) {{ if .Scope }}**{{ .Scope }}:** {{ end }}{{ .Header }}
 {{ end }}
 {{ end -}}
 
 {{- if .RevertCommits -}}
 ### Reverts
 {{ range .RevertCommits -}}
-- {{ .Revert.Header }}
+- ({{ .Hash.Short }}) {{ .Revert.Header }}
 {{ end }}
 {{ end -}}
 
 {{- if .MergeCommits -}}
 ### Merge Requests
 {{ range .MergeCommits -}}
-- {{ .Header }}
+- ({{ .Hash.Short }}) {{ .Header }}
 {{ end }}
 {{ end -}}
 

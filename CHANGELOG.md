@@ -8,40 +8,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Bug Fixes
-- add messenger file
-- strip html tags from matrix message body
+- (feee9ea) add messenger file
+- (dddf6e7) strip html tags from matrix message body
 
 ### Code Refactoring
-- add new structs and interfaces
-- rename message to writecloser
-- add messenger interface
-- add struct for server
-- replace if with switch
+- (ee910bb) add new structs and interfaces
+- (7b45503) rename message to writecloser
+- (2b67619) add messenger interface
+- (209d2f5) add struct for server
+- (ad994df) replace if with switch
 
 ### Features
-- support no_data alert states
-- support no_data alert states
-- new cli option to log alert payloads
+- (6555459) support no_data alert states
+- (c55cb8b) support no_data alert states
+- (e507f08) new cli option to log alert payloads
 
 
 ## [0.1.0] - 2020-11-22
 ### Bug Fixes
-- fix: handle unknown alert states
-- fix: handle alert resolution messages
+- (252ac7d) fix: handle unknown alert states
+- (ce963d0) fix: handle alert resolution messages
 
 ### Code Refactoring
-- refactor: add app settings struct
+- (c2cb7fc) refactor: add app settings struct
 
 ### Features
-- feat: add cli flags for host and port
-- feat: include rule name in alert
+- (2422339) feat: add cli flags for host and port
+- (58a88a6) feat: include rule name in alert
 
 ### Merge Requests
-- Merge branch '2-write-basic-readme-file-with-instructions' into 'main'
-- Merge branch '7-correctly-handle-resolved-alerts' into 'main'
-- Merge branch '3-configure-server-port-and-address-on-startup' into 'main'
-- Merge branch '1-setup-basic-gitlab-ci-pipeline' into 'main'
-- Merge branch '4-include-rule-name-in-alert' into 'main'
+- (13405f6) Merge branch '2-write-basic-readme-file-with-instructions' into 'main'
+- (0547b56) Merge branch '7-correctly-handle-resolved-alerts' into 'main'
+- (a0df35e) Merge branch '3-configure-server-port-and-address-on-startup' into 'main'
+- (186832e) Merge branch '1-setup-basic-gitlab-ci-pipeline' into 'main'
+- (e120688) Merge branch '4-include-rule-name-in-alert' into 'main'
 
 
 [Unreleased]: https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/compare/0.1.0...HEAD
