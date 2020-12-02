@@ -26,8 +26,9 @@ build:
   stage: build
   script:
     - git fetch --tags
-    - make build/local
+    - make build/snapshot
   artifacts:
     paths:
-      - build/*.bin
+      - dist/*.tar.gz
+      - dist/checksums.txt
     expire_in: 1 day

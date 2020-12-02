@@ -14,10 +14,8 @@ format:
 	go fmt $(go list ./... | grep -v /vendor/)
 	go vet $(go list ./... | grep -v /vendor/)
 
-define prepare_build_vars
-    $(eval VERSION_FLAG=-X 'main.appVersion=$(shell git describe --tags)')
-endef
+build/snapshot:
+	./tools/goreleaser --snapshot --rm-dist --skip-publish
 
-build/local:
-	$(call prepare_build_vars)
-	go build -a --ldflags "${VERSION_FLAG}" -o build/grafana-matrix-forwarder.bin ./app.go
+build/release:
+	./tools/goreleaser --rm-dist --skip-publish
