@@ -11,13 +11,14 @@ import (
 	"os/signal"
 )
 
-var appVersion string
+var (
+	version = "dev"
+	commit  = "none"
+	date    = "unknown"
+	builtBy = "unknown"
+)
 
 func main() {
-	if appVersion == "" {
-		appVersion = "dev"
-	}
-
 	ctx, _ := listenForInterrupt()
 
 	appSettings := cfg.Parse()
@@ -46,7 +47,8 @@ func listenForInterrupt() (context.Context, context.CancelFunc) {
 }
 
 func printAppVersion() {
-	fmt.Println(appVersion)
+	fmt.Println(version)
+	fmt.Printf("    build date:  %s\r\n    commit hash: %s\r\n    built by:    %s\r\n", date, commit, builtBy)
 }
 
 func run(ctx context.Context, appSettings cfg.AppSettings) error {
