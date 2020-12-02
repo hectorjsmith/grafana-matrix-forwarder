@@ -49,5 +49,5 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 [Keep a Changelog]: https://keepachangelog.com/en/1.0.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
 [git-chglog]: https://github.com/git-chglog/git-chglog
-[Unreleased]: https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/compare/0.1.0...HEAD
+[Unreleased]: https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/compare/0.1.0...main
 [0.1.0]: https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/compare/0.0.0...0.1.0
