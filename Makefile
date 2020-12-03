@@ -14,10 +14,11 @@ format:
 	go fmt $(go list ./... | grep -v /vendor/)
 	go vet $(go list ./... | grep -v /vendor/)
 
-define prepare_build_vars
-    $(eval VERSION_FLAG=-X 'main.appVersion=$(shell git describe --tags)')
-endef
+generateChangelog:
+	./tools/git-chglog_linux_amd64 --config tools/chglog/config.yml 0.1.0.. > CHANGELOG.md
 
-build/local:
-	$(call prepare_build_vars)
-	go build -a --ldflags "${VERSION_FLAG}" -o build/grafana-matrix-forwarder.bin ./app.go
+build/snapshot:
+	./tools/goreleaser_linux_amd64 --snapshot --rm-dist --skip-publish
+
+build/release:
+	./tools/goreleaser_linux_amd64 --rm-dist --skip-publish

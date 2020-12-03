@@ -3,6 +3,4 @@ vendor/
 *.iml
 
 build/
-
-*.exe
-*.bin
+dist/
