@@ -19,10 +19,10 @@ var (
 	htmlParagraphRegex = regexp.MustCompile(`</?p>`)
 )
 
-func CreateClient(userId, userPassword, homeserverUrl string) (*mautrix.Client, error) {
+func CreateClient(userID, userPassword, homeserverURL string) (*mautrix.Client, error) {
 	log.Print("starting matrix client ...")
 
-	client, err := mautrix.NewClient(homeserverUrl, id.UserID(userId), "")
+	client, err := mautrix.NewClient(homeserverURL, id.UserID(userID), "")
 	if err != nil {
 		return nil, err
 	}
@@ -31,7 +31,7 @@ func CreateClient(userId, userPassword, homeserverUrl string) (*mautrix.Client, 
 		Type: "m.login.password",
 		Identifier: mautrix.UserIdentifier{
 			Type: "m.id.user",
-			User: userId,
+			User: userID,
 		},
 		Password:                 userPassword,
 		InitialDeviceDisplayName: "",

@@ -6,10 +6,10 @@ import (
 	"log"
 )
 
-func SendAlert(wc WriteCloser, roomId string, alert grafana.AlertPayload) (err error) {
+func SendAlert(wc WriteCloser, roomID string, alert grafana.AlertPayload) (err error) {
 	formattedMessageBody := buildFormattedMessageBodyFromAlert(alert)
 	formattedMessage := newSimpleFormattedMessage(formattedMessageBody)
-	_, err = wc.Write(roomId, formattedMessage)
+	_, err = wc.Write(roomID, formattedMessage)
 	return err
 }
 
@@ -31,20 +31,20 @@ func buildFormattedMessageBodyFromAlert(alert grafana.AlertPayload) string {
 
 func buildAlertMessage(alert grafana.AlertPayload) string {
 	return fmt.Sprintf("💔 ️<b>ALERT</b><p>Rule: <a href=\"%s\">%s</a> | %s</p>",
-		alert.RuleUrl, alert.RuleName, alert.Message)
+		alert.RuleURL, alert.RuleName, alert.Message)
 }
 
 func buildResolvedMessage(alert grafana.AlertPayload) string {
 	return fmt.Sprintf("💚 ️<b>RESOLVED</b><p>Rule: <a href=\"%s\">%s</a> | %s</p>",
-		alert.RuleUrl, alert.RuleName, alert.Message)
+		alert.RuleURL, alert.RuleName, alert.Message)
 }
 
 func buildNoDataMessage(alert grafana.AlertPayload) string {
 	return fmt.Sprintf("❓️<b>NO DATA</b><ul><p>Rule: <a href=\"%s\">%s</a> | %s</p>",
-		alert.RuleUrl, alert.RuleName, alert.Message)
+		alert.RuleURL, alert.RuleName, alert.Message)
 }
 
 func buildUnknownStateMessage(alert grafana.AlertPayload) string {
 	return fmt.Sprintf("❓️<b>UNKNOWN</b><ul><li>Rule: <a href=\"%s\">%s</a> | %s</li><li>State: <b>%s</b></li></ul>",
-		alert.RuleUrl, alert.RuleName, alert.Message, alert.State)
+		alert.RuleURL, alert.RuleName, alert.Message, alert.State)
 }

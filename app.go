@@ -52,7 +52,7 @@ func printAppVersion() {
 }
 
 func run(ctx context.Context, appSettings cfg.AppSettings) error {
-	client, err := matrix.CreateClient(appSettings.UserId, appSettings.UserPassword, appSettings.HomeserverUrl)
+	client, err := matrix.CreateClient(appSettings.UserID, appSettings.UserPassword, appSettings.HomeserverURL)
 	if err != nil {
 		return err
 	}
