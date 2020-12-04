@@ -2,7 +2,7 @@
 
 Forward alerts from [Grafana](https://grafana.com) to a [Matrix](https://matrix.org) chat room.
 
- [![pipeline status](https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/badges/main/pipeline.svg)](https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/-/commits/main)
+ [![pipeline status](https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/badges/main/pipeline.svg)](https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/-/commits/main) [![Go Report Card](https://goreportcard.com/badge/gitlab.com/hectorjsmith/grafana-matrix-forwarder)](https://goreportcard.com/report/gitlab.com/hectorjsmith/grafana-matrix-forwarder)
 
 ---
 
@@ -29,12 +29,12 @@ This tool will handle converting the incoming alert webhook to a Matrix message 
 Run the forwarder by providing a matrix account to send messages from.
 
 ```
-$ ./grafana-matrix-forwarder.bin --user @userId:matrix.org --password xxx --homeserver matrix.org
+$ ./grafana-matrix-forwarder --user @userId:matrix.org --password xxx --homeserver matrix.org
 ```
 
 **Step 2**
 
-Add a new **POST webhook** alert channel with the following target URL: `http://<ip address>:6000/api/v0/forward?roomId=<roomId>`.
+Add a new **POST webhook** alert channel with the following target URL: `http://<ip address>:6000/api/v0/forward?roomId=<roomId>`
 
 *Replace with the server ID and matrix room ID.*
 

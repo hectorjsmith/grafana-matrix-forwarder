@@ -18,7 +18,7 @@ func Test_buildFormattedMessageBodyFromAlert(t *testing.T) {
 			name: "alertingStateTest",
 			args: args{grafana.AlertPayload{
 				State:    "alerting",
-				RuleUrl:  "http://example.com",
+				RuleURL:  "http://example.com",
 				RuleName: "sample",
 				Message:  "sample message",
 			}},
@@ -28,7 +28,7 @@ func Test_buildFormattedMessageBodyFromAlert(t *testing.T) {
 			name: "okStateTest",
 			args: args{grafana.AlertPayload{
 				State:    "ok",
-				RuleUrl:  "http://example.com",
+				RuleURL:  "http://example.com",
 				RuleName: "sample",
 				Message:  "sample message",
 			}},
@@ -38,7 +38,7 @@ func Test_buildFormattedMessageBodyFromAlert(t *testing.T) {
 			name: "noDataStateTest",
 			args: args{grafana.AlertPayload{
 				State:    "no_data",
-				RuleUrl:  "http://example.com",
+				RuleURL:  "http://example.com",
 				RuleName: "sample",
 				Message:  "sample message",
 			}},
@@ -48,7 +48,7 @@ func Test_buildFormattedMessageBodyFromAlert(t *testing.T) {
 			name: "unknownStateTest",
 			args: args{grafana.AlertPayload{
 				State:    "invalid state",
-				RuleUrl:  "http://example.com",
+				RuleURL:  "http://example.com",
 				RuleName: "sample",
 				Message:  "sample message",
 			}},

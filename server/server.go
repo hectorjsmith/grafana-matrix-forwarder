@@ -13,12 +13,14 @@ import (
 	"time"
 )
 
+// Server data structure that holds data necessary for the web server to function
 type Server struct {
 	ctx               context.Context
 	matrixWriteCloser matrix.WriteCloser
 	appSettings       cfg.AppSettings
 }
 
+// BuildServer builds a Server instance based on the provided context.Context, a matrix.WriteCloser, and the cfg.AppSettings
 func BuildServer(ctx context.Context, matrixWriteCloser matrix.WriteCloser, appSettings cfg.AppSettings) Server {
 	return Server{
 		ctx:               ctx,
@@ -27,6 +29,7 @@ func BuildServer(ctx context.Context, matrixWriteCloser matrix.WriteCloser, appS
 	}
 }
 
+// Start the web server and listen for incoming requests
 func (server Server) Start() (err error) {
 	log.Print("starting webserver ...")
 	mux := http.NewServeMux()
@@ -86,18 +89,18 @@ func (server Server) handleGrafanaAlert(response http.ResponseWriter, request *h
 		logPayload(request, bodyBytes)
 	}
 
-	roomId, err := getRoomIdFromUrl(request)
+	roomID, err := getRoomIDFromURL(request)
 	if err != nil {
 		return err
 	}
-	log.Printf("alert received - forwarding to room: %s", roomId)
+	log.Printf("alert received - forwarding to room: %s", roomID)
 
 	alert, err := getAlertPayloadFromRequestBody(bodyBytes)
 	if err != nil {
 		return err
 	}
 
-	err = matrix.SendAlert(server.matrixWriteCloser, roomId, alert)
+	err = matrix.SendAlert(server.matrixWriteCloser, roomID, alert)
 	if err != nil {
 		return err
 	}
@@ -113,7 +116,7 @@ func logPayload(request *http.Request, bodyBytes []byte) {
 	fmt.Println(body)
 }
 
-func getRoomIdFromUrl(request *http.Request) (string, error) {
+func getRoomIDFromURL(request *http.Request) (string, error) {
 	roomIds, ok := request.URL.Query()["roomId"]
 	if !ok || len(roomIds[0]) < 1 {
 		return "", fmt.Errorf("url param 'roomId' is missing")
