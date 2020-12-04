@@ -6,30 +6,28 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 
 ## [Unreleased]
 
-### Bug Fixes
-- (feee9ea) add messenger file
-- (dddf6e7) strip html tags from matrix message body
 
-### Code Refactoring
-- (ee910bb) add new structs and interfaces
-- (7b45503) rename message to writecloser
-- (2b67619) add messenger interface
-- (209d2f5) add struct for server
-- (ad994df) replace if with switch
+## [0.2.0] - 2020-12-04
+### Bug Fixes
+- (feee9ea) fix: add messenger file
+- (dddf6e7) fix: strip html tags from matrix message body
 
 ### Features
-- (6555459) support no_data alert states
-- (c55cb8b) support no_data alert states
-- (e507f08) new cli option to log alert payloads
+- (6555459) feat: support no_data alert states
+- (c55cb8b) feat: support no_data alert states
+- (e507f08) feat: new cli option to log alert payloads
+
+### Merge Requests
+- (b1b7197) Merge branch '15-add-go-report-card' into 'main'
+- (b0f1731) Merge branch 'agile/rewrite-readme-file' into 'main'
+- (d796b8b) Merge branch '12-create-compressed-file-with-build-artefacts' into 'main'
+- (e3d09d1) Merge branch 'release/v0.1.0' into 'main'
 
 
 ## [0.1.0] - 2020-11-22
 ### Bug Fixes
 - (252ac7d) fix: handle unknown alert states
 - (ce963d0) fix: handle alert resolution messages
-
-### Code Refactoring
-- (c2cb7fc) refactor: add app settings struct
 
 ### Features
 - (2422339) feat: add cli flags for host and port
@@ -49,5 +47,6 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 [Keep a Changelog]: https://keepachangelog.com/en/1.0.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
 [git-chglog]: https://github.com/git-chglog/git-chglog
-[Unreleased]: https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/compare/0.1.0...main
+[Unreleased]: https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/compare/0.2.0...main
+[0.2.0]: https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/compare/0.1.0...0.2.0
 [0.1.0]: https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/compare/0.0.0...0.1.0
