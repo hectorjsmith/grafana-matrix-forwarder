@@ -1,11 +1,15 @@
 package grafana
 
 const (
+	// AlertStateAlerting represents the state name grafana uses for alerts that are firing
 	AlertStateAlerting = "alerting"
+	// AlertStateResolved represents the state name grafana uses for alerts that have been resolved
 	AlertStateResolved = "ok"
-	AlertStateNoData   = "no_data"
+	// AlertStateNoData represents the state name grafana uses for alerts that are firing because of missing data
+	AlertStateNoData = "no_data"
 )
 
+// AlertPayload stores the request data sent with the grafana alert webhook
 type AlertPayload struct {
 	Title    string `json:"title"`
 	Message  string `json:"message"`

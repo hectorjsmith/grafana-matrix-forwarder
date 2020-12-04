@@ -13,12 +13,14 @@ import (
 	"time"
 )
 
+// Server data structure that holds data necessary for the web server to function
 type Server struct {
 	ctx               context.Context
 	matrixWriteCloser matrix.WriteCloser
 	appSettings       cfg.AppSettings
 }
 
+// BuildServer builds a Server instance based on the provided context.Context, a matrix.WriteCloser, and the cfg.AppSettings
 func BuildServer(ctx context.Context, matrixWriteCloser matrix.WriteCloser, appSettings cfg.AppSettings) Server {
 	return Server{
 		ctx:               ctx,
@@ -27,6 +29,7 @@ func BuildServer(ctx context.Context, matrixWriteCloser matrix.WriteCloser, appS
 	}
 }
 
+// Start the web server and listen for incoming requests
 func (server Server) Start() (err error) {
 	log.Print("starting webserver ...")
 	mux := http.NewServeMux()

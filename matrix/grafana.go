@@ -6,6 +6,7 @@ import (
 	"log"
 )
 
+// SendAlert sends the provided grafana.AlertPayload to the provided WriteCloser using the provided roomID
 func SendAlert(wc WriteCloser, roomID string, alert grafana.AlertPayload) (err error) {
 	formattedMessageBody := buildFormattedMessageBodyFromAlert(alert)
 	formattedMessage := newSimpleFormattedMessage(formattedMessageBody)

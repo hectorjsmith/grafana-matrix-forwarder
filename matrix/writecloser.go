@@ -6,11 +6,16 @@ import (
 	"maunium.net/go/mautrix/id"
 )
 
+// WriteCloser allows writing JSON data to a matrix room and closing the connection
 type WriteCloser interface {
+	// Close the matrix connection
 	Close() error
+
+	// Write a message payload to a given room and get back the response data
 	Write(roomID string, contentJSON interface{}) (resp *mautrix.RespSendEvent, err error)
 }
 
+// BuildMatrixWriteCloser builds a WriteCloser from a raw matrix client
 func BuildMatrixWriteCloser(matrixClient *mautrix.Client) WriteCloser {
 	return writeCloser{matrixClient: matrixClient}
 }

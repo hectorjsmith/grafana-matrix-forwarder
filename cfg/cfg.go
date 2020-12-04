@@ -6,6 +6,7 @@ import (
 	"os"
 )
 
+// AppSettings includes all application parameters
 type AppSettings struct {
 	VersionMode   bool
 	UserID        string
@@ -19,6 +20,7 @@ type AppSettings struct {
 const minServerPort = 1000
 const maxServerPort = 65535
 
+// Parse the AppSettings data from the command line
 func Parse() AppSettings {
 	appSettings := AppSettings{}
 	flag.BoolVar(&appSettings.VersionMode, "version", false, "show version info and exit")

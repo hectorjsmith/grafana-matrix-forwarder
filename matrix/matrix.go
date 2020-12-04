@@ -7,6 +7,7 @@ import (
 	"regexp"
 )
 
+// EventFormattedMessage is the JSON payload required to send a formatted message in matrix
 type EventFormattedMessage struct {
 	MsgType       string `json:"msgtype"`
 	Body          string `json:"body"`
@@ -19,6 +20,7 @@ var (
 	htmlParagraphRegex = regexp.MustCompile(`</?p>`)
 )
 
+// CreateClient receives a user ID, password, and server URL and returns a matrix client
 func CreateClient(userID, userPassword, homeserverURL string) (*mautrix.Client, error) {
 	log.Print("starting matrix client ...")
 
