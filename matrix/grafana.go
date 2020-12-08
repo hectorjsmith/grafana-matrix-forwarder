@@ -35,32 +35,16 @@ func SendAlert(wc WriteCloser, roomID string, alert grafana.AlertPayload) (err e
 func buildFormattedMessageBodyFromAlert(alert grafana.AlertPayload) (message string, err error) {
 	switch alert.State {
 	case grafana.AlertStateAlerting:
-		message, err = buildAlertMessage(alert)
+		message, err = executeTemplate(alertMessageTemplate, alert)
 	case grafana.AlertStateResolved:
-		message, err = buildResolvedMessage(alert)
+		message, err = executeTemplate(resolvedMessageTemplate, alert)
 	case grafana.AlertStateNoData:
-		message, err = buildNoDataMessage(alert)
+		message, err = executeTemplate(noDataMessageTemplate, alert)
 	default:
 		log.Printf("alert received with unknown state: %s", alert.State)
-		message, err = buildUnknownStateMessage(alert)
+		message, err = executeTemplate(unknownMessageTemplate, alert)
 	}
 	return message, err
-}
-
-func buildAlertMessage(alert grafana.AlertPayload) (string, error) {
-	return executeTemplate(alertMessageTemplate, alert)
-}
-
-func buildResolvedMessage(alert grafana.AlertPayload) (string, error) {
-	return executeTemplate(resolvedMessageTemplate, alert)
-}
-
-func buildNoDataMessage(alert grafana.AlertPayload) (string, error) {
-	return executeTemplate(noDataMessageTemplate, alert)
-}
-
-func buildUnknownStateMessage(alert grafana.AlertPayload) (string, error) {
-	return executeTemplate(unknownMessageTemplate, alert)
 }
 
 func executeTemplate(template *template.Template, alert grafana.AlertPayload) (string, error) {
