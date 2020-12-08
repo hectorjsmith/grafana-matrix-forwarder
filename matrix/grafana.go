@@ -1,51 +1,54 @@
 package matrix
 
 import (
-	"fmt"
+	"bytes"
 	"grafana-matrix-forwarder/grafana"
+	"html/template"
 	"log"
+)
+
+const (
+	alertMessageStr    = `💔 ️<b>ALERT</b><p>Rule: <a href="{{ .RuleURL }}">{{ .RuleName }}</a> | {{ .Message }}</p>`
+	resolvedMessageStr = `💚 ️<b>RESOLVED</b><p>Rule: <a href="{{ .RuleURL }}">{{ .RuleName }}</a> | {{ .Message }}</p>`
+	noDataMessageStr   = `❓️<b>NO DATA</b><ul><p>Rule: <a href="{{ .RuleURL }}">{{ .RuleName }}</a> | {{ .Message }}</p>`
+	unknownMessageStr  = `❓️<b>UNKNOWN</b><ul><li>Rule: <a href="{{ .RuleURL }}">{{ .RuleName }}</a> | {{ .Message }}</li><li>State: <b>{{ .State }}</b></li></ul>`
+)
+
+var (
+	alertMessageTemplate    = template.Must(template.New("alertMessage").Parse(alertMessageStr))
+	resolvedMessageTemplate = template.Must(template.New("resolvedMessage").Parse(resolvedMessageStr))
+	noDataMessageTemplate   = template.Must(template.New("noDataMessage").Parse(noDataMessageStr))
+	unknownMessageTemplate  = template.Must(template.New("unknownMessage").Parse(unknownMessageStr))
 )
 
 // SendAlert sends the provided grafana.AlertPayload to the provided WriteCloser using the provided roomID
 func SendAlert(wc WriteCloser, roomID string, alert grafana.AlertPayload) (err error) {
-	formattedMessageBody := buildFormattedMessageBodyFromAlert(alert)
+	formattedMessageBody, err := buildFormattedMessageBodyFromAlert(alert)
+	if err != nil {
+		return err
+	}
 	formattedMessage := newSimpleFormattedMessage(formattedMessageBody)
 	_, err = wc.Write(roomID, formattedMessage)
 	return err
 }
 
-func buildFormattedMessageBodyFromAlert(alert grafana.AlertPayload) string {
-	var message string
+func buildFormattedMessageBodyFromAlert(alert grafana.AlertPayload) (message string, err error) {
 	switch alert.State {
 	case grafana.AlertStateAlerting:
-		message = buildAlertMessage(alert)
+		message, err = executeTemplate(alertMessageTemplate, alert)
 	case grafana.AlertStateResolved:
-		message = buildResolvedMessage(alert)
+		message, err = executeTemplate(resolvedMessageTemplate, alert)
 	case grafana.AlertStateNoData:
-		message = buildNoDataMessage(alert)
+		message, err = executeTemplate(noDataMessageTemplate, alert)
 	default:
 		log.Printf("alert received with unknown state: %s", alert.State)
-		message = buildUnknownStateMessage(alert)
+		message, err = executeTemplate(unknownMessageTemplate, alert)
 	}
-	return message
+	return message, err
 }
 
-func buildAlertMessage(alert grafana.AlertPayload) string {
-	return fmt.Sprintf("💔 ️<b>ALERT</b><p>Rule: <a href=\"%s\">%s</a> | %s</p>",
-		alert.RuleURL, alert.RuleName, alert.Message)
-}
-
-func buildResolvedMessage(alert grafana.AlertPayload) string {
-	return fmt.Sprintf("💚 ️<b>RESOLVED</b><p>Rule: <a href=\"%s\">%s</a> | %s</p>",
-		alert.RuleURL, alert.RuleName, alert.Message)
-}
-
-func buildNoDataMessage(alert grafana.AlertPayload) string {
-	return fmt.Sprintf("❓️<b>NO DATA</b><ul><p>Rule: <a href=\"%s\">%s</a> | %s</p>",
-		alert.RuleURL, alert.RuleName, alert.Message)
-}
-
-func buildUnknownStateMessage(alert grafana.AlertPayload) string {
-	return fmt.Sprintf("❓️<b>UNKNOWN</b><ul><li>Rule: <a href=\"%s\">%s</a> | %s</li><li>State: <b>%s</b></li></ul>",
-		alert.RuleURL, alert.RuleName, alert.Message, alert.State)
+func executeTemplate(template *template.Template, alert grafana.AlertPayload) (string, error) {
+	buffer := new(bytes.Buffer)
+	err := template.Execute(buffer, alert)
+	return buffer.String(), err
 }

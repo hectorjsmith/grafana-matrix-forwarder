@@ -57,7 +57,11 @@ func Test_buildFormattedMessageBodyFromAlert(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := buildFormattedMessageBodyFromAlert(tt.args.alert); got != tt.want {
+			got, err := buildFormattedMessageBodyFromAlert(tt.args.alert)
+			if err != nil {
+				t.Errorf("buildFormattedMessageBodyFromAlert() error: %v", err)
+			}
+			if got != tt.want {
 				t.Errorf("buildFormattedMessageBodyFromAlert() = %v, want %v", got, tt.want)
 			}
 		})
