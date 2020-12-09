@@ -88,3 +88,7 @@ func (wc writeCloser) Close() error {
 func (w writer) Send(roomID string, contentJSON interface{}) (*mautrix.RespSendEvent, error) {
 	return w.matrixClient.SendMessageEvent(id.RoomID(roomID), event.EventMessage, contentJSON)
 }
+
+func (w writer) React(roomID string, eventID string, reaction string) (*mautrix.RespSendEvent, error) {
+	return w.matrixClient.SendReaction(id.RoomID(roomID), id.EventID(eventID), reaction)
+}

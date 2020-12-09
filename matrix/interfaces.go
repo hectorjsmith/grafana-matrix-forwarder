@@ -15,4 +15,6 @@ type WriteCloser interface {
 type Writer interface {
 	// Send a message payload to a given room and get back the response data
 	Send(roomID string, contentJSON interface{}) (*mautrix.RespSendEvent, error)
+	// React to a given message
+	React(roomID string, eventID string, reaction string) (*mautrix.RespSendEvent, error)
 }
