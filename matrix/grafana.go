@@ -22,13 +22,13 @@ var (
 )
 
 // SendAlert sends the provided grafana.AlertPayload to the provided WriteCloser using the provided roomID
-func SendAlert(wc WriteCloser, roomID string, alert grafana.AlertPayload) (err error) {
+func SendAlert(writer Writer, roomID string, alert grafana.AlertPayload) (err error) {
 	formattedMessageBody, err := buildFormattedMessageBodyFromAlert(alert)
 	if err != nil {
 		return err
 	}
 	formattedMessage := newSimpleFormattedMessage(formattedMessageBody)
-	_, err = wc.Write(roomID, formattedMessage)
+	_, err = writer.Send(roomID, formattedMessage)
 	return err
 }
 

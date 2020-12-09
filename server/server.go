@@ -100,7 +100,7 @@ func (server Server) handleGrafanaAlert(response http.ResponseWriter, request *h
 		return err
 	}
 
-	err = matrix.SendAlert(server.matrixWriteCloser, roomID, alert)
+	err = matrix.SendAlert(server.matrixWriteCloser.GetWriter(), roomID, alert)
 	if err != nil {
 		return err
 	}
