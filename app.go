@@ -7,9 +7,6 @@ import (
 	"grafana-matrix-forwarder/matrix"
 	"grafana-matrix-forwarder/server"
 	"log"
-	"maunium.net/go/mautrix"
-	"maunium.net/go/mautrix/event"
-	"maunium.net/go/mautrix/id"
 	"os"
 	"os/signal"
 )
@@ -55,40 +52,9 @@ func printAppVersion() {
 }
 
 func run(ctx context.Context, appSettings cfg.AppSettings) error {
-	client, err := matrix.CreateClient(appSettings.UserID, appSettings.UserPassword, appSettings.HomeserverURL)
+	writeCloser, err := matrix.NewMatrixWriteCloser(appSettings.UserID, appSettings.UserPassword, appSettings.HomeserverURL)
 	if err != nil {
 		return err
 	}
-	writeCloser := buildMatrixWriteCloser(client)
 	return server.BuildServer(ctx, writeCloser, appSettings).Start()
-}
-
-// buildMatrixWriteCloser builds a WriteCloser from a raw matrix client
-func buildMatrixWriteCloser(matrixClient *mautrix.Client) matrix.WriteCloser {
-	return writeCloser{writer: writer{matrixClient: matrixClient}}
-}
-
-type writeCloser struct {
-	writer writer
-}
-
-type writer struct {
-	matrixClient *mautrix.Client
-}
-
-func (wc writeCloser) GetWriter() matrix.Writer {
-	return wc.writer
-}
-
-func (wc writeCloser) Close() error {
-	_, err := wc.writer.matrixClient.Logout()
-	return err
-}
-
-func (w writer) Send(roomID string, contentJSON interface{}) (*mautrix.RespSendEvent, error) {
-	return w.matrixClient.SendMessageEvent(id.RoomID(roomID), event.EventMessage, contentJSON)
-}
-
-func (w writer) React(roomID string, eventID string, reaction string) (*mautrix.RespSendEvent, error) {
-	return w.matrixClient.SendReaction(id.RoomID(roomID), id.EventID(eventID), reaction)
 }
