@@ -44,13 +44,17 @@ func NewMatrixWriteCloser(userID, userPassword, homeserverURL string) (WriteClos
 	return buildMatrixWriteCloser(client), err
 }
 
-func newSimpleFormattedMessage(formattedBody string) EventFormattedMessage {
+// NewSimpleFormattedMessage builds a EventFormattedMessage from a single message string.
+// the raw body of the message is set by removing all HTML elements from the formatted body.
+func NewSimpleFormattedMessage(formattedBody string) EventFormattedMessage {
 	bodyWithoutParagraphs := htmlParagraphRegex.ReplaceAllString(formattedBody, " ")
 	plainBody := htmlTagRegex.ReplaceAllString(bodyWithoutParagraphs, "")
-	return newFormattedMessage(plainBody, formattedBody)
+	return NewFormattedMessage(plainBody, formattedBody)
 }
 
-func newFormattedMessage(body, formattedBody string) EventFormattedMessage {
+// NewFormattedMessage builds a EventFormattedMessage from a formatted message and a raw body.
+// for best compatibility, the raw body should not contain HTML code.
+func NewFormattedMessage(body, formattedBody string) EventFormattedMessage {
 	return EventFormattedMessage{
 		MsgType:       "m.text",
 		Body:          body,

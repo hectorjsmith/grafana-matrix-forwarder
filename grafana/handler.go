@@ -1,8 +1,8 @@
-package matrix
+package grafana
 
 import (
 	"bytes"
-	"grafana-matrix-forwarder/grafana"
+	"grafana-matrix-forwarder/matrix"
 	"html/template"
 	"log"
 )
@@ -21,24 +21,24 @@ var (
 	unknownMessageTemplate  = template.Must(template.New("unknownMessage").Parse(unknownMessageStr))
 )
 
-// SendAlert sends the provided grafana.AlertPayload to the provided WriteCloser using the provided roomID
-func SendAlert(writer Writer, roomID string, alert grafana.AlertPayload) (err error) {
+// ForwardAlert sends the provided grafana.AlertPayload to the provided matrix.Writer using the provided roomID
+func ForwardAlert(writer matrix.Writer, roomID string, alert AlertPayload) (err error) {
 	formattedMessageBody, err := buildFormattedMessageBodyFromAlert(alert)
 	if err != nil {
 		return err
 	}
-	formattedMessage := newSimpleFormattedMessage(formattedMessageBody)
+	formattedMessage := matrix.NewSimpleFormattedMessage(formattedMessageBody)
 	_, err = writer.Send(roomID, formattedMessage)
 	return err
 }
 
-func buildFormattedMessageBodyFromAlert(alert grafana.AlertPayload) (message string, err error) {
+func buildFormattedMessageBodyFromAlert(alert AlertPayload) (message string, err error) {
 	switch alert.State {
-	case grafana.AlertStateAlerting:
+	case AlertStateAlerting:
 		message, err = executeTemplate(alertMessageTemplate, alert)
-	case grafana.AlertStateResolved:
+	case AlertStateResolved:
 		message, err = executeTemplate(resolvedMessageTemplate, alert)
-	case grafana.AlertStateNoData:
+	case AlertStateNoData:
 		message, err = executeTemplate(noDataMessageTemplate, alert)
 	default:
 		log.Printf("alert received with unknown state: %s", alert.State)
@@ -47,7 +47,7 @@ func buildFormattedMessageBodyFromAlert(alert grafana.AlertPayload) (message str
 	return message, err
 }
 
-func executeTemplate(template *template.Template, alert grafana.AlertPayload) (string, error) {
+func executeTemplate(template *template.Template, alert AlertPayload) (string, error) {
 	buffer := new(bytes.Buffer)
 	err := template.Execute(buffer, alert)
 	return buffer.String(), err
