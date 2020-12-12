@@ -90,5 +90,15 @@ func (w writer) Send(roomID string, contentJSON interface{}) (*mautrix.RespSendE
 }
 
 func (w writer) React(roomID string, eventID string, reaction string) (*mautrix.RespSendEvent, error) {
-	return w.matrixClient.SendReaction(id.RoomID(roomID), id.EventID(eventID), reaction)
+	// Temporary fix to support sending reactions. The key is to pass a pointer to the send method.
+	// PR that addresses issue and fix: https://github.com/tulir/mautrix-go/pull/21
+	// Fixed by: https://github.com/tulir/mautrix-go/commit/617e6c94cc3a2f046434bf262fadd993daf02141
+	payload := event.ReactionEventContent{
+		RelatesTo: event.RelatesTo{
+			EventID: id.EventID(eventID),
+			Type:    event.RelAnnotation,
+			Key:     reaction,
+		},
+	}
+	return w.matrixClient.SendMessageEvent(id.RoomID(roomID), event.EventReaction, &payload)
 }
