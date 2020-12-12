@@ -57,7 +57,7 @@ func Test_newSimpleFormattedMessage(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := newSimpleFormattedMessage(tt.args.formattedBody); !reflect.DeepEqual(got, tt.want) {
+			if got := NewSimpleFormattedMessage(tt.args.formattedBody); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("newSimpleFormattedMessage() = %v, want %v", got, tt.want)
 			}
 		})

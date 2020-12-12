@@ -52,10 +52,9 @@ func printAppVersion() {
 }
 
 func run(ctx context.Context, appSettings cfg.AppSettings) error {
-	client, err := matrix.CreateClient(appSettings.UserID, appSettings.UserPassword, appSettings.HomeserverURL)
+	writeCloser, err := matrix.NewMatrixWriteCloser(appSettings.UserID, appSettings.UserPassword, appSettings.HomeserverURL)
 	if err != nil {
 		return err
 	}
-	writeCloser := matrix.BuildMatrixWriteCloser(client)
 	return server.BuildServer(ctx, writeCloser, appSettings).Start()
 }

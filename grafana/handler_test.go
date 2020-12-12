@@ -1,13 +1,12 @@
-package matrix
+package grafana
 
 import (
-	"grafana-matrix-forwarder/grafana"
 	"testing"
 )
 
 func Test_buildFormattedMessageBodyFromAlert(t *testing.T) {
 	type args struct {
-		alert grafana.AlertPayload
+		alert AlertPayload
 	}
 	tests := []struct {
 		name string
@@ -16,7 +15,7 @@ func Test_buildFormattedMessageBodyFromAlert(t *testing.T) {
 	}{
 		{
 			name: "alertingStateTest",
-			args: args{grafana.AlertPayload{
+			args: args{AlertPayload{
 				State:    "alerting",
 				RuleURL:  "http://example.com",
 				RuleName: "sample",
@@ -26,7 +25,7 @@ func Test_buildFormattedMessageBodyFromAlert(t *testing.T) {
 		},
 		{
 			name: "okStateTest",
-			args: args{grafana.AlertPayload{
+			args: args{AlertPayload{
 				State:    "ok",
 				RuleURL:  "http://example.com",
 				RuleName: "sample",
@@ -36,7 +35,7 @@ func Test_buildFormattedMessageBodyFromAlert(t *testing.T) {
 		},
 		{
 			name: "noDataStateTest",
-			args: args{grafana.AlertPayload{
+			args: args{AlertPayload{
 				State:    "no_data",
 				RuleURL:  "http://example.com",
 				RuleName: "sample",
@@ -46,7 +45,7 @@ func Test_buildFormattedMessageBodyFromAlert(t *testing.T) {
 		},
 		{
 			name: "unknownStateTest",
-			args: args{grafana.AlertPayload{
+			args: args{AlertPayload{
 				State:    "invalid state",
 				RuleURL:  "http://example.com",
 				RuleName: "sample",

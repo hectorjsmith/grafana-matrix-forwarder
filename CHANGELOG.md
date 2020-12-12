@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 
 ## [Unreleased]
 
+### Features
+- (0399f02) feat: support resolving alerts with reactions ([#11](https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/issues/11))
+- (5cf2fdb) feat: load id fields from alert payload ([#11](https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/issues/11))
+- (aa30c24) feat: support for sending reactions ([#11](https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/issues/11))
+
 
 ## [0.2.0] - 2020-12-04
 ### Bug Fixes

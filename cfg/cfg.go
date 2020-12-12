@@ -3,8 +3,13 @@ package cfg
 import (
 	"flag"
 	"fmt"
+	"log"
 	"os"
+	"strings"
 )
+
+// ResolveMode determines how the application will handle resolved alerts
+type ResolveMode string
 
 // AppSettings includes all application parameters
 type AppSettings struct {
@@ -15,14 +20,19 @@ type AppSettings struct {
 	ServerHost    string
 	ServerPort    int
 	LogPayload    bool
+	ResolveMode   ResolveMode
 }
 
-const minServerPort = 1000
-const maxServerPort = 65535
+const (
+	ResolveWithReaction ResolveMode = "reaction"
+	ResolveWithMessage  ResolveMode = "message"
+	minServerPort                   = 1000
+	maxServerPort                   = 65535
+)
 
 // Parse the AppSettings data from the command line
 func Parse() AppSettings {
-	appSettings := AppSettings{}
+	appSettings := &AppSettings{}
 	flag.BoolVar(&appSettings.VersionMode, "version", false, "show version info and exit")
 	flag.StringVar(&appSettings.UserID, "user", "", "username used to login to matrix")
 	flag.StringVar(&appSettings.UserPassword, "password", "", "password used to login to matrix")
@@ -31,12 +41,30 @@ func Parse() AppSettings {
 	flag.IntVar(&appSettings.ServerPort, "port", 6000, "port to run the webserver on")
 	flag.BoolVar(&appSettings.LogPayload, "logPayload", false, "print the contents of every alert request received from grafana")
 
+	var resolveModeStr string
+	flag.StringVar(&resolveModeStr, "resolveMode", string(ResolveWithMessage),
+		fmt.Sprintf("set how to handle resolved alerts - valid options are: '%s', '%s'", ResolveWithMessage, ResolveWithReaction))
+
 	flag.Parse()
+	appSettings.setResolveMode(resolveModeStr)
 	appSettings.validateFlags()
-	return appSettings
+	return *appSettings
 }
 
-func (settings AppSettings) validateFlags() {
+func (settings *AppSettings) setResolveMode(resolveModeStr string) {
+	resolveModeStrLower := strings.ToLower(resolveModeStr)
+	if resolveModeStrLower == string(ResolveWithReaction) {
+		settings.ResolveMode = ResolveWithReaction
+	} else if resolveModeStrLower == string(ResolveWithMessage) {
+		settings.ResolveMode = ResolveWithMessage
+	} else {
+		log.Printf("invalid resolve mode provided (%s) - defaulting to %s", resolveModeStr, ResolveWithMessage)
+		settings.ResolveMode = ResolveWithMessage
+	}
+	log.Printf("resolve mode set to: %s", settings.ResolveMode)
+}
+
+func (settings *AppSettings) validateFlags() {
 	var flagsValid = true
 	if !settings.VersionMode {
 		if settings.UserID == "" {

@@ -3,6 +3,7 @@ package matrix
 import (
 	"log"
 	"maunium.net/go/mautrix"
+	"maunium.net/go/mautrix/event"
 	"maunium.net/go/mautrix/id"
 	"regexp"
 )
@@ -20,8 +21,9 @@ var (
 	htmlParagraphRegex = regexp.MustCompile(`</?p>`)
 )
 
-// CreateClient receives a user ID, password, and server URL and returns a matrix client
-func CreateClient(userID, userPassword, homeserverURL string) (*mautrix.Client, error) {
+// NewMatrixWriteCloser logs in to the provided matrix server URL using the provided user ID and password
+// and returns a matrix WriteCloser
+func NewMatrixWriteCloser(userID, userPassword, homeserverURL string) (WriteCloser, error) {
 	log.Print("starting matrix client ...")
 
 	client, err := mautrix.NewClient(homeserverURL, id.UserID(userID), "")
@@ -39,20 +41,64 @@ func CreateClient(userID, userPassword, homeserverURL string) (*mautrix.Client, 
 		InitialDeviceDisplayName: "",
 		StoreCredentials:         true,
 	})
-	return client, err
+	return buildMatrixWriteCloser(client), err
 }
 
-func newSimpleFormattedMessage(formattedBody string) EventFormattedMessage {
+// NewSimpleFormattedMessage builds a EventFormattedMessage from a single message string.
+// the raw body of the message is set by removing all HTML elements from the formatted body.
+func NewSimpleFormattedMessage(formattedBody string) EventFormattedMessage {
 	bodyWithoutParagraphs := htmlParagraphRegex.ReplaceAllString(formattedBody, " ")
 	plainBody := htmlTagRegex.ReplaceAllString(bodyWithoutParagraphs, "")
-	return newFormattedMessage(plainBody, formattedBody)
+	return NewFormattedMessage(plainBody, formattedBody)
 }
 
-func newFormattedMessage(body, formattedBody string) EventFormattedMessage {
+// NewFormattedMessage builds a EventFormattedMessage from a formatted message and a raw body.
+// for best compatibility, the raw body should not contain HTML code.
+func NewFormattedMessage(body, formattedBody string) EventFormattedMessage {
 	return EventFormattedMessage{
 		MsgType:       "m.text",
 		Body:          body,
 		Format:        "org.matrix.custom.html",
 		FormattedBody: formattedBody,
 	}
+}
+
+// buildMatrixWriteCloser builds a WriteCloser from a raw matrix client
+func buildMatrixWriteCloser(matrixClient *mautrix.Client) WriteCloser {
+	return writeCloser{writer: writer{matrixClient: matrixClient}}
+}
+
+type writeCloser struct {
+	writer writer
+}
+
+type writer struct {
+	matrixClient *mautrix.Client
+}
+
+func (wc writeCloser) GetWriter() Writer {
+	return wc.writer
+}
+
+func (wc writeCloser) Close() error {
+	_, err := wc.writer.matrixClient.Logout()
+	return err
+}
+
+func (w writer) Send(roomID string, contentJSON interface{}) (*mautrix.RespSendEvent, error) {
+	return w.matrixClient.SendMessageEvent(id.RoomID(roomID), event.EventMessage, contentJSON)
+}
+
+func (w writer) React(roomID string, eventID string, reaction string) (*mautrix.RespSendEvent, error) {
+	// Temporary fix to support sending reactions. The key is to pass a pointer to the send method.
+	// PR that addresses issue and fix: https://github.com/tulir/mautrix-go/pull/21
+	// Fixed by: https://github.com/tulir/mautrix-go/commit/617e6c94cc3a2f046434bf262fadd993daf02141
+	payload := event.ReactionEventContent{
+		RelatesTo: event.RelatesTo{
+			EventID: id.EventID(eventID),
+			Type:    event.RelAnnotation,
+			Key:     reaction,
+		},
+	}
+	return w.matrixClient.SendMessageEvent(id.RoomID(roomID), event.EventReaction, &payload)
 }
