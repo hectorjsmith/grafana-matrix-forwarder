@@ -2,16 +2,18 @@ package grafana
 
 import (
 	"bytes"
+	"grafana-matrix-forwarder/cfg"
 	"grafana-matrix-forwarder/matrix"
 	"html/template"
 	"log"
 )
 
 const (
-	alertMessageStr    = `💔 ️<b>ALERT</b><p>Rule: <a href="{{ .RuleURL }}">{{ .RuleName }}</a> | {{ .Message }}</p>`
-	resolvedMessageStr = `💚 ️<b>RESOLVED</b><p>Rule: <a href="{{ .RuleURL }}">{{ .RuleName }}</a> | {{ .Message }}</p>`
-	noDataMessageStr   = `❓️<b>NO DATA</b><ul><p>Rule: <a href="{{ .RuleURL }}">{{ .RuleName }}</a> | {{ .Message }}</p>`
-	unknownMessageStr  = `❓️<b>UNKNOWN</b><ul><li>Rule: <a href="{{ .RuleURL }}">{{ .RuleName }}</a> | {{ .Message }}</li><li>State: <b>{{ .State }}</b></li></ul>`
+	alertMessageStr     = `💔 ️<b>ALERT</b><p>Rule: <a href="{{ .RuleURL }}">{{ .RuleName }}</a> | {{ .Message }}</p>`
+	resolvedMessageStr  = `💚 ️<b>RESOLVED</b><p>Rule: <a href="{{ .RuleURL }}">{{ .RuleName }}</a> | {{ .Message }}</p>`
+	noDataMessageStr    = `❓️<b>NO DATA</b><ul><p>Rule: <a href="{{ .RuleURL }}">{{ .RuleName }}</a> | {{ .Message }}</p>`
+	unknownMessageStr   = `❓️<b>UNKNOWN</b><ul><li>Rule: <a href="{{ .RuleURL }}">{{ .RuleName }}</a> | {{ .Message }}</li><li>State: <b>{{ .State }}</b></li></ul>`
+	resolvedReactionStr = `✅`
 )
 
 var (
@@ -19,17 +21,40 @@ var (
 	resolvedMessageTemplate = template.Must(template.New("resolvedMessage").Parse(resolvedMessageStr))
 	noDataMessageTemplate   = template.Must(template.New("noDataMessage").Parse(noDataMessageStr))
 	unknownMessageTemplate  = template.Must(template.New("unknownMessage").Parse(unknownMessageStr))
+
+	eventIDMap = map[string]string{}
 )
 
 // ForwardAlert sends the provided grafana.AlertPayload to the provided matrix.Writer using the provided roomID
-func ForwardAlert(writer matrix.Writer, roomID string, alert AlertPayload) (err error) {
+func ForwardAlert(writer matrix.Writer, roomID string, alert AlertPayload, resolveMode cfg.ResolveMode) (err error) {
+	resolveWithReaction := resolveMode == cfg.ResolveWithReaction
+
+	alertID := alert.FullRuleID()
+	if eventID, ok := eventIDMap[alertID]; ok {
+		if alert.State == AlertStateResolved && resolveWithReaction {
+			delete(eventIDMap, alertID)
+			return sendReaction(writer, roomID, eventID)
+		}
+	}
+	return sendRegularMessage(writer, roomID, alert, alertID)
+}
+
+func sendReaction(writer matrix.Writer, roomID string, eventID string) (err error) {
+	_, err = writer.React(roomID, eventID, resolvedReactionStr)
+	return
+}
+
+func sendRegularMessage(writer matrix.Writer, roomID string, alert AlertPayload, alertID string) (err error) {
 	formattedMessageBody, err := buildFormattedMessageBodyFromAlert(alert)
 	if err != nil {
-		return err
+		return
 	}
 	formattedMessage := matrix.NewSimpleFormattedMessage(formattedMessageBody)
-	_, err = writer.Send(roomID, formattedMessage)
-	return err
+	response, err := writer.Send(roomID, formattedMessage)
+	if err == nil {
+		eventIDMap[alertID] = response.EventID.String()
+	}
+	return
 }
 
 func buildFormattedMessageBodyFromAlert(alert AlertPayload) (message string, err error) {

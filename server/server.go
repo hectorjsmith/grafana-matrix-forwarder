@@ -101,7 +101,7 @@ func (server Server) handleGrafanaAlert(response http.ResponseWriter, request *h
 
 	log.Printf("alert received (%s) - forwarding to room: %s", alert.FullRuleID(), roomID)
 
-	err = grafana.ForwardAlert(server.matrixWriteCloser.GetWriter(), roomID, alert)
+	err = grafana.ForwardAlert(server.matrixWriteCloser.GetWriter(), roomID, alert, server.appSettings.ResolveMode)
 	if err != nil {
 		return err
 	}
