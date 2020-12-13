@@ -41,7 +41,7 @@ func (server Server) handleGrafanaAlert(response http.ResponseWriter, request *h
 }
 
 func (server Server) handleMetricsRequest(response http.ResponseWriter) (err error) {
-	metric, err := buildMetricString("up", "gauge", 1.0)
+	metric, err := server.metrics.buildMetrics()
 	_, err = response.Write([]byte(metric))
 	return
 }

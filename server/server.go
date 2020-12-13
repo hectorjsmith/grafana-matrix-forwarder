@@ -15,6 +15,13 @@ type Server struct {
 	ctx               context.Context
 	matrixWriteCloser matrix.WriteCloser
 	appSettings       cfg.AppSettings
+	metrics           serverMetrics
+}
+
+type serverMetrics struct {
+	totalForwardCount   int
+	successForwardCount int
+	failForwardCount    int
 }
 
 // BuildServer builds a Server instance based on the provided context.Context, a matrix.WriteCloser, and the cfg.AppSettings
@@ -23,6 +30,7 @@ func BuildServer(ctx context.Context, matrixWriteCloser matrix.WriteCloser, appS
 		ctx:               ctx,
 		matrixWriteCloser: matrixWriteCloser,
 		appSettings:       appSettings,
+		metrics:           serverMetrics{},
 	}
 }
 
@@ -33,9 +41,13 @@ func (server Server) Start() (err error) {
 	mux.Handle("/api/v0/forward", http.HandlerFunc(
 		func(response http.ResponseWriter, request *http.Request) {
 			err = server.handleGrafanaAlert(response, request)
+			server.metrics.totalForwardCount++
 			if err != nil {
+				server.metrics.failForwardCount++
 				log.Print(err)
 				response.WriteHeader(500)
+			} else {
+				server.metrics.successForwardCount++
 			}
 		},
 	))
