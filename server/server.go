@@ -39,6 +39,15 @@ func (server Server) Start() (err error) {
 			}
 		},
 	))
+	mux.Handle("/metrics", http.HandlerFunc(
+		func(response http.ResponseWriter, request *http.Request) {
+			err = server.handleMetricsRequest(response)
+			if err != nil {
+				log.Print(err)
+				response.WriteHeader(500)
+			}
+		},
+	))
 
 	serverAddr := fmt.Sprintf("%s:%d", server.appSettings.ServerHost, server.appSettings.ServerPort)
 	srv := &http.Server{

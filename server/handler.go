@@ -40,6 +40,12 @@ func (server Server) handleGrafanaAlert(response http.ResponseWriter, request *h
 	return err
 }
 
+func (server Server) handleMetricsRequest(response http.ResponseWriter) (err error) {
+	metric, err := buildMetricString("up", "gauge", 1.0)
+	_, err = response.Write([]byte(metric))
+	return
+}
+
 func logPayload(request *http.Request, bodyBytes []byte) {
 	log.Printf("%s request received at URL: %s", request.Method, request.URL.String())
 	body := string(bodyBytes)
