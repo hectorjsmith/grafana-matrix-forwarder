@@ -26,14 +26,14 @@ type metricData struct {
 const (
 	metricNamePrefix  = "gmf_"
 	metricTemplateStr = `# HELP {{ .MetricName }}
-#TYPE {{ .MetricName }} {{ .MetricType }}
+# TYPE {{ .MetricName }} {{ .MetricType }}
 {{- $labelLen := len .MetricLabels -}}
 {{- if eq 0 $labelLen }}
 {{ .MetricName }} {{ .MetricValue }}
 {{- else -}}
 {{ range $labelName, $labelValueMap := .MetricLabels }}
 {{- range $labelValue, $value := $labelValueMap }}
-{{ $.MetricName }}{{ "{" }}"{{ $labelName }}"="{{ $labelValue }}"{{ "}" }} {{ $value }}
+{{ $.MetricName }}{{ "{" }}{{ $labelName }}="{{ $labelValue }}"{{ "}" }} {{ $value }}
 {{- end -}}
 {{- end -}}
 {{- end }}

@@ -29,20 +29,20 @@ func Test_serverMetrics_buildMetrics1(t *testing.T) {
 			otherAlertCount:     1,
 		},
 		wantMetrics: `# HELP gmf_up
-#TYPE gmf_up gauge
+# TYPE gmf_up gauge
 gmf_up 1
 # HELP gmf_forwards
-#TYPE gmf_forwards gauge
-gmf_forwards{"result"="error"} 6
-gmf_forwards{"result"="success"} 4
-gmf_forwards{"result"="total"} 10
+# TYPE gmf_forwards gauge
+gmf_forwards{result="error"} 6
+gmf_forwards{result="success"} 4
+gmf_forwards{result="total"} 10
 # HELP gmf_alerts
-#TYPE gmf_alerts gauge
-gmf_alerts{"state"="alerting"} 5
-gmf_alerts{"state"="no_data"} 1
-gmf_alerts{"state"="ok"} 3
-gmf_alerts{"state"="other"} 1
-gmf_alerts{"state"="total"} 10
+# TYPE gmf_alerts gauge
+gmf_alerts{state="alerting"} 5
+gmf_alerts{state="no_data"} 1
+gmf_alerts{state="ok"} 3
+gmf_alerts{state="other"} 1
+gmf_alerts{state="total"} 10
 `,
 		wantErr: false,
 	},

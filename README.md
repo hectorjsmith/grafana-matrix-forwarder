@@ -73,7 +73,7 @@ $ grafana-matrix-forwarder -h
 
 ## Metrics
 
-Access exported metrics at `/metrics` (on the same port).
+Access exported metrics at `/metrics` (on the same port). Metrics are compatible with prometheus.
 
 **Note:** All metric names include the `gmf_` prefix (grafana matrix forwarder) to make sure they are unique and make them easier to find.
 
@@ -94,20 +94,20 @@ Exposed metrics:
 
 ```
 # HELP gmf_up
-#TYPE gmf_up gauge
+# TYPE gmf_up gauge
 gmf_up 1
 # HELP gmf_forwards
-#TYPE gmf_forwards gauge
-gmf_forwards{"result"="error"} 6
-gmf_forwards{"result"="success"} 4
-gmf_forwards{"result"="total"} 10
+# TYPE gmf_forwards gauge
+gmf_forwards{result="error"} 1
+gmf_forwards{result="success"} 5
+gmf_forwards{result="total"} 6
 # HELP gmf_alerts
-#TYPE gmf_alerts gauge
-gmf_alerts{"state"="alerting"} 5
-gmf_alerts{"state"="no_data"} 1
-gmf_alerts{"state"="ok"} 3
-gmf_alerts{"state"="other"} 1
-gmf_alerts{"state"="total"} 10
+# TYPE gmf_alerts gauge
+gmf_alerts{state="alerting"} 1
+gmf_alerts{state="no_data"} 1
+gmf_alerts{state="ok"} 2
+gmf_alerts{state="other"} 1
+gmf_alerts{state="total"} 6
 ```
 
 ## Thanks
