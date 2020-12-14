@@ -21,6 +21,8 @@ This tool will handle converting the incoming alert webhook to a Matrix message 
     * No config files, all required parameters provided on startup
   * 🪁 **Flexible**
     * Support multiple grafana alert channels to multiple matrix rooms
+  * 📈 **Monitorable**
+    * Export metrics to track successful and failed forwards
 
 ## How to use
 
@@ -61,11 +63,52 @@ $ grafana-matrix-forwarder -h
         password used to login to matrix
   -port int
         port to run the webserver on (default 6000)
+  -resolveMode string
+        set how to handle resolved alerts - valid options are: 'message', 'reaction' (default "message")
   -user string
         username used to login to matrix
   -version
         show version info and exit
 ``` 
+
+## Metrics
+
+Access exported metrics at `/metrics` (on the same port).
+
+**Note:** All metric names include the `gmf_` prefix (grafana matrix forwarder) to make sure they are unique and make them easier to find.
+
+Exposed metrics:
+  * `up` - Returns 1 if the service is up
+  * Forward counts
+    * `total` - total number of alerts forwarded
+    * `success` - number of alerts successfully forwarded
+    * `error` - number of alerts where the forwarding process failed (check logs for error details)
+  * Alert counts by state
+    * `total` - total number of alerts received
+    * `alerting` - alert count in the *alerting* state
+    * `no_data` - alert count in the *no_data* state
+    * `ok` - alert count in the *ok* state (resolved alerts)
+    * `other` - number of received alerts that have an unknown state (check logs for details)
+
+**Sample**
+
+```
+# HELP gmf_up
+#TYPE gmf_up gauge
+gmf_up 1
+# HELP gmf_forwards
+#TYPE gmf_forwards gauge
+gmf_forwards{"result"="error"} 6
+gmf_forwards{"result"="success"} 4
+gmf_forwards{"result"="total"} 10
+# HELP gmf_alerts
+#TYPE gmf_alerts gauge
+gmf_alerts{"state"="alerting"} 5
+gmf_alerts{"state"="no_data"} 1
+gmf_alerts{"state"="ok"} 3
+gmf_alerts{"state"="other"} 1
+gmf_alerts{"state"="total"} 10
+```
 
 ## Thanks
 
