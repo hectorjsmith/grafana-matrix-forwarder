@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 
 ## [Unreleased]
 
+
+## [0.3.0] - 2020-12-14
 ### Features
 - (9ef976e) feat: export metrics on alert state ([#17](https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/issues/17))
 - (b86caa0) feat: export forward count metrics ([#17](https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/issues/17))
@@ -13,6 +15,13 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 - (0399f02) feat: support resolving alerts with reactions ([#11](https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/issues/11))
 - (5cf2fdb) feat: load id fields from alert payload ([#11](https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/issues/11))
 - (aa30c24) feat: support for sending reactions ([#11](https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/issues/11))
+
+### Merge Requests
+- (2b8354d) Merge branch '17-expose-prometheus-metrics-for-forward-count' into 'main'
+- (15473ad) Merge branch '18-only-run-full-build-on-tags' into 'main'
+- (9d74d7a) Merge branch '11-resolve-alerts-with-a-reaction-reply' into 'main'
+- (477c447) Merge branch '16-use-a-go-template-for-the-matrix-message-format' into 'main'
+- (523ef99) Merge branch 'release/v0.2.0' into 'main'
 
 
 ## [0.2.0] - 2020-12-04
@@ -55,6 +64,7 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 [Keep a Changelog]: https://keepachangelog.com/en/1.0.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
 [git-chglog]: https://github.com/git-chglog/git-chglog
-[Unreleased]: https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/compare/0.2.0...main
+[Unreleased]: https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/compare/0.3.0...main
+[0.3.0]: https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/compare/0.2.0...0.3.0
 [0.2.0]: https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/compare/0.1.0...0.2.0
 [0.1.0]: https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/compare/0.0.0...0.1.0
