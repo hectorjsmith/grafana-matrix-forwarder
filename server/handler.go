@@ -9,7 +9,7 @@ import (
 	"net/http"
 )
 
-func (server Server) handleGrafanaAlert(response http.ResponseWriter, request *http.Request) error {
+func (server *Server) handleGrafanaAlert(response http.ResponseWriter, request *http.Request) error {
 	bodyBytes, err := getRequestBodyAsBytes(request)
 	if err != nil {
 		return err
@@ -28,6 +28,7 @@ func (server Server) handleGrafanaAlert(response http.ResponseWriter, request *h
 		return err
 	}
 
+	server.metrics.updateAlertCounters(alert)
 	log.Printf("alert received (%s) - forwarding to room: %s", alert.FullRuleID(), roomID)
 
 	err = grafana.ForwardAlert(server.matrixWriteCloser.GetWriter(), roomID, alert, server.appSettings.ResolveMode)

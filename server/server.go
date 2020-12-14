@@ -18,12 +18,6 @@ type Server struct {
 	metrics           serverMetrics
 }
 
-type serverMetrics struct {
-	totalForwardCount   int
-	successForwardCount int
-	failForwardCount    int
-}
-
 // BuildServer builds a Server instance based on the provided context.Context, a matrix.WriteCloser, and the cfg.AppSettings
 func BuildServer(ctx context.Context, matrixWriteCloser matrix.WriteCloser, appSettings cfg.AppSettings) Server {
 	return Server{

@@ -2,8 +2,19 @@ package server
 
 import (
 	"bytes"
+	"grafana-matrix-forwarder/grafana"
 	"html/template"
 )
+
+type serverMetrics struct {
+	totalForwardCount   int
+	successForwardCount int
+	failForwardCount    int
+	alertingAlertCount  int
+	resolvedAlertCount  int
+	noDataAlertCount    int
+	otherAlertCount     int
+}
 
 type metricData struct {
 	MetricName   string
@@ -19,8 +30,8 @@ const (
 {{- $labelLen := len .MetricLabels -}}
 {{- if eq 0 $labelLen }}
 {{ .MetricName }} {{ .MetricValue }}
-{{ else }}
-{{- range $labelName, $labelValueMap := .MetricLabels -}}
+{{- else -}}
+{{ range $labelName, $labelValueMap := .MetricLabels }}
 {{- range $labelValue, $value := $labelValueMap }}
 {{ $.MetricName }}{{ "{" }}"{{ $labelName }}"="{{ $labelValue }}"{{ "}" }} {{ $value }}
 {{- end -}}
@@ -30,6 +41,18 @@ const (
 )
 
 var metricTemplate = template.Must(template.New("metric").Parse(metricTemplateStr))
+
+func (serverMetrics *serverMetrics) updateAlertCounters(alert grafana.AlertPayload) {
+	if alert.State == grafana.AlertStateAlerting {
+		serverMetrics.alertingAlertCount++
+	} else if alert.State == grafana.AlertStateResolved {
+		serverMetrics.resolvedAlertCount++
+	} else if alert.State == grafana.AlertStateNoData {
+		serverMetrics.noDataAlertCount++
+	} else {
+		serverMetrics.otherAlertCount++
+	}
+}
 
 func (serverMetrics serverMetrics) buildMetrics() (metrics string, err error) {
 	var buffer string
@@ -51,6 +74,28 @@ func (serverMetrics serverMetrics) buildMetrics() (metrics string, err error) {
 			float32(serverMetrics.totalForwardCount),
 			float32(serverMetrics.successForwardCount),
 			float32(serverMetrics.failForwardCount)}))
+
+	if err != nil {
+		return
+	}
+	metrics += buffer
+
+	buffer, err = buildMetricDataString(buildMetricDataWithLabel(
+		"alerts",
+		"gauge",
+		"state",
+		[]string{
+			"total",
+			"no_data",
+			"alerting",
+			"ok",
+			"other"},
+		[]float32{
+			float32(serverMetrics.totalForwardCount),
+			float32(serverMetrics.noDataAlertCount),
+			float32(serverMetrics.alertingAlertCount),
+			float32(serverMetrics.resolvedAlertCount),
+			float32(serverMetrics.otherAlertCount)}))
 
 	if err != nil {
 		return
