@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 
 ## [Unreleased]
 
+### Bug Fixes
+- (517c066) fix: do not show log for resolve mode in version mode ([#21](https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/issues/21))
+
 
 ## [0.3.0] - 2020-12-14
 ### Features
