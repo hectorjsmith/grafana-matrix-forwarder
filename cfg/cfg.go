@@ -61,7 +61,6 @@ func (settings *AppSettings) setResolveMode(resolveModeStr string) {
 		log.Printf("invalid resolve mode provided (%s) - defaulting to %s", resolveModeStr, ResolveWithMessage)
 		settings.ResolveMode = ResolveWithMessage
 	}
-	log.Printf("resolve mode set to: %s", settings.ResolveMode)
 }
 
 func (settings *AppSettings) validateFlags() {

@@ -31,6 +31,7 @@ func BuildServer(ctx context.Context, matrixWriteCloser matrix.WriteCloser, appS
 // Start the web server and listen for incoming requests
 func (server Server) Start() (err error) {
 	log.Print("starting webserver ...")
+	log.Printf("resolve mode set to: %s", server.appSettings.ResolveMode)
 	mux := http.NewServeMux()
 	mux.Handle("/api/v0/forward", http.HandlerFunc(
 		func(response http.ResponseWriter, request *http.Request) {
