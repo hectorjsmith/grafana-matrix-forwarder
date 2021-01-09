@@ -48,6 +48,61 @@ Setup alerts in grafana that are sent to the new alert channel.
 
 ![screenshot of grafana alert setup](docs/grafanaAlertSetup.png)
 
+## Docker
+
+An official docker image is available on the Gitlab container registry.
+Use it by pulling the following image:
+
+```
+registry.gitlab.com/hectorjsmith/grafana-matrix-forwarder:latest
+```
+
+Use the `:latest` tag to get the most up to date code (less stable) or use one of the version tagged images to use a specific release.
+See the [registry page](https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/container_registry/1616723) for all available tags.
+
+### Environment Variables
+
+The following environment variables should be set to configure how the forwarder container runs.
+These environment variables map directly to the CLI parameters of the application.
+
+- `GMF_MATRIX_USER` (required) - Username used to login to matrix
+- `GMF_MATRIX_PASSWORD` (required) - Password used to login to matrix
+- `GMF_MATRIX_HOMESERVER` (required) - URL of the matrix homeserver to connect to
+- `GMF_SERVER_HOST` (optional) - Host address the server connects to (defaults to "0.0.0.0")
+- `GMF_SERVER_PORT` (optional) - Port to run the webserver on (default 6000)
+- `GMF_RESOLVE_MODE` (optional) - Set how to handle resolved alerts - valid options are: 'message' and 'reaction'
+- `GMF_LOG_PAYLOAD` (optional) - Set to any value to print the contents of every alert request received from grafana (disabled if set to "no" or "false")
+
+### Docker Run
+
+Use the following command to run the forwarder as a docker container.
+
+```
+docker run -d \
+    --name "grafana-matrix-forwarder" \
+    -e GMF_MATRIX_USER=@user:matrix.org \
+    -e GMF_MATRIX_PASSWORD=password \
+    -e GMF_MATRIX_HOMESERVER=matrix.org \
+    registry.gitlab.com/hectorjsmith/grafana-matrix-forwarder:latest
+```
+
+### Docker Compose
+
+The following is a simple docker-compose file to run the forwarder.
+
+```
+version: "2"
+services:
+  forwarder:
+    image: registry.gitlab.com/hectorjsmith/grafana-matrix-forwarder:latest
+    environment:
+    - GMF_MATRIX_USER=@user:matrix.org
+    - GMF_MATRIX_PASSWORD=password
+    - GMF_MATRIX_HOMESERVER=matrix.org
+    ports:
+    - "6000:6000"
+```
+
 ## CLI Usage
 
 ```
