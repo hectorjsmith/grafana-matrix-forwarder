@@ -6,6 +6,7 @@ before_script:
 stages:
   - test
   - build
+  - publish
 
 format:
   stage: test
@@ -25,14 +26,40 @@ test:
 build:
   stage: build
   only:
+    - main
     - tags
     - triggers
     - schedules
   script:
     - git fetch --tags
     - make build/snapshot
+  cache:
+    key: build-cache
+    paths:
+      - dist/
   artifacts:
     paths:
       - dist/*.tar.gz
       - dist/checksums.txt
     expire_in: 1 day
+
+docker-push-gitlab:
+  stage: publish
+  only:
+    - main
+    - tags
+  image: docker:stable
+  services:
+    - docker:dind
+  cache:
+    key: build-cache
+    paths:
+      - dist/
+  before_script:
+    - apk add git
+    - apk add make
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - make build/docker
+    - docker tag registry.gitlab.com/hectorjsmith/grafana-matrix-forwarder registry.gitlab.com/hectorjsmith/grafana-matrix-forwarder:$(git describe --tags)
+    - docker push registry.gitlab.com/hectorjsmith/grafana-matrix-forwarder
