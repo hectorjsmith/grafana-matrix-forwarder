@@ -10,6 +10,7 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 - (517c066) fix: do not show log for resolve mode in version mode ([#21](https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/issues/21))
 
 ### Features
+- (761aedd) feat: support resolving alerts with replies ([#20](https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/issues/20))
 - (6281bf3) feat: add dockerfile to run forwarder using docker ([#5](https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/issues/5))
 
 
