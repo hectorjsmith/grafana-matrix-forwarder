@@ -1,4 +1,4 @@
-**Grafana to Matrix Forwarder**
+# Grafana to Matrix Forwarder
 
 Forward alerts from [Grafana](https://grafana.com) to a [Matrix](https://matrix.org) chat room.
 
@@ -13,7 +13,17 @@ This tool will convert the incoming webhook to a Matrix message and send it on t
 
 ![screenshot of matrix alert message](docs/alertExample.png)
 
-## Features
+## Table of Contents
+1. Features
+2. How to use
+3. Docker
+    1. Environment variables
+    2. Docker run
+    3. Docker compose
+4. CLI usage
+5. Metrics
+
+## 1. Features
 
   * 📦 **Portable**
     * As a single binary the tool is easy to run in any environment
@@ -24,7 +34,7 @@ This tool will convert the incoming webhook to a Matrix message and send it on t
   * 📈 **Monitorable**
     * Export metrics to track successful and failed forwards
 
-## How to use
+## 2. How to use
 
 **Step 1**
 
@@ -48,7 +58,7 @@ Setup alerts in grafana that are sent to the new alert channel.
 
 ![screenshot of grafana alert setup](docs/grafanaAlertSetup.png)
 
-## Docker
+## 3. Docker
 
 An official docker image is available on the Gitlab container registry.
 Use it by pulling the following image:
@@ -60,7 +70,7 @@ registry.gitlab.com/hectorjsmith/grafana-matrix-forwarder:latest
 Use the `:latest` tag to get the most up to date code (less stable) or use one of the version tagged images to use a specific release.
 See the [registry page](https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/container_registry/1616723) for all available tags.
 
-### Environment Variables
+### 3.1. Environment Variables
 
 The following environment variables should be set to configure how the forwarder container runs.
 These environment variables map directly to the CLI parameters of the application.
@@ -73,7 +83,7 @@ These environment variables map directly to the CLI parameters of the applicatio
 - `GMF_RESOLVE_MODE` (optional) - Set how to handle resolved alerts - valid options are: 'message', 'reaction', and 'reply'
 - `GMF_LOG_PAYLOAD` (optional) - Set to any value to print the contents of every alert request received from grafana (disabled if set to "no" or "false")
 
-### Docker Run
+### 3.2. Docker run
 
 Use the following command to run the forwarder as a docker container.
 
@@ -86,7 +96,7 @@ docker run -d \
     registry.gitlab.com/hectorjsmith/grafana-matrix-forwarder:latest
 ```
 
-### Docker Compose
+### 3.3. Docker compose
 
 The following is a simple docker-compose file to run the forwarder.
 
@@ -103,7 +113,7 @@ services:
     - "6000:6000"
 ```
 
-## CLI Usage
+## 4. CLI usage
 
 ```
 $ grafana-matrix-forwarder -h
@@ -126,7 +136,7 @@ $ grafana-matrix-forwarder -h
         show version info and exit
 ``` 
 
-## Metrics
+## 5. Metrics
 
 Access exported metrics at `/metrics` (on the same port). Metrics are compatible with prometheus.
 
