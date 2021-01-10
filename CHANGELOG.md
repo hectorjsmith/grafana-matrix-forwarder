@@ -6,12 +6,22 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 
 ## [Unreleased]
 
+
+## [0.4.0] - 2021-01-10
 ### Bug Fixes
 - (517c066) fix: do not show log for resolve mode in version mode ([#21](https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/issues/21))
 
 ### Features
 - (761aedd) feat: support resolving alerts with replies ([#20](https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/issues/20))
 - (6281bf3) feat: add dockerfile to run forwarder using docker ([#5](https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/issues/5))
+
+### Merge Requests
+- (5f8513c) Merge branch 'fix/do-not-escape-html-in-reply-body' into 'main'
+- (d43d3e7) Merge branch '20-resolve-alerts-with-reply' into 'main'
+- (0d4ccd4) Merge branch '5-add-docker-image' into 'main'
+- (e4fbb82) Merge branch 'docs/fix-typo-in-readme' into 'main'
+- (01ee605) Merge branch '21-resolve-mode-showing-when-printing-version' into 'main'
+- (6af9079) Merge branch 'release/v0.3.0' into 'main'
 
 
 ## [0.3.0] - 2020-12-14
@@ -71,7 +81,8 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 [Keep a Changelog]: https://keepachangelog.com/en/1.0.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
 [git-chglog]: https://github.com/git-chglog/git-chglog
-[Unreleased]: https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/compare/0.3.0...main
+[Unreleased]: https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/compare/0.4.0...main
+[0.4.0]: https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/compare/0.3.0...0.4.0
 [0.3.0]: https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/compare/0.2.0...0.3.0
 [0.2.0]: https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/compare/0.1.0...0.2.0
 [0.1.0]: https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/compare/0.0.0...0.1.0
