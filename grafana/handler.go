@@ -6,6 +6,7 @@ import (
 	"grafana-matrix-forwarder/matrix"
 	"html/template"
 	"log"
+	"regexp"
 )
 
 type sentMatrixEvent struct {
@@ -24,6 +25,9 @@ const (
 )
 
 var (
+	htmlTagRegex       = regexp.MustCompile(`<.*?>`)
+	htmlParagraphRegex = regexp.MustCompile(`</?p>`)
+
 	alertMessageTemplate    = template.Must(template.New("alertMessage").Parse(alertMessageStr))
 	resolvedMessageTemplate = template.Must(template.New("resolvedMessage").Parse(resolvedMessageStr))
 	noDataMessageTemplate   = template.Must(template.New("noDataMessage").Parse(noDataMessageStr))
@@ -71,8 +75,8 @@ func sendRegularMessage(writer matrix.Writer, roomID string, alert AlertPayload,
 	if err != nil {
 		return
 	}
-	formattedMessage := matrix.NewSimpleFormattedMessage(formattedMessageBody)
-	response, err := writer.Send(roomID, formattedMessage)
+	plainMessageBody := stripHtmlTagsFromString(formattedMessageBody)
+	response, err := writer.Send(roomID, plainMessageBody, formattedMessageBody)
 	if err == nil {
 		alertToSentEventMap[alertID] = sentMatrixEvent{
 			eventID:           response.EventID.String(),
@@ -95,6 +99,13 @@ func buildFormattedMessageBodyFromAlert(alert AlertPayload) (message string, err
 		message, err = executeAlertTemplate(unknownMessageTemplate, alert)
 	}
 	return message, err
+}
+
+// stripHtmlTagsFromString removes all the HTML tags from an input string.
+func stripHtmlTagsFromString(input string) string {
+	bodyWithoutParagraphs := htmlParagraphRegex.ReplaceAllString(input, " ")
+	plainBody := htmlTagRegex.ReplaceAllString(bodyWithoutParagraphs, "")
+	return plainBody
 }
 
 func executeAlertTemplate(template *template.Template, alert AlertPayload) (string, error) {
