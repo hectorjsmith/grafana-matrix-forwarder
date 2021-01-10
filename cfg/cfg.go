@@ -26,6 +26,7 @@ type AppSettings struct {
 const (
 	ResolveWithReaction ResolveMode = "reaction"
 	ResolveWithMessage  ResolveMode = "message"
+	ResolveWithReply    ResolveMode = "reply"
 	minServerPort                   = 1000
 	maxServerPort                   = 65535
 )
@@ -43,7 +44,7 @@ func Parse() AppSettings {
 
 	var resolveModeStr string
 	flag.StringVar(&resolveModeStr, "resolveMode", string(ResolveWithMessage),
-		fmt.Sprintf("set how to handle resolved alerts - valid options are: '%s', '%s'", ResolveWithMessage, ResolveWithReaction))
+		fmt.Sprintf("set how to handle resolved alerts - valid options are: '%s', '%s', '%s'", ResolveWithMessage, ResolveWithReaction, ResolveWithReply))
 
 	flag.Parse()
 	appSettings.setResolveMode(resolveModeStr)
@@ -57,6 +58,8 @@ func (settings *AppSettings) setResolveMode(resolveModeStr string) {
 		settings.ResolveMode = ResolveWithReaction
 	} else if resolveModeStrLower == string(ResolveWithMessage) {
 		settings.ResolveMode = ResolveWithMessage
+	} else if resolveModeStrLower == string(ResolveWithReply) {
+		settings.ResolveMode = ResolveWithReply
 	} else {
 		log.Printf("invalid resolve mode provided (%s) - defaulting to %s", resolveModeStr, ResolveWithMessage)
 		settings.ResolveMode = ResolveWithMessage
