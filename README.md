@@ -70,7 +70,7 @@ These environment variables map directly to the CLI parameters of the applicatio
 - `GMF_MATRIX_HOMESERVER` (required) - URL of the matrix homeserver to connect to
 - `GMF_SERVER_HOST` (optional) - Host address the server connects to (defaults to "0.0.0.0")
 - `GMF_SERVER_PORT` (optional) - Port to run the webserver on (default 6000)
-- `GMF_RESOLVE_MODE` (optional) - Set how to handle resolved alerts - valid options are: 'message' and 'reaction'
+- `GMF_RESOLVE_MODE` (optional) - Set how to handle resolved alerts - valid options are: 'message', 'reaction', and 'reply'
 - `GMF_LOG_PAYLOAD` (optional) - Set to any value to print the contents of every alert request received from grafana (disabled if set to "no" or "false")
 
 ### Docker Run
@@ -119,7 +119,7 @@ $ grafana-matrix-forwarder -h
   -port int
         port to run the webserver on (default 6000)
   -resolveMode string
-        set how to handle resolved alerts - valid options are: 'message', 'reaction' (default "message")
+        set how to handle resolved alerts - valid options are: 'message', 'reaction', 'reply' (default "message")
   -user string
         username used to login to matrix
   -version
