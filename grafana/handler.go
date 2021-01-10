@@ -4,9 +4,10 @@ import (
 	"bytes"
 	"grafana-matrix-forwarder/cfg"
 	"grafana-matrix-forwarder/matrix"
-	"html/template"
+	htmlTemplate "html/template"
 	"log"
 	"regexp"
+	textTemplate "text/template"
 )
 
 type sentMatrixEvent struct {
@@ -28,11 +29,11 @@ var (
 	htmlTagRegex       = regexp.MustCompile(`<.*?>`)
 	htmlParagraphRegex = regexp.MustCompile(`</?p>`)
 
-	alertMessageTemplate    = template.Must(template.New("alertMessage").Parse(alertMessageStr))
-	resolvedMessageTemplate = template.Must(template.New("resolvedMessage").Parse(resolvedMessageStr))
-	noDataMessageTemplate   = template.Must(template.New("noDataMessage").Parse(noDataMessageStr))
-	unknownMessageTemplate  = template.Must(template.New("unknownMessage").Parse(unknownMessageStr))
-	resolveReplyTemplate    = template.Must(template.New("resolveReply").Parse(resolveReplyStr))
+	alertMessageTemplate    = htmlTemplate.Must(htmlTemplate.New("alertMessage").Parse(alertMessageStr))
+	resolvedMessageTemplate = htmlTemplate.Must(htmlTemplate.New("resolvedMessage").Parse(resolvedMessageStr))
+	noDataMessageTemplate   = htmlTemplate.Must(htmlTemplate.New("noDataMessage").Parse(noDataMessageStr))
+	unknownMessageTemplate  = htmlTemplate.Must(htmlTemplate.New("unknownMessage").Parse(unknownMessageStr))
+	resolveReplyTemplate    = textTemplate.Must(textTemplate.New("resolveReply").Parse(resolveReplyStr))
 
 	alertToSentEventMap = map[string]sentMatrixEvent{}
 )
@@ -62,7 +63,7 @@ func sendReaction(writer matrix.Writer, roomID string, eventID string) (err erro
 }
 
 func sendReply(writer matrix.Writer, roomID string, event sentMatrixEvent) (err error) {
-	replyMessageBody, err := executeStringTemplate(resolveReplyTemplate, event.sentFormattedBody)
+	replyMessageBody, err := executeTextTemplate(resolveReplyTemplate, event.sentFormattedBody)
 	if err != nil {
 		return
 	}
@@ -108,13 +109,13 @@ func stripHtmlTagsFromString(input string) string {
 	return plainBody
 }
 
-func executeAlertTemplate(template *template.Template, alert AlertPayload) (string, error) {
+func executeAlertTemplate(template *htmlTemplate.Template, alert AlertPayload) (string, error) {
 	buffer := new(bytes.Buffer)
 	err := template.Execute(buffer, alert)
 	return buffer.String(), err
 }
 
-func executeStringTemplate(template *template.Template, content string) (string, error) {
+func executeTextTemplate(template *textTemplate.Template, content string) (string, error) {
 	buffer := new(bytes.Buffer)
 	err := template.Execute(buffer, content)
 	return buffer.String(), err
