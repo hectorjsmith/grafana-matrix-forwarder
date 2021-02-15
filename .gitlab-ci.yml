@@ -23,16 +23,8 @@ test:
   script:
     - make test
 
-build:
+.build-job-template:
   stage: build
-  only:
-    - main
-    - tags
-    - triggers
-    - schedules
-  script:
-    - git fetch --tags
-    - make build/snapshot
   cache:
     key: build-cache
     paths:
@@ -42,6 +34,24 @@ build:
       - dist/*.tar.gz
       - dist/checksums.txt
     expire_in: 1 day
+
+build-snapshot:
+  extends: .build-job-template
+  only:
+    - main
+    - triggers
+    - schedules
+  script:
+    - git fetch --tags
+    - make build/snapshot
+
+build-release:
+  extends: .build-job-template
+  only:
+    - tags
+  script:
+    - git fetch --tags
+    - make build/release
 
 docker-push-gitlab:
   stage: publish
