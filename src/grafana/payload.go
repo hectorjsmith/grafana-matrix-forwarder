@@ -15,13 +15,19 @@ const (
 type AlertPayload struct {
 	Title       string `json:"title"`
 	Message     string `json:"message"`
+	State       string `json:"state"`
 	RuleName    string `json:"ruleName"`
 	RuleURL     string `json:"ruleUrl"`
-	State       string `json:"state"`
+	RuleID      int    `json:"ruleId"`
 	OrgID       int    `json:"orgId"`
 	DashboardID int    `json:"dashboardId"`
 	PanelID     int    `json:"panelId"`
-	RuleID      int    `json:"ruleId"`
+	EvalMatches []struct {
+		Value  float64           `json:"value"`
+		Metric string            `json:"metric"`
+		Tags   map[string]string `json:"tags"`
+	} `json:"evalMatches"`
+	Tags map[string]string `json:"tags"`
 }
 
 // FullRuleID is defined as the combination of the OrgID, DashboardID, PanelID, and RuleID
