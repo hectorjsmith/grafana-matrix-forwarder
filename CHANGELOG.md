@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 
 ## [Unreleased]
 
+### Features
+- (01736eb) feat: include metric values in alerts ([#8](https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/issues/8))
+- (8368043) feat: add missing fields to go struct ([#8](https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/issues/8))
+
 
 ## [0.4.0] - 2021-01-10
 ### Bug Fixes
