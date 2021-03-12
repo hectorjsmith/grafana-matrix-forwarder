@@ -21,7 +21,7 @@ func Test_buildFormattedMessageBodyFromAlert(t *testing.T) {
 				RuleName: "sample",
 				Message:  "sample message",
 			}},
-			want: "💔 ️<b>ALERT</b><p>Rule: <a href=\"http://example.com\">sample</a> | sample message</p>",
+			want: "💔 <b>ALERT</b><p>Rule: <a href=\"http://example.com\">sample</a> | sample message</p>",
 		},
 		{
 			name: "alertingStateWithEvalMatchesTest",
@@ -42,7 +42,7 @@ func Test_buildFormattedMessageBodyFromAlert(t *testing.T) {
 					},
 				},
 			}},
-			want: "💔 ️<b>ALERT</b><p>Rule: <a href=\"http://example.com\">sample</a> | sample message</p><ul><li><b>sample</b>: 10</li></ul>",
+			want: "💔 <b>ALERT</b><p>Rule: <a href=\"http://example.com\">sample</a> | sample message</p><ul><li><b>sample</b>: 10</li></ul>",
 		},
 		{
 			name: "okStateTest",
@@ -52,7 +52,7 @@ func Test_buildFormattedMessageBodyFromAlert(t *testing.T) {
 				RuleName: "sample",
 				Message:  "sample message",
 			}},
-			want: "💚 ️<b>RESOLVED</b><p>Rule: <a href=\"http://example.com\">sample</a> | sample message</p>",
+			want: "💚 <b>RESOLVED</b><p>Rule: <a href=\"http://example.com\">sample</a> | sample message</p>",
 		},
 		{
 			name: "noDataStateTest",
@@ -62,7 +62,7 @@ func Test_buildFormattedMessageBodyFromAlert(t *testing.T) {
 				RuleName: "sample",
 				Message:  "sample message",
 			}},
-			want: "❓️<b>NO DATA</b><ul><p>Rule: <a href=\"http://example.com\">sample</a> | sample message</p>",
+			want: "❓ <b>NO DATA</b><p>Rule: <a href=\"http://example.com\">sample</a> | sample message</p>",
 		},
 		{
 			name: "unknownStateTest",
@@ -72,7 +72,7 @@ func Test_buildFormattedMessageBodyFromAlert(t *testing.T) {
 				RuleName: "sample",
 				Message:  "sample message",
 			}},
-			want: "❓️<b>UNKNOWN</b><ul><li>Rule: <a href=\"http://example.com\">sample</a> | sample message</li><li>State: <b>invalid state</b></li></ul>",
+			want: "❓ <b>UNKNOWN</b><p>Rule: <a href=\"http://example.com\">sample</a> | sample message</p>",
 		},
 	}
 	for _, tt := range tests {
