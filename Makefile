@@ -8,7 +8,7 @@ test:
 # Make sure no unnecessary dependencies are present
 go-mod-tidy:
 	cd src/ && go mod tidy -v
-	git diff-index --quiet HEAD
+	git diff-index HEAD
 
 format:
 	cd src/ && go fmt $(go list ./... | grep -v /vendor/)
