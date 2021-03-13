@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -34,22 +35,82 @@ const (
 // Parse the AppSettings data from the command line
 func Parse() AppSettings {
 	appSettings := &AppSettings{}
-	flag.BoolVar(&appSettings.VersionMode, "version", false, "show version info and exit")
-	flag.StringVar(&appSettings.UserID, "user", "", "username used to login to matrix")
-	flag.StringVar(&appSettings.UserPassword, "password", "", "password used to login to matrix")
-	flag.StringVar(&appSettings.HomeserverURL, "homeserver", "matrix.org", "url of the homeserver to connect to")
-	flag.StringVar(&appSettings.ServerHost, "host", "0.0.0.0", "host address the server connects to")
-	flag.IntVar(&appSettings.ServerPort, "port", 6000, "port to run the webserver on")
-	flag.BoolVar(&appSettings.LogPayload, "logPayload", false, "print the contents of every alert request received from grafana")
+	appSettings.setDefaults()
+	appSettings.updateSettingsFromEnvironment()
+	appSettings.updateSettingsFromCommandLine()
+
+	appSettings.validateConfiguration()
+	return *appSettings
+}
+
+func (settings *AppSettings) setDefaults() {
+	settings.ServerPort = 6000
+	settings.ServerHost = "0.0.0.0"
+	settings.ResolveMode = ResolveWithMessage
+}
+
+func (settings *AppSettings) updateSettingsFromEnvironment() {
+	var envValue string
+	var envExists bool
+
+	if envValue, envExists = os.LookupEnv("GMF_MATRIX_USER"); envExists {
+		settings.UserID = envValue
+	}
+	if envValue, envExists = os.LookupEnv("GMF_MATRIX_PASSWORD"); envExists {
+		settings.UserPassword = envValue
+	}
+	if envValue, envExists = os.LookupEnv("GMF_MATRIX_HOMESERVER"); envExists {
+		settings.HomeserverURL = envValue
+	}
+	if envValue, envExists = os.LookupEnv("GMF_SERVER_HOST"); envExists {
+		settings.ServerHost = envValue
+	}
+	if envValue, envExists = os.LookupEnv("GMF_SERVER_PORT"); envExists {
+		intValue, err := strconv.Atoi(envValue)
+		if err != nil {
+			log.Printf("ignoring invalid port number: %s", envValue)
+		} else {
+			settings.ServerPort = intValue
+		}
+	}
+	if envValue, envExists = os.LookupEnv("GMF_RESOLVE_MODE"); envExists {
+		settings.setResolveMode(envValue)
+	}
+	if envValue, envExists = os.LookupEnv("GMF_LOG_PAYLOAD"); envExists {
+		lowerEnvValue := strings.ToLower(envValue)
+		if envValue != "" && lowerEnvValue != "false" && lowerEnvValue != "no" {
+			settings.LogPayload = true
+		}
+	}
+}
+
+func (settings *AppSettings) updateSettingsFromCommandLine() {
+	versionFlag := flag.Bool("version", false, "show version info and exit")
+	userFlag := flag.String("user", "", "username used to login to matrix")
+	passwordFlag := flag.String("password", "", "password used to login to matrix")
+	homeserverFlag := flag.String("homeserver", "matrix.org", "url of the homeserver to connect to")
+	hostFlag := flag.String("host", "0.0.0.0", "host address the server connects to")
+	portFlag := flag.Int("port", 6000, "port to run the webserver on")
+	logPayloadFlag := flag.Bool("logPayload", false, "print the contents of every alert request received from grafana")
 
 	var resolveModeStr string
 	flag.StringVar(&resolveModeStr, "resolveMode", string(ResolveWithMessage),
 		fmt.Sprintf("set how to handle resolved alerts - valid options are: '%s', '%s', '%s'", ResolveWithMessage, ResolveWithReaction, ResolveWithReply))
 
+	var envFlag bool
+	flag.BoolVar(&envFlag, "env", false, "ignore all other flags and read all configuration from environment variables")
+
 	flag.Parse()
-	appSettings.setResolveMode(resolveModeStr)
-	appSettings.validateFlags()
-	return *appSettings
+	if !envFlag {
+		settings.VersionMode = *versionFlag
+		settings.UserID = *userFlag
+		settings.UserPassword = *passwordFlag
+		settings.HomeserverURL = *homeserverFlag
+		settings.ServerHost = *hostFlag
+		settings.ServerPort = *portFlag
+		settings.LogPayload = *logPayloadFlag
+		settings.setResolveMode(resolveModeStr)
+	}
 }
 
 func (settings *AppSettings) setResolveMode(resolveModeStr string) {
@@ -66,15 +127,19 @@ func (settings *AppSettings) setResolveMode(resolveModeStr string) {
 	}
 }
 
-func (settings *AppSettings) validateFlags() {
+func (settings *AppSettings) validateConfiguration() {
 	var flagsValid = true
 	if !settings.VersionMode {
 		if settings.UserID == "" {
-			fmt.Println("missing flag 'user'")
+			fmt.Println("missing parameter '-user'")
 			flagsValid = false
 		}
 		if settings.UserPassword == "" {
-			fmt.Println("missing flag 'password'")
+			fmt.Println("missing flag '-password'")
+			flagsValid = false
+		}
+		if settings.HomeserverURL == "" {
+			fmt.Println("missing flag '-homeserver'")
 			flagsValid = false
 		}
 		if settings.ServerPort < minServerPort || settings.ServerPort > maxServerPort {

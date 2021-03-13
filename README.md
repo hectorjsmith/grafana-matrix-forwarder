@@ -118,6 +118,8 @@ services:
 ```
 $ grafana-matrix-forwarder -h
 
+  -env
+        ignore all other flags and read all configuration from environment variables
   -homeserver string
         url of the homeserver to connect to (default "matrix.org")
   -host string
