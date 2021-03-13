@@ -15,12 +15,16 @@ type sentMatrixEvent struct {
 	sentFormattedBody string
 }
 
+type alertMessageData struct {
+	StateStr   string
+	StateEmoji string
+	Payload    AlertPayload
+}
+
 const (
-	alertEvalMatchData   = `{{ if gt (len .EvalMatches) 0 }}<ul>{{ range $match := .EvalMatches }}<li><b>{{ .Metric }}</b>: {{ .Value }}</li>{{ end }}</ul>{{ end }}`
-	alertMessageStr      = `💔 ️<b>ALERT</b><p>Rule: <a href="{{ .RuleURL }}">{{ .RuleName }}</a> | {{ .Message }}</p>` + alertEvalMatchData
-	resolvedMessageStr   = `💚 ️<b>RESOLVED</b><p>Rule: <a href="{{ .RuleURL }}">{{ .RuleName }}</a> | {{ .Message }}</p>`
-	noDataMessageStr     = `❓️<b>NO DATA</b><ul><p>Rule: <a href="{{ .RuleURL }}">{{ .RuleName }}</a> | {{ .Message }}</p>` + alertEvalMatchData
-	unknownMessageStr    = `❓️<b>UNKNOWN</b><ul><li>Rule: <a href="{{ .RuleURL }}">{{ .RuleName }}</a> | {{ .Message }}</li><li>State: <b>{{ .State }}</b></li></ul>` + alertEvalMatchData
+	alertMessageTemplateStr = `{{ .StateEmoji }} <b>{{ .StateStr }}</b>
+{{- with .Payload }}<p>Rule: <a href="{{ .RuleURL }}">{{ .RuleName }}</a> | {{ .Message }}</p>
+{{- if gt (len .EvalMatches) 0 }}<ul>{{ range $match := .EvalMatches }}<li><b>{{ .Metric }}</b>: {{ .Value }}</li>{{ end }}</ul>{{ end }}{{ end }}`
 	resolvedReactionStr  = `✅`
 	resolveReplyStr      = "<mx-reply><blockquote>{{ . }}</blockquote></mx-reply>💚 ️<b>RESOLVED</b>"
 	resolveReplyPlainStr = `💚 ️RESOLVED`
@@ -30,11 +34,8 @@ var (
 	htmlTagRegex       = regexp.MustCompile(`<.*?>`)
 	htmlParagraphRegex = regexp.MustCompile(`</?p>`)
 
-	alertMessageTemplate    = htmlTemplate.Must(htmlTemplate.New("alertMessage").Parse(alertMessageStr))
-	resolvedMessageTemplate = htmlTemplate.Must(htmlTemplate.New("resolvedMessage").Parse(resolvedMessageStr))
-	noDataMessageTemplate   = htmlTemplate.Must(htmlTemplate.New("noDataMessage").Parse(noDataMessageStr))
-	unknownMessageTemplate  = htmlTemplate.Must(htmlTemplate.New("unknownMessage").Parse(unknownMessageStr))
-	resolveReplyTemplate    = textTemplate.Must(textTemplate.New("resolveReply").Parse(resolveReplyStr))
+	alertMessageTemplate = htmlTemplate.Must(htmlTemplate.New("alertMessage").Parse(alertMessageTemplateStr))
+	resolveReplyTemplate = textTemplate.Must(textTemplate.New("resolveReply").Parse(resolveReplyStr))
 
 	alertToSentEventMap = map[string]sentMatrixEvent{}
 )
@@ -89,18 +90,25 @@ func sendRegularMessage(writer matrix.Writer, roomID string, alert AlertPayload,
 }
 
 func buildFormattedMessageBodyFromAlert(alert AlertPayload) (message string, err error) {
+	var messageData = alertMessageData{
+		StateStr:   "UNKNOWN",
+		StateEmoji: "❓",
+		Payload:    alert,
+	}
 	switch alert.State {
 	case AlertStateAlerting:
-		message, err = executeAlertTemplate(alertMessageTemplate, alert)
+		messageData.StateStr = "ALERT"
+		messageData.StateEmoji = "💔"
 	case AlertStateResolved:
-		message, err = executeAlertTemplate(resolvedMessageTemplate, alert)
+		messageData.StateStr = "RESOLVED"
+		messageData.StateEmoji = "💚"
 	case AlertStateNoData:
-		message, err = executeAlertTemplate(noDataMessageTemplate, alert)
+		messageData.StateStr = "NO DATA"
+		messageData.StateEmoji = "❓"
 	default:
 		log.Printf("alert received with unknown state: %s", alert.State)
-		message, err = executeAlertTemplate(unknownMessageTemplate, alert)
 	}
-	return message, err
+	return executeAlertTemplate(alertMessageTemplate, messageData)
 }
 
 // stripHtmlTagsFromString removes all the HTML tags from an input string.
@@ -110,9 +118,9 @@ func stripHtmlTagsFromString(input string) string {
 	return plainBody
 }
 
-func executeAlertTemplate(template *htmlTemplate.Template, alert AlertPayload) (string, error) {
+func executeAlertTemplate(template *htmlTemplate.Template, data alertMessageData) (string, error) {
 	buffer := new(bytes.Buffer)
-	err := template.Execute(buffer, alert)
+	err := template.Execute(buffer, data)
 	return buffer.String(), err
 }
 
