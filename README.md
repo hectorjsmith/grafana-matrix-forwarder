@@ -82,6 +82,7 @@ These environment variables map directly to the CLI parameters of the applicatio
 - `GMF_SERVER_PORT` (optional) - Port to run the webserver on (default 6000)
 - `GMF_RESOLVE_MODE` (optional) - Set how to handle resolved alerts - valid options are: 'message', 'reaction', and 'reply'
 - `GMF_LOG_PAYLOAD` (optional) - Set to any value to print the contents of every alert request received from grafana (disabled if set to "no" or "false")
+- `GMF_METRIC_ROUNDING` (optional) - Set the number of decimal places to use in metric values when forwarding grafana alerts (defaults to 3, set to -1 to disable)
 
 ### 3.2. Docker run
 
@@ -126,6 +127,8 @@ $ grafana-matrix-forwarder -h
         host address the server connects to (default "0.0.0.0")
   -logPayload
         print the contents of every alert request received from grafana
+  -metricRounding int
+        round metric values to the specified decimal places (set -1 to disable rounding) (default 3)
   -password string
         password used to login to matrix
   -port int
