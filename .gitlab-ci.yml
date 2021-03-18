@@ -22,6 +22,8 @@ build-pages:
 pages:
   stage: publish
   image: alpine
+  only:
+    - main
   script:
     - mv docs/public/ public/
   artifacts:
