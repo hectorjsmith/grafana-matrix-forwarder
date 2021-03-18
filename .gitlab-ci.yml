@@ -1,29 +1,55 @@
-image: golang:latest
-
-before_script:
-  - make install-deps
-
 stages:
   - test
   - build
   - publish
 
+.go-template:
+  image: golang:latest
+  before_script:
+    - make install-deps
+
+build-pages:
+  stage: build
+  image: registry.gitlab.com/pages/hugo/hugo:latest
+  script:
+    - apk add make
+    - make docs/download-theme
+    - make docs/build
+  artifacts:
+    paths:
+      - docs/public/
+
+pages:
+  stage: publish
+  image: alpine
+  only:
+    - main
+  script:
+    - mv docs/public/ public/
+  artifacts:
+    paths:
+      - public/
+
 format:
+  extends: .go-template
   stage: test
   script:
     - make format
 
 dependencies:
+  extends: .go-template
   stage: test
   script:
     - make go-mod-tidy
 
 test:
+  extends: .go-template
   stage: test
   script:
     - make test
 
 .build-job-template:
+  extends: .go-template
   stage: build
   cache:
     key: build-cache
