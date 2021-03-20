@@ -74,15 +74,15 @@ func (settings *AppSettings) validateConfiguration() {
 	var flagsValid = true
 	if !settings.VersionMode {
 		if settings.UserID == "" {
-			fmt.Println("missing parameter '-user'")
+			fmt.Printf("missing parameter '-%s' or '%s'\n", userFlagName, userEnvName)
 			flagsValid = false
 		}
 		if settings.UserPassword == "" {
-			fmt.Println("missing flag '-password'")
+			fmt.Printf("missing parameter '-%s' or '%s'\n", passwordFlagName, passwordEnvName)
 			flagsValid = false
 		}
 		if settings.HomeserverURL == "" {
-			fmt.Println("missing flag '-homeserver'")
+			fmt.Printf("missing parameter '-%s' or '%s'\n", homeServerFlagName, homeServerEnvName)
 			flagsValid = false
 		}
 		if settings.ServerPort < minServerPort || settings.ServerPort > maxServerPort {
