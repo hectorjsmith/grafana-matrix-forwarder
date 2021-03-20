@@ -30,6 +30,11 @@ const (
 	ResolveWithReply    ResolveMode = "reply"
 	minServerPort                   = 1000
 	maxServerPort                   = 65535
+	defaultServerPort               = 6000
+	defaultServerHost               = "0.0.0.0"
+	defaultHomeServerUrl            = "matrix.org"
+	defaultResolveMode              = ResolveWithMessage
+	defaultMetricRounding           = 3
 )
 
 // Parse the AppSettings data from the command line
@@ -44,10 +49,11 @@ func Parse() AppSettings {
 }
 
 func (settings *AppSettings) setDefaults() {
-	settings.ServerPort = 6000
-	settings.ServerHost = "0.0.0.0"
-	settings.ResolveMode = ResolveWithMessage
-	settings.MetricRounding = 3
+	settings.ServerPort = defaultServerPort
+	settings.ServerHost = defaultServerHost
+	settings.HomeserverURL = defaultHomeServerUrl
+	settings.ResolveMode = defaultResolveMode
+	settings.MetricRounding = defaultMetricRounding
 }
 
 func (settings *AppSettings) setResolveMode(resolveModeStr string) {
