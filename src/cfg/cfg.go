@@ -14,14 +14,15 @@ type ResolveMode string
 
 // AppSettings includes all application parameters
 type AppSettings struct {
-	VersionMode   bool
-	UserID        string
-	UserPassword  string
-	HomeserverURL string
-	ServerHost    string
-	ServerPort    int
-	LogPayload    bool
-	ResolveMode   ResolveMode
+	VersionMode    bool
+	UserID         string
+	UserPassword   string
+	HomeserverURL  string
+	ServerHost     string
+	MetricRounding int
+	ServerPort     int
+	LogPayload     bool
+	ResolveMode    ResolveMode
 }
 
 const (
@@ -47,6 +48,7 @@ func (settings *AppSettings) setDefaults() {
 	settings.ServerPort = 6000
 	settings.ServerHost = "0.0.0.0"
 	settings.ResolveMode = ResolveWithMessage
+	settings.MetricRounding = 3
 }
 
 func (settings *AppSettings) updateSettingsFromEnvironment() {
@@ -76,6 +78,14 @@ func (settings *AppSettings) updateSettingsFromEnvironment() {
 	if envValue, envExists = os.LookupEnv("GMF_RESOLVE_MODE"); envExists {
 		settings.setResolveMode(envValue)
 	}
+	if envValue, envExists = os.LookupEnv("GMF_METRIC_ROUNDING"); envExists {
+		intValue, err := strconv.Atoi(envValue)
+		if err != nil {
+			log.Printf("ignoring invalid metric rounding number: %s", envValue)
+		} else {
+			settings.MetricRounding = intValue
+		}
+	}
 	if envValue, envExists = os.LookupEnv("GMF_LOG_PAYLOAD"); envExists {
 		lowerEnvValue := strings.ToLower(envValue)
 		if envValue != "" && lowerEnvValue != "false" && lowerEnvValue != "no" {
@@ -91,6 +101,7 @@ func (settings *AppSettings) updateSettingsFromCommandLine() {
 	homeserverFlag := flag.String("homeserver", "matrix.org", "url of the homeserver to connect to")
 	hostFlag := flag.String("host", "0.0.0.0", "host address the server connects to")
 	portFlag := flag.Int("port", 6000, "port to run the webserver on")
+	roundingFlag := flag.Int("metricRounding", 3, "round metric values to the specified decimal places (set -1 to disable rounding)")
 	logPayloadFlag := flag.Bool("logPayload", false, "print the contents of every alert request received from grafana")
 
 	var resolveModeStr string
@@ -109,6 +120,7 @@ func (settings *AppSettings) updateSettingsFromCommandLine() {
 		settings.ServerHost = *hostFlag
 		settings.ServerPort = *portFlag
 		settings.LogPayload = *logPayloadFlag
+		settings.MetricRounding = *roundingFlag
 		settings.setResolveMode(resolveModeStr)
 	}
 }

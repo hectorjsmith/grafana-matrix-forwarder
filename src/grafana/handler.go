@@ -2,6 +2,7 @@ package grafana
 
 import (
 	"bytes"
+	"fmt"
 	"grafana-matrix-forwarder/cfg"
 	"grafana-matrix-forwarder/matrix"
 	htmlTemplate "html/template"
@@ -16,15 +17,16 @@ type sentMatrixEvent struct {
 }
 
 type alertMessageData struct {
-	StateStr   string
-	StateEmoji string
-	Payload    AlertPayload
+	MetricRounding int
+	StateStr       string
+	StateEmoji     string
+	Payload        AlertPayload
 }
 
 const (
 	alertMessageTemplateStr = `{{ .StateEmoji }} <b>{{ .StateStr }}</b>
 {{- with .Payload }}<p>Rule: <a href="{{ .RuleURL }}">{{ .RuleName }}</a> | {{ .Message }}</p>
-{{- if gt (len .EvalMatches) 0 }}<ul>{{ range $match := .EvalMatches }}<li><b>{{ .Metric }}</b>: {{ .Value }}</li>{{ end }}</ul>{{ end }}{{ end }}`
+{{- if gt (len .EvalMatches) 0 }}<ul>{{ range $match := .EvalMatches }}<li><b>{{ .Metric }}</b>: {{ RoundValue .Value $.MetricRounding }}</li>{{ end }}</ul>{{ end }}{{ end }}`
 	resolvedReactionStr  = `✅`
 	resolveReplyStr      = "<mx-reply><blockquote>{{ . }}</blockquote></mx-reply>💚 ️<b>RESOLVED</b>"
 	resolveReplyPlainStr = `💚 ️RESOLVED`
@@ -34,16 +36,18 @@ var (
 	htmlTagRegex       = regexp.MustCompile(`<.*?>`)
 	htmlParagraphRegex = regexp.MustCompile(`</?p>`)
 
-	alertMessageTemplate = htmlTemplate.Must(htmlTemplate.New("alertMessage").Parse(alertMessageTemplateStr))
+	alertMessageTemplate = htmlTemplate.Must(htmlTemplate.New("alertMessage").Funcs(htmlTemplate.FuncMap{
+		"RoundValue": roundMetricValue,
+	}).Parse(alertMessageTemplateStr))
 	resolveReplyTemplate = textTemplate.Must(textTemplate.New("resolveReply").Parse(resolveReplyStr))
 
 	alertToSentEventMap = map[string]sentMatrixEvent{}
 )
 
 // ForwardAlert sends the provided grafana.AlertPayload to the provided matrix.Writer using the provided roomID
-func ForwardAlert(writer matrix.Writer, roomID string, alert AlertPayload, resolveMode cfg.ResolveMode) (err error) {
-	resolveWithReaction := resolveMode == cfg.ResolveWithReaction
-	resolveWithReply := resolveMode == cfg.ResolveWithReply
+func ForwardAlert(writer matrix.Writer, roomID string, alert AlertPayload, settings cfg.AppSettings) (err error) {
+	resolveWithReaction := settings.ResolveMode == cfg.ResolveWithReaction
+	resolveWithReply := settings.ResolveMode == cfg.ResolveWithReply
 
 	alertID := alert.FullRuleID()
 	if sentEvent, ok := alertToSentEventMap[alertID]; ok {
@@ -56,7 +60,7 @@ func ForwardAlert(writer matrix.Writer, roomID string, alert AlertPayload, resol
 			return sendReply(writer, roomID, sentEvent)
 		}
 	}
-	return sendRegularMessage(writer, roomID, alert, alertID)
+	return sendRegularMessage(writer, roomID, alert, alertID, settings)
 }
 
 func sendReaction(writer matrix.Writer, roomID string, eventID string) (err error) {
@@ -73,8 +77,8 @@ func sendReply(writer matrix.Writer, roomID string, event sentMatrixEvent) (err 
 	return
 }
 
-func sendRegularMessage(writer matrix.Writer, roomID string, alert AlertPayload, alertID string) (err error) {
-	formattedMessageBody, err := buildFormattedMessageBodyFromAlert(alert)
+func sendRegularMessage(writer matrix.Writer, roomID string, alert AlertPayload, alertID string, settings cfg.AppSettings) (err error) {
+	formattedMessageBody, err := buildFormattedMessageBodyFromAlert(alert, settings)
 	if err != nil {
 		return
 	}
@@ -89,11 +93,12 @@ func sendRegularMessage(writer matrix.Writer, roomID string, alert AlertPayload,
 	return
 }
 
-func buildFormattedMessageBodyFromAlert(alert AlertPayload) (message string, err error) {
+func buildFormattedMessageBodyFromAlert(alert AlertPayload, settings cfg.AppSettings) (message string, err error) {
 	var messageData = alertMessageData{
-		StateStr:   "UNKNOWN",
-		StateEmoji: "❓",
-		Payload:    alert,
+		StateStr:       "UNKNOWN",
+		StateEmoji:     "❓",
+		MetricRounding: settings.MetricRounding,
+		Payload:        alert,
 	}
 	switch alert.State {
 	case AlertStateAlerting:
@@ -116,6 +121,16 @@ func stripHtmlTagsFromString(input string) string {
 	bodyWithoutParagraphs := htmlParagraphRegex.ReplaceAllString(input, " ")
 	plainBody := htmlTagRegex.ReplaceAllString(bodyWithoutParagraphs, "")
 	return plainBody
+}
+
+func roundMetricValue(rawValue float64, metricRounding int) string {
+	var format string
+	if metricRounding >= 0 {
+		format = fmt.Sprintf("%%.%df", metricRounding)
+	} else {
+		format = "%v"
+	}
+	return fmt.Sprintf(format, rawValue)
 }
 
 func executeAlertTemplate(template *htmlTemplate.Template, data alertMessageData) (string, error) {

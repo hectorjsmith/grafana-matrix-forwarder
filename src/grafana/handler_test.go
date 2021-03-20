@@ -1,6 +1,7 @@
 package grafana
 
 import (
+	"grafana-matrix-forwarder/cfg"
 	"testing"
 )
 
@@ -36,13 +37,13 @@ func Test_buildFormattedMessageBodyFromAlert(t *testing.T) {
 					Tags   map[string]string `json:"tags"`
 				}{
 					{
-						Value:  10.0,
+						Value:  10.65124,
 						Metric: "sample",
 						Tags:   map[string]string{},
 					},
 				},
 			}},
-			want: "💔 <b>ALERT</b><p>Rule: <a href=\"http://example.com\">sample</a> | sample message</p><ul><li><b>sample</b>: 10</li></ul>",
+			want: "💔 <b>ALERT</b><p>Rule: <a href=\"http://example.com\">sample</a> | sample message</p><ul><li><b>sample</b>: 10.65124</li></ul>",
 		},
 		{
 			name: "okStateTest",
@@ -77,7 +78,8 @@ func Test_buildFormattedMessageBodyFromAlert(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := buildFormattedMessageBodyFromAlert(tt.args.alert)
+			settings := cfg.AppSettings{MetricRounding: -1}
+			got, err := buildFormattedMessageBodyFromAlert(tt.args.alert, settings)
 			if err != nil {
 				t.Errorf("buildFormattedMessageBodyFromAlert() error: %v", err)
 			}
