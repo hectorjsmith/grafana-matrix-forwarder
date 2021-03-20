@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strconv"
 	"strings"
 )
 
@@ -49,80 +48,6 @@ func (settings *AppSettings) setDefaults() {
 	settings.ServerHost = "0.0.0.0"
 	settings.ResolveMode = ResolveWithMessage
 	settings.MetricRounding = 3
-}
-
-func (settings *AppSettings) updateSettingsFromEnvironment() {
-	var envValue string
-	var envExists bool
-
-	if envValue, envExists = os.LookupEnv("GMF_MATRIX_USER"); envExists {
-		settings.UserID = envValue
-	}
-	if envValue, envExists = os.LookupEnv("GMF_MATRIX_PASSWORD"); envExists {
-		settings.UserPassword = envValue
-	}
-	if envValue, envExists = os.LookupEnv("GMF_MATRIX_HOMESERVER"); envExists {
-		settings.HomeserverURL = envValue
-	}
-	if envValue, envExists = os.LookupEnv("GMF_SERVER_HOST"); envExists {
-		settings.ServerHost = envValue
-	}
-	if envValue, envExists = os.LookupEnv("GMF_SERVER_PORT"); envExists {
-		intValue, err := strconv.Atoi(envValue)
-		if err != nil {
-			log.Printf("ignoring invalid port number: %s", envValue)
-		} else {
-			settings.ServerPort = intValue
-		}
-	}
-	if envValue, envExists = os.LookupEnv("GMF_RESOLVE_MODE"); envExists {
-		settings.setResolveMode(envValue)
-	}
-	if envValue, envExists = os.LookupEnv("GMF_METRIC_ROUNDING"); envExists {
-		intValue, err := strconv.Atoi(envValue)
-		if err != nil {
-			log.Printf("ignoring invalid metric rounding number: %s", envValue)
-		} else {
-			settings.MetricRounding = intValue
-		}
-	}
-	if envValue, envExists = os.LookupEnv("GMF_LOG_PAYLOAD"); envExists {
-		lowerEnvValue := strings.ToLower(envValue)
-		if envValue != "" && lowerEnvValue != "false" && lowerEnvValue != "no" {
-			settings.LogPayload = true
-		}
-	}
-}
-
-func (settings *AppSettings) updateSettingsFromCommandLine() {
-	versionFlag := flag.Bool("version", false, "show version info and exit")
-	userFlag := flag.String("user", "", "username used to login to matrix")
-	passwordFlag := flag.String("password", "", "password used to login to matrix")
-	homeserverFlag := flag.String("homeserver", "matrix.org", "url of the homeserver to connect to")
-	hostFlag := flag.String("host", "0.0.0.0", "host address the server connects to")
-	portFlag := flag.Int("port", 6000, "port to run the webserver on")
-	roundingFlag := flag.Int("metricRounding", 3, "round metric values to the specified decimal places (set -1 to disable rounding)")
-	logPayloadFlag := flag.Bool("logPayload", false, "print the contents of every alert request received from grafana")
-
-	var resolveModeStr string
-	flag.StringVar(&resolveModeStr, "resolveMode", string(ResolveWithMessage),
-		fmt.Sprintf("set how to handle resolved alerts - valid options are: '%s', '%s', '%s'", ResolveWithMessage, ResolveWithReaction, ResolveWithReply))
-
-	var envFlag bool
-	flag.BoolVar(&envFlag, "env", false, "ignore all other flags and read all configuration from environment variables")
-
-	flag.Parse()
-	if !envFlag {
-		settings.VersionMode = *versionFlag
-		settings.UserID = *userFlag
-		settings.UserPassword = *passwordFlag
-		settings.HomeserverURL = *homeserverFlag
-		settings.ServerHost = *hostFlag
-		settings.ServerPort = *portFlag
-		settings.LogPayload = *logPayloadFlag
-		settings.MetricRounding = *roundingFlag
-		settings.setResolveMode(resolveModeStr)
-	}
 }
 
 func (settings *AppSettings) setResolveMode(resolveModeStr string) {
