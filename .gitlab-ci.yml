@@ -1,29 +1,55 @@
-image: golang:latest
-
-before_script:
-  - make install-deps
-
 stages:
   - test
   - build
   - publish
 
+.golang_template:
+  image: golang:latest
+  before_script:
+    - make go/downloadDependencies
+
 format:
+  extends: .golang_template
   stage: test
   script:
-    - make format
+    - make go/format
 
 dependencies:
+  extends: .golang_template
   stage: test
   script:
-    - make go-mod-tidy
+    - make go/tidyDependencies
 
 test:
+  extends: .golang_template
   stage: test
   script:
-    - make test
+    - make go/test
 
-.build-job-template:
+build_pages:
+  stage: build
+  image: registry.gitlab.com/pages/hugo/hugo:latest
+  script:
+    - apk add make
+    - make docs/downloadTheme
+    - make docs/build
+  artifacts:
+    paths:
+      - docs/public/
+
+pages:
+  stage: publish
+  image: alpine
+  only:
+    - main
+  script:
+    - mv docs/public/ public/
+  artifacts:
+    paths:
+      - public/
+
+.build_template:
+  extends: .golang_template
   stage: build
   cache:
     key: build-cache
@@ -35,8 +61,8 @@ test:
       - dist/checksums.txt
     expire_in: 1 day
 
-build-snapshot:
-  extends: .build-job-template
+build_snapshot:
+  extends: .build_template
   only:
     - main
     - triggers
@@ -45,15 +71,15 @@ build-snapshot:
     - git fetch --tags
     - make build/snapshot
 
-build-release:
-  extends: .build-job-template
+build_release:
+  extends: .build_template
   only:
     - tags
   script:
     - git fetch --tags
     - make build/release
 
-docker-push-gitlab:
+docker_push_gitlab:
   stage: publish
   only:
     - main
