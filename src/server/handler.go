@@ -31,7 +31,7 @@ func (server *Server) handleGrafanaAlert(response http.ResponseWriter, request *
 	server.metrics.updateAlertCounters(alert)
 	log.Printf("alert received (%s) - forwarding to room: %s", alert.FullRuleID(), roomID)
 
-	err = grafana.ForwardAlert(server.matrixWriteCloser.GetWriter(), roomID, alert, server.appSettings)
+	err = server.alertForwarder.ForwardAlert(roomID, alert)
 	if err != nil {
 		return err
 	}
