@@ -11,6 +11,11 @@ import (
 	textTemplate "text/template"
 )
 
+type AlertForwarder struct {
+	AppSettings cfg.AppSettings
+	Writer      matrix.Writer
+}
+
 type sentMatrixEvent struct {
 	eventID           string
 	sentFormattedBody string
@@ -45,45 +50,45 @@ var (
 )
 
 // ForwardAlert sends the provided grafana.AlertPayload to the provided matrix.Writer using the provided roomID
-func ForwardAlert(writer matrix.Writer, roomID string, alert AlertPayload, settings cfg.AppSettings) (err error) {
-	resolveWithReaction := settings.ResolveMode == cfg.ResolveWithReaction
-	resolveWithReply := settings.ResolveMode == cfg.ResolveWithReply
+func (forwarder *AlertForwarder) ForwardAlert(roomID string, alert AlertPayload) (err error) {
+	resolveWithReaction := forwarder.AppSettings.ResolveMode == cfg.ResolveWithReaction
+	resolveWithReply := forwarder.AppSettings.ResolveMode == cfg.ResolveWithReply
 
 	alertID := alert.FullRuleID()
 	if sentEvent, ok := alertToSentEventMap[alertID]; ok {
 		if alert.State == AlertStateResolved && resolveWithReaction {
 			delete(alertToSentEventMap, alertID)
-			return sendReaction(writer, roomID, sentEvent.eventID)
+			return forwarder.sendReaction(roomID, sentEvent.eventID)
 		}
 		if alert.State == AlertStateResolved && resolveWithReply {
 			delete(alertToSentEventMap, alertID)
-			return sendReply(writer, roomID, sentEvent)
+			return forwarder.sendReply(roomID, sentEvent)
 		}
 	}
-	return sendRegularMessage(writer, roomID, alert, alertID, settings)
+	return forwarder.sendRegularMessage(roomID, alert, alertID)
 }
 
-func sendReaction(writer matrix.Writer, roomID string, eventID string) (err error) {
-	_, err = writer.React(roomID, eventID, resolvedReactionStr)
+func (forwarder *AlertForwarder) sendReaction(roomID string, eventID string) (err error) {
+	_, err = forwarder.Writer.React(roomID, eventID, resolvedReactionStr)
 	return
 }
 
-func sendReply(writer matrix.Writer, roomID string, event sentMatrixEvent) (err error) {
+func (forwarder *AlertForwarder) sendReply(roomID string, event sentMatrixEvent) (err error) {
 	replyMessageBody, err := executeTextTemplate(resolveReplyTemplate, event.sentFormattedBody)
 	if err != nil {
 		return
 	}
-	_, err = writer.Reply(roomID, event.eventID, resolveReplyPlainStr, replyMessageBody)
+	_, err = forwarder.Writer.Reply(roomID, event.eventID, resolveReplyPlainStr, replyMessageBody)
 	return
 }
 
-func sendRegularMessage(writer matrix.Writer, roomID string, alert AlertPayload, alertID string, settings cfg.AppSettings) (err error) {
-	formattedMessageBody, err := buildFormattedMessageBodyFromAlert(alert, settings)
+func (forwarder *AlertForwarder) sendRegularMessage(roomID string, alert AlertPayload, alertID string) (err error) {
+	formattedMessageBody, err := buildFormattedMessageBodyFromAlert(alert, forwarder.AppSettings)
 	if err != nil {
 		return
 	}
 	plainMessageBody := stripHtmlTagsFromString(formattedMessageBody)
-	response, err := writer.Send(roomID, plainMessageBody, formattedMessageBody)
+	response, err := forwarder.Writer.Send(roomID, plainMessageBody, formattedMessageBody)
 	if err == nil {
 		alertToSentEventMap[alertID] = sentMatrixEvent{
 			eventID:           response.EventID.String(),
