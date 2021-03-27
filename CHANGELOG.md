@@ -7,7 +7,7 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 ## [Unreleased]
 
 
-## [0.5.0] - 2021-03-25
+## [0.5.0] - 2021-03-27
 ### Features
 - (6b552e0) feat: cli flags overwrite environment variables
 - (c4e53d5) feat: support for rounding metric values ([#29](https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/issues/29))
