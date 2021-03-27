@@ -8,7 +8,8 @@ go/test:
 # Make sure no unnecessary dependencies are present
 go/tidyDependencies:
 	cd src/ && go mod tidy -v
-	git diff-index HEAD
+	git --no-pager diff
+	git diff-index --quiet HEAD
 
 go/format:
 	cd src/ && go fmt $(go list ./... | grep -v /vendor/)
@@ -29,6 +30,7 @@ build/snapshot:
 	./tools/goreleaser_linux_amd64 --snapshot --rm-dist --skip-publish
 
 build/release:
+	git --no-pager diff
 	./tools/goreleaser_linux_amd64 --rm-dist --skip-publish
 
 build/docker:

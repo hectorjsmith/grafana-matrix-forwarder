@@ -6,9 +6,32 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 
 ## [Unreleased]
 
+
+## [0.5.0] - 2021-03-27
 ### Features
+- (6b552e0) feat: cli flags overwrite environment variables
+- (c4e53d5) feat: support for rounding metric values ([#29](https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/issues/29))
+- (b880a0c) feat: new cli flag to set value rounding ([#29](https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/issues/29))
+- (37572f3) feat: new -env cli flag to use environment variables ([#27](https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/issues/27))
 - (01736eb) feat: include metric values in alerts ([#8](https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/issues/8))
 - (8368043) feat: add missing fields to go struct ([#8](https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/issues/8))
+
+### Merge Requests
+- (b2e7491) Merge branch 'docs/add-missing-cli-and-env-flag' into 'main'
+- (6d3f30c) Merge branch 'docs/fix-main-branch-in-badge-links' into 'main'
+- (8164368) Merge branch 'docs/structure-documentation-site' into 'main'
+- (79c6a8a) Merge branch 'refactor/update-grafana-forwarder-handler' into 'main'
+- (42da71a) Merge branch 'refactor/improve-cli-parsing' into 'main'
+- (89e1283) Merge branch '29-round-metric-values' into 'main'
+- (865fec5) Merge branch 'ci/fix-broken-build-pipeline' into 'main'
+- (87c6291) Merge branch 'build/tidy-makefile-and-gitlab-ci' into 'main'
+- (c696e76) Merge branch '28-create-a-documentation-site' into 'main'
+- (9c7e68b) Merge branch '27-improve-support-for-environment-variables' into 'main'
+- (c4a5460) Merge branch 'refactor/use-single-template-for-alert-messages' into 'main'
+- (2bd5b5f) Merge branch '8-include-metric-values-in-alert' into 'main'
+- (90cf633) Merge branch '23-build-release-version-for-tag' into 'main'
+- (9a6c2b1) Merge branch '25-move-all-code-to-new-source-folder' into 'main'
+- (32c5ff6) Merge branch 'release/v0.4.0' into 'main'
 
 
 ## [0.4.0] - 2021-01-10
@@ -85,7 +108,8 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 [Keep a Changelog]: https://keepachangelog.com/en/1.0.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
 [git-chglog]: https://github.com/git-chglog/git-chglog
-[Unreleased]: https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/compare/0.4.0...main
+[Unreleased]: https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/compare/0.5.0...main
+[0.5.0]: https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/compare/0.4.0...0.5.0
 [0.4.0]: https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/compare/0.3.0...0.4.0
 [0.3.0]: https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/compare/0.2.0...0.3.0
 [0.2.0]: https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/compare/0.1.0...0.2.0

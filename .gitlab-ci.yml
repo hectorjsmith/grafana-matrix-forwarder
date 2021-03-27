@@ -14,12 +14,6 @@ format:
   script:
     - make go/format
 
-dependencies:
-  extends: .golang_template
-  stage: test
-  script:
-    - make go/tidyDependencies
-
 test:
   extends: .golang_template
   stage: test
