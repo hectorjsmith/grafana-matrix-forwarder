@@ -30,6 +30,7 @@ build/snapshot:
 	./tools/goreleaser_linux_amd64 --snapshot --rm-dist --skip-publish
 
 build/release:
+	git --no-pager diff
 	./tools/goreleaser_linux_amd64 --rm-dist --skip-publish
 
 build/docker:
