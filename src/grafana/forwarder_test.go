@@ -46,6 +46,27 @@ func Test_buildFormattedMessageBodyFromAlert(t *testing.T) {
 			want: "💔 <b>ALERT</b><p>Rule: <a href=\"http://example.com\">sample</a> | sample message</p><ul><li><b>sample</b>: 10.65124</li></ul>",
 		},
 		{
+			name: "alertingStateWithEvalMatchesAndTagsTest",
+			args: args{AlertPayload{
+				State:    "alerting",
+				RuleURL:  "http://example.com",
+				RuleName: "sample",
+				Message:  "sample message",
+				EvalMatches: []struct {
+					Value  float64           `json:"value"`
+					Metric string            `json:"metric"`
+					Tags   map[string]string `json:"tags"`
+				}{
+					{
+						Value:  10.65124,
+						Metric: "sample",
+					},
+				},
+				Tags: map[string]string{"key1": "value1", "key2": "value2"},
+			}},
+			want: "💔 <b>ALERT</b><p>Rule: <a href=\"http://example.com\">sample</a> | sample message</p><ul><li><b>sample</b>: 10.65124</li></ul><p>Tags:</p><ul><li><b>key1</b>: value1</li><li><b>key2</b>: value2</li></ul>",
+		},
+		{
 			name: "okStateTest",
 			args: args{AlertPayload{
 				State:    "ok",
