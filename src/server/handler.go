@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 )
 
 func (server *Server) handleGrafanaAlert(response http.ResponseWriter, request *http.Request) error {
@@ -18,7 +19,7 @@ func (server *Server) handleGrafanaAlert(response http.ResponseWriter, request *
 		logPayload(request, bodyBytes)
 	}
 
-	roomID, err := getRoomIDFromURL(request)
+	roomIDs, err := getRoomIDsFromURL(request.URL)
 	if err != nil {
 		return err
 	}
@@ -29,14 +30,16 @@ func (server *Server) handleGrafanaAlert(response http.ResponseWriter, request *
 	}
 
 	server.metrics.updateAlertCounters(alert)
-	log.Printf("alert received (%s) - forwarding to room: %s", alert.FullRuleID(), roomID)
+	log.Printf("alert received (%s) - forwarding to rooms: %v", alert.FullRuleID(), roomIDs)
 
-	err = server.alertForwarder.ForwardAlert(roomID, alert)
-	if err != nil {
-		return err
+	for _, roomID := range roomIDs {
+		err = server.alertForwarder.ForwardAlert(roomID, alert)
+		if err != nil {
+			return err
+		}
 	}
 
-	response.WriteHeader(200)
+	response.WriteHeader(http.StatusOK)
 	_, err = response.Write([]byte("OK"))
 	return err
 }
@@ -53,12 +56,12 @@ func logPayload(request *http.Request, bodyBytes []byte) {
 	fmt.Println(body)
 }
 
-func getRoomIDFromURL(request *http.Request) (string, error) {
-	roomIds, ok := request.URL.Query()["roomId"]
-	if !ok || len(roomIds[0]) < 1 {
-		return "", fmt.Errorf("url param 'roomId' is missing")
+func getRoomIDsFromURL(url *url.URL) ([]string, error) {
+	roomIDs, ok := url.Query()["roomId"]
+	if !ok || len(roomIDs) < 1 {
+		return nil, fmt.Errorf("url param 'roomId' is missing")
 	}
-	return roomIds[0], nil
+	return roomIDs, nil
 }
 
 func getAlertPayloadFromRequestBody(bodyBytes []byte) (alertPayload grafana.AlertPayload, err error) {
