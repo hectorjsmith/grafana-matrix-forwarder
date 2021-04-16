@@ -46,7 +46,7 @@ func (server Server) Start() (err error) {
 			if err != nil {
 				server.metrics.failForwardCount++
 				log.Print(err)
-				response.WriteHeader(500)
+				response.WriteHeader(http.StatusInternalServerError)
 			} else {
 				server.metrics.successForwardCount++
 			}
