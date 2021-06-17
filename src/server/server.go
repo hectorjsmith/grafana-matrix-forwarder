@@ -17,7 +17,7 @@ type Server struct {
 	matrixWriteCloser matrix.WriteCloser
 	appSettings       cfg.AppSettings
 	metrics           serverMetrics
-	alertForwarder    grafana.AlertForwarder
+	alertForwarder    *grafana.AlertForwarder
 }
 
 // BuildServer builds a Server instance based on the provided context.Context, a matrix.WriteCloser, and the cfg.AppSettings
@@ -27,10 +27,7 @@ func BuildServer(ctx context.Context, matrixWriteCloser matrix.WriteCloser, appS
 		matrixWriteCloser: matrixWriteCloser,
 		appSettings:       appSettings,
 		metrics:           serverMetrics{},
-		alertForwarder:    grafana.AlertForwarder{
-			AppSettings: appSettings,
-			Writer:      matrixWriteCloser.GetWriter(),
-		},
+		alertForwarder:    grafana.NewForwarder(appSettings, matrixWriteCloser.GetWriter()),
 	}
 }
 
