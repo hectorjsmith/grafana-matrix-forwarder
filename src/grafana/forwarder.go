@@ -2,23 +2,28 @@ package grafana
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"grafana-matrix-forwarder/cfg"
 	"grafana-matrix-forwarder/matrix"
 	htmlTemplate "html/template"
+	"io/ioutil"
 	"log"
+	"os"
 	"regexp"
 	textTemplate "text/template"
 )
 
 type AlertForwarder struct {
-	AppSettings cfg.AppSettings
-	Writer      matrix.Writer
+	AppSettings         cfg.AppSettings
+	Writer              matrix.Writer
+	alertToSentEventMap map[string]sentMatrixEvent
+	saveAlertMap        bool
 }
 
 type sentMatrixEvent struct {
-	eventID           string
-	sentFormattedBody string
+	EventID           string
+	SentFormattedBody string
 }
 
 type alertMessageData struct {
@@ -33,9 +38,10 @@ const (
 {{- with .Payload }}<p>Rule: <a href="{{ .RuleURL }}">{{ .RuleName }}</a> | {{ .Message }}</p>
 {{- if gt (len .EvalMatches) 0 }}<ul>{{ range $match := .EvalMatches }}<li><b>{{ .Metric }}</b>: {{ RoundValue .Value $.MetricRounding }}</li>{{ end }}</ul>{{ end }}
 {{- if gt (len .Tags) 0 }}<p>Tags:</p><ul>{{ range $tagKey, $tagValue := .Tags }}<li><b>{{ $tagKey }}</b>: {{ $tagValue }}</li>{{ end }}</ul>{{ end }}{{ end }}`
-	resolvedReactionStr  = `✅`
-	resolveReplyStr      = "<mx-reply><blockquote>{{ . }}</blockquote></mx-reply>💚 ️<b>RESOLVED</b>"
-	resolveReplyPlainStr = `💚 ️RESOLVED`
+	resolvedReactionStr    = `✅`
+	resolveReplyStr        = "<mx-reply><blockquote>{{ . }}</blockquote></mx-reply>💚 ️<b>RESOLVED</b>"
+	resolveReplyPlainStr   = `💚 ️RESOLVED`
+	sentMatrixEventMapFile = "grafanaToMatrixMap.json"
 )
 
 var (
@@ -46,9 +52,18 @@ var (
 		"RoundValue": roundMetricValue,
 	}).Parse(alertMessageTemplateStr))
 	resolveReplyTemplate = textTemplate.Must(textTemplate.New("resolveReply").Parse(resolveReplyStr))
-
-	alertToSentEventMap = map[string]sentMatrixEvent{}
 )
+
+func NewForwarder(appSettings cfg.AppSettings, writer matrix.Writer) *AlertForwarder {
+	forwarder := &AlertForwarder{
+		AppSettings:         appSettings,
+		Writer:              writer,
+		alertToSentEventMap: map[string]sentMatrixEvent{},
+		saveAlertMap:        true,
+	}
+	forwarder.prePopulateAlertMap()
+	return forwarder
+}
 
 // ForwardAlert sends the provided grafana.AlertPayload to the provided matrix.Writer using the provided roomID
 func (forwarder *AlertForwarder) ForwardAlert(roomID string, alert AlertPayload) (err error) {
@@ -56,13 +71,13 @@ func (forwarder *AlertForwarder) ForwardAlert(roomID string, alert AlertPayload)
 	resolveWithReply := forwarder.AppSettings.ResolveMode == cfg.ResolveWithReply
 
 	alertID := alert.FullRuleID()
-	if sentEvent, ok := alertToSentEventMap[alertID]; ok {
+	if sentEvent, ok := forwarder.alertToSentEventMap[alertID]; ok {
 		if alert.State == AlertStateResolved && resolveWithReaction {
-			delete(alertToSentEventMap, alertID)
-			return forwarder.sendReaction(roomID, sentEvent.eventID)
+			delete(forwarder.alertToSentEventMap, alertID)
+			return forwarder.sendReaction(roomID, sentEvent.EventID)
 		}
 		if alert.State == AlertStateResolved && resolveWithReply {
-			delete(alertToSentEventMap, alertID)
+			delete(forwarder.alertToSentEventMap, alertID)
 			return forwarder.sendReply(roomID, sentEvent)
 		}
 	}
@@ -75,11 +90,11 @@ func (forwarder *AlertForwarder) sendReaction(roomID string, eventID string) (er
 }
 
 func (forwarder *AlertForwarder) sendReply(roomID string, event sentMatrixEvent) (err error) {
-	replyMessageBody, err := executeTextTemplate(resolveReplyTemplate, event.sentFormattedBody)
+	replyMessageBody, err := executeTextTemplate(resolveReplyTemplate, event.SentFormattedBody)
 	if err != nil {
 		return
 	}
-	_, err = forwarder.Writer.Reply(roomID, event.eventID, resolveReplyPlainStr, replyMessageBody)
+	_, err = forwarder.Writer.Reply(roomID, event.EventID, resolveReplyPlainStr, replyMessageBody)
 	return
 }
 
@@ -91,10 +106,11 @@ func (forwarder *AlertForwarder) sendRegularMessage(roomID string, alert AlertPa
 	plainMessageBody := stripHtmlTagsFromString(formattedMessageBody)
 	response, err := forwarder.Writer.Send(roomID, plainMessageBody, formattedMessageBody)
 	if err == nil {
-		alertToSentEventMap[alertID] = sentMatrixEvent{
-			eventID:           response.EventID.String(),
-			sentFormattedBody: formattedMessageBody,
+		forwarder.alertToSentEventMap[alertID] = sentMatrixEvent{
+			EventID:           response.EventID.String(),
+			SentFormattedBody: formattedMessageBody,
 		}
+		forwarder.saveForwardMap()
 	}
 	return
 }
@@ -149,4 +165,31 @@ func executeTextTemplate(template *textTemplate.Template, content string) (strin
 	buffer := new(bytes.Buffer)
 	err := template.Execute(buffer, content)
 	return buffer.String(), err
+}
+
+func (forwarder *AlertForwarder) prePopulateAlertMap() {
+	fileData, err := ioutil.ReadFile(sentMatrixEventMapFile)
+	if err == nil {
+		err = json.Unmarshal(fileData, &forwarder.alertToSentEventMap)
+	}
+
+	if err != nil {
+		log.Printf("failed to load forward map - using blank map (%v)", err)
+	}
+}
+
+func (forwarder *AlertForwarder) saveForwardMap() {
+	if !forwarder.saveAlertMap {
+		return
+	}
+
+	jsonData, err := json.Marshal(forwarder.alertToSentEventMap)
+	if err == nil {
+		err = ioutil.WriteFile(sentMatrixEventMapFile, jsonData, os.ModePerm)
+	}
+
+	if err != nil {
+		log.Printf("failed to save forwarded alert map - functionality disabled (%v)", err)
+		forwarder.saveAlertMap = false
+	}
 }
