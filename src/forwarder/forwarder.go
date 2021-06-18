@@ -1,10 +1,11 @@
-package grafana
+package forwarder
 
 import (
 	"bytes"
 	"encoding/json"
 	"fmt"
 	"grafana-matrix-forwarder/cfg"
+	"grafana-matrix-forwarder/grafana"
 	"grafana-matrix-forwarder/matrix"
 	htmlTemplate "html/template"
 	"io/ioutil"
@@ -30,7 +31,7 @@ type alertMessageData struct {
 	MetricRounding int
 	StateStr       string
 	StateEmoji     string
-	Payload        AlertPayload
+	Payload        grafana.AlertPayload
 }
 
 const (
@@ -66,17 +67,17 @@ func NewForwarder(appSettings cfg.AppSettings, writer matrix.Writer) *AlertForwa
 }
 
 // ForwardAlert sends the provided grafana.AlertPayload to the provided matrix.Writer using the provided roomID
-func (forwarder *AlertForwarder) ForwardAlert(roomID string, alert AlertPayload) (err error) {
+func (forwarder *AlertForwarder) ForwardAlert(roomID string, alert grafana.AlertPayload) (err error) {
 	resolveWithReaction := forwarder.AppSettings.ResolveMode == cfg.ResolveWithReaction
 	resolveWithReply := forwarder.AppSettings.ResolveMode == cfg.ResolveWithReply
 
 	alertID := alert.FullRuleID()
 	if sentEvent, ok := forwarder.alertToSentEventMap[alertID]; ok {
-		if alert.State == AlertStateResolved && resolveWithReaction {
+		if alert.State == grafana.AlertStateResolved && resolveWithReaction {
 			delete(forwarder.alertToSentEventMap, alertID)
 			return forwarder.sendReaction(roomID, sentEvent.EventID)
 		}
-		if alert.State == AlertStateResolved && resolveWithReply {
+		if alert.State == grafana.AlertStateResolved && resolveWithReply {
 			delete(forwarder.alertToSentEventMap, alertID)
 			return forwarder.sendReply(roomID, sentEvent)
 		}
@@ -98,7 +99,7 @@ func (forwarder *AlertForwarder) sendReply(roomID string, event sentMatrixEvent)
 	return
 }
 
-func (forwarder *AlertForwarder) sendRegularMessage(roomID string, alert AlertPayload, alertID string) (err error) {
+func (forwarder *AlertForwarder) sendRegularMessage(roomID string, alert grafana.AlertPayload, alertID string) (err error) {
 	formattedMessageBody, err := buildFormattedMessageBodyFromAlert(alert, forwarder.AppSettings)
 	if err != nil {
 		return
@@ -115,7 +116,7 @@ func (forwarder *AlertForwarder) sendRegularMessage(roomID string, alert AlertPa
 	return
 }
 
-func buildFormattedMessageBodyFromAlert(alert AlertPayload, settings cfg.AppSettings) (message string, err error) {
+func buildFormattedMessageBodyFromAlert(alert grafana.AlertPayload, settings cfg.AppSettings) (message string, err error) {
 	var messageData = alertMessageData{
 		StateStr:       "UNKNOWN",
 		StateEmoji:     "❓",
@@ -123,13 +124,13 @@ func buildFormattedMessageBodyFromAlert(alert AlertPayload, settings cfg.AppSett
 		Payload:        alert,
 	}
 	switch alert.State {
-	case AlertStateAlerting:
+	case grafana.AlertStateAlerting:
 		messageData.StateStr = "ALERT"
 		messageData.StateEmoji = "💔"
-	case AlertStateResolved:
+	case grafana.AlertStateResolved:
 		messageData.StateStr = "RESOLVED"
 		messageData.StateEmoji = "💚"
-	case AlertStateNoData:
+	case grafana.AlertStateNoData:
 		messageData.StateStr = "NO DATA"
 		messageData.StateEmoji = "❓"
 	default:
