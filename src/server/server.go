@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"grafana-matrix-forwarder/cfg"
-	"grafana-matrix-forwarder/grafana"
+	"grafana-matrix-forwarder/forwarder"
 	"grafana-matrix-forwarder/matrix"
 	"log"
 	"net/http"
@@ -17,7 +17,7 @@ type Server struct {
 	matrixWriteCloser matrix.WriteCloser
 	appSettings       cfg.AppSettings
 	metrics           serverMetrics
-	alertForwarder    *grafana.AlertForwarder
+	alertForwarder    *forwarder.AlertForwarder
 }
 
 // BuildServer builds a Server instance based on the provided context.Context, a matrix.WriteCloser, and the cfg.AppSettings
@@ -27,7 +27,7 @@ func BuildServer(ctx context.Context, matrixWriteCloser matrix.WriteCloser, appS
 		matrixWriteCloser: matrixWriteCloser,
 		appSettings:       appSettings,
 		metrics:           serverMetrics{},
-		alertForwarder:    grafana.NewForwarder(appSettings, matrixWriteCloser.GetWriter()),
+		alertForwarder:    forwarder.NewForwarder(appSettings, matrixWriteCloser.GetWriter()),
 	}
 }
 

@@ -1,13 +1,14 @@
-package grafana
+package forwarder
 
 import (
 	"grafana-matrix-forwarder/cfg"
+	"grafana-matrix-forwarder/grafana"
 	"testing"
 )
 
 func Test_buildFormattedMessageBodyFromAlert(t *testing.T) {
 	type args struct {
-		alert AlertPayload
+		alert grafana.AlertPayload
 	}
 	tests := []struct {
 		name string
@@ -16,7 +17,7 @@ func Test_buildFormattedMessageBodyFromAlert(t *testing.T) {
 	}{
 		{
 			name: "alertingStateTest",
-			args: args{AlertPayload{
+			args: args{grafana.AlertPayload{
 				State:    "alerting",
 				RuleURL:  "http://example.com",
 				RuleName: "sample",
@@ -26,7 +27,7 @@ func Test_buildFormattedMessageBodyFromAlert(t *testing.T) {
 		},
 		{
 			name: "alertingStateWithEvalMatchesTest",
-			args: args{AlertPayload{
+			args: args{grafana.AlertPayload{
 				State:    "alerting",
 				RuleURL:  "http://example.com",
 				RuleName: "sample",
@@ -47,7 +48,7 @@ func Test_buildFormattedMessageBodyFromAlert(t *testing.T) {
 		},
 		{
 			name: "alertingStateWithEvalMatchesAndTagsTest",
-			args: args{AlertPayload{
+			args: args{grafana.AlertPayload{
 				State:    "alerting",
 				RuleURL:  "http://example.com",
 				RuleName: "sample",
@@ -68,7 +69,7 @@ func Test_buildFormattedMessageBodyFromAlert(t *testing.T) {
 		},
 		{
 			name: "okStateTest",
-			args: args{AlertPayload{
+			args: args{grafana.AlertPayload{
 				State:    "ok",
 				RuleURL:  "http://example.com",
 				RuleName: "sample",
@@ -78,7 +79,7 @@ func Test_buildFormattedMessageBodyFromAlert(t *testing.T) {
 		},
 		{
 			name: "noDataStateTest",
-			args: args{AlertPayload{
+			args: args{grafana.AlertPayload{
 				State:    "no_data",
 				RuleURL:  "http://example.com",
 				RuleName: "sample",
@@ -88,7 +89,7 @@ func Test_buildFormattedMessageBodyFromAlert(t *testing.T) {
 		},
 		{
 			name: "unknownStateTest",
-			args: args{AlertPayload{
+			args: args{grafana.AlertPayload{
 				State:    "invalid state",
 				RuleURL:  "http://example.com",
 				RuleName: "sample",
