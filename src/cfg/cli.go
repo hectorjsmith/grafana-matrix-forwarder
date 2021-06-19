@@ -6,16 +6,17 @@ import (
 )
 
 const (
-	versionFlagName        = "version"
-	userFlagName           = "user"
-	passwordFlagName       = "password"
-	homeServerFlagName     = "homeserver"
-	hostFlagName           = "host"
-	portFlagName           = "port"
-	metricRoundingFlagName = "metricRounding"
-	logPayloadFlagName     = "logPayload"
-	resolveModeFlagName    = "resolveMode"
-	envFlagName            = "env"
+	versionFlagName         = "version"
+	userFlagName            = "user"
+	passwordFlagName        = "password"
+	homeServerFlagName      = "homeserver"
+	hostFlagName            = "host"
+	portFlagName            = "port"
+	metricRoundingFlagName  = "metricRounding"
+	logPayloadFlagName      = "logPayload"
+	resolveModeFlagName     = "resolveMode"
+	envFlagName             = "env"
+	persistAlertMapFlagName = "persistAlertMap"
 )
 
 func (settings *AppSettings) updateSettingsFromCommandLine() {
@@ -27,6 +28,8 @@ func (settings *AppSettings) updateSettingsFromCommandLine() {
 	portFlag := flag.Int(portFlagName, defaultServerPort, "port to run the webserver on")
 	roundingFlag := flag.Int(metricRoundingFlagName, defaultMetricRounding, "round metric values to the specified decimal places (set -1 to disable rounding)")
 	logPayloadFlag := flag.Bool(logPayloadFlagName, false, "print the contents of every alert request received from grafana")
+	persistAlertMapFlag := flag.Bool(persistAlertMapFlagName, defaultPersistAlertMap,
+		"persist the internal map between grafana alerts and matrix messages - this is used to support resolving alerts using replies")
 
 	var resolveModeStr string
 	flag.StringVar(&resolveModeStr, resolveModeFlagName, string(defaultResolveMode),
@@ -61,6 +64,9 @@ func (settings *AppSettings) updateSettingsFromCommandLine() {
 		}
 		if wasCliFlagProvided(resolveModeFlagName) {
 			settings.setResolveMode(resolveModeStr)
+		}
+		if wasCliFlagProvided(persistAlertMapFlagName) {
+			settings.PersistAlertMap = *persistAlertMapFlag
 		}
 	}
 }

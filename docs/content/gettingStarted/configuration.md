@@ -26,6 +26,8 @@ $ grafana-matrix-forwarder -h
         round metric values to the specified decimal places (set -1 to disable rounding) (default 3)
   -password string
         password used to login to matrix
+  -persistAlertMap
+        persist the internal map between grafana alerts and matrix messages - this is used to support resolving alerts using replies (default true)
   -port int
         port to run the webserver on (default 6000)
   -resolveMode string
@@ -41,11 +43,14 @@ $ grafana-matrix-forwarder -h
 The following environment variables should be set to configure how the forwarder container runs.
 These environment variables map directly to the CLI parameters of the application.
 
-- `GMF_MATRIX_USER` (required) - Username used to login to matrix
-- `GMF_MATRIX_PASSWORD` (required) - Password used to login to matrix
-- `GMF_MATRIX_HOMESERVER` (required) - URL of the matrix homeserver to connect to
-- `GMF_SERVER_HOST` (optional) - Host address the server connects to (defaults to "0.0.0.0")
-- `GMF_SERVER_PORT` (optional) - Port to run the webserver on (default 6000)
-- `GMF_RESOLVE_MODE` (optional) - Set how to handle resolved alerts - valid options are: 'message', 'reaction', and 'reply'
-- `GMF_LOG_PAYLOAD` (optional) - Set to any value to print the contents of every alert request received from grafana (disabled if set to "no" or "false")
-- `GMF_METRIC_ROUNDING` (optional) - Set the number of decimal places to round metric values to (-1 to disable all rounding)
+| Name | Required | Description |
+|------|----------|-------------|
+| `GMF_MATRIX_USER` | X | Username used to login to matrix |
+| `GMF_MATRIX_PASSWORD` | X | Password used to login to matrix |
+| `GMF_MATRIX_HOMESERVER` | X | URL of the matrix homeserver to connect to |
+| `GMF_SERVER_HOST` | | Host address the server connects to (defaults to "0.0.0.0") |
+| `GMF_SERVER_PORT` | | Port to run the webserver on (default 6000) |
+| `GMF_RESOLVE_MODE` | | Set how to handle resolved alerts - valid options are: 'message', 'reaction', and 'reply' |
+| `GMF_LOG_PAYLOAD` | | Set to any value to print the contents of every alert request received from grafana (disabled if set to "no" or "false") |
+| `GMF_METRIC_ROUNDING` | | Set the number of decimal places to round metric values to (-1 to disable all rounding) |
+| `GMF_PERSIST_ALERT_MAP` | | Persist the internal map between grafana alerts and matrix messages - this is used to support resolving alerts using replies (defaults to "true") |

@@ -8,14 +8,15 @@ import (
 )
 
 const (
-	userEnvName = "GMF_MATRIX_USER"
-	passwordEnvName = "GMF_MATRIX_PASSWORD"
-	homeServerEnvName = "GMF_MATRIX_HOMESERVER"
-	hostEnvName = "GMF_SERVER_HOST"
-	portEnvName = "GMF_SERVER_PORT"
-	resolveModeEnvName = "GMF_RESOLVE_MODE"
-	metricRoundingEnvName = "GMF_METRIC_ROUNDING"
-	logPayloadEnvName = "GMF_LOG_PAYLOAD"
+	userEnvName            = "GMF_MATRIX_USER"
+	passwordEnvName        = "GMF_MATRIX_PASSWORD"
+	homeServerEnvName      = "GMF_MATRIX_HOMESERVER"
+	hostEnvName            = "GMF_SERVER_HOST"
+	portEnvName            = "GMF_SERVER_PORT"
+	resolveModeEnvName     = "GMF_RESOLVE_MODE"
+	metricRoundingEnvName  = "GMF_METRIC_ROUNDING"
+	logPayloadEnvName      = "GMF_LOG_PAYLOAD"
+	persistAlertMapEnvName = "GMF_PERSIST_ALERT_MAP"
 )
 
 func (settings *AppSettings) updateSettingsFromEnvironment() {
@@ -57,6 +58,12 @@ func (settings *AppSettings) updateSettingsFromEnvironment() {
 		lowerEnvValue := strings.ToLower(envValue)
 		if envValue != "" && lowerEnvValue != "false" && lowerEnvValue != "no" {
 			settings.LogPayload = true
+		}
+	}
+	if envValue, envExists = os.LookupEnv(persistAlertMapEnvName); envExists {
+		lowerEnvValue := strings.ToLower(envValue)
+		if envValue != "" && lowerEnvValue != "false" && lowerEnvValue != "no" {
+			settings.PersistAlertMap = true
 		}
 	}
 }
