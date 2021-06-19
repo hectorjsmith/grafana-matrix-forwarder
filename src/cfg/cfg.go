@@ -13,28 +13,30 @@ type ResolveMode string
 
 // AppSettings includes all application parameters
 type AppSettings struct {
-	VersionMode    bool
-	UserID         string
-	UserPassword   string
-	HomeserverURL  string
-	ServerHost     string
-	MetricRounding int
-	ServerPort     int
-	LogPayload     bool
-	ResolveMode    ResolveMode
+	VersionMode     bool
+	UserID          string
+	UserPassword    string
+	HomeserverURL   string
+	ServerHost      string
+	MetricRounding  int
+	ServerPort      int
+	LogPayload      bool
+	ResolveMode     ResolveMode
+	PersistAlertMap bool
 }
 
 const (
-	ResolveWithReaction ResolveMode = "reaction"
-	ResolveWithMessage  ResolveMode = "message"
-	ResolveWithReply    ResolveMode = "reply"
-	minServerPort                   = 1000
-	maxServerPort                   = 65535
-	defaultServerPort               = 6000
-	defaultServerHost               = "0.0.0.0"
-	defaultHomeServerUrl            = "matrix.org"
-	defaultResolveMode              = ResolveWithMessage
-	defaultMetricRounding           = 3
+	ResolveWithReaction    ResolveMode = "reaction"
+	ResolveWithMessage     ResolveMode = "message"
+	ResolveWithReply       ResolveMode = "reply"
+	minServerPort                      = 1000
+	maxServerPort                      = 65535
+	defaultServerPort                  = 6000
+	defaultServerHost                  = "0.0.0.0"
+	defaultHomeServerUrl               = "matrix.org"
+	defaultResolveMode                 = ResolveWithMessage
+	defaultMetricRounding              = 3
+	defaultPersistAlertMap             = true
 )
 
 // Parse the AppSettings data from the command line
@@ -54,6 +56,7 @@ func (settings *AppSettings) setDefaults() {
 	settings.HomeserverURL = defaultHomeServerUrl
 	settings.ResolveMode = defaultResolveMode
 	settings.MetricRounding = defaultMetricRounding
+	settings.PersistAlertMap = defaultPersistAlertMap
 }
 
 func (settings *AppSettings) setResolveMode(resolveModeStr string) {

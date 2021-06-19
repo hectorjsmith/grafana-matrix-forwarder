@@ -10,11 +10,15 @@ import (
 	"os"
 )
 
+const (
+	alertMapFileName = "grafanaToMatrixMap.json"
+)
+
 type AlertForwarder struct {
-	AppSettings         cfg.AppSettings
-	Writer              matrix.Writer
-	alertToSentEventMap map[string]sentMatrixEvent
-	saveAlertMap        bool
+	AppSettings                cfg.AppSettings
+	Writer                     matrix.Writer
+	alertToSentEventMap        map[string]sentMatrixEvent
+	alertMapPersistenceEnabled bool
 }
 
 type sentMatrixEvent struct {
@@ -24,10 +28,10 @@ type sentMatrixEvent struct {
 
 func NewForwarder(appSettings cfg.AppSettings, writer matrix.Writer) *AlertForwarder {
 	forwarder := &AlertForwarder{
-		AppSettings:         appSettings,
-		Writer:              writer,
-		alertToSentEventMap: map[string]sentMatrixEvent{},
-		saveAlertMap:        true,
+		AppSettings:                appSettings,
+		Writer:                     writer,
+		alertToSentEventMap:        map[string]sentMatrixEvent{},
+		alertMapPersistenceEnabled: appSettings.PersistAlertMap,
 	}
 	forwarder.prePopulateAlertMap()
 	return forwarder
@@ -78,34 +82,34 @@ func (forwarder *AlertForwarder) sendRegularMessage(roomID string, alert grafana
 			EventID:           response.EventID.String(),
 			SentFormattedBody: formattedMessageBody,
 		}
-		forwarder.saveForwardMap()
+		forwarder.persistAlertMap()
 	}
 	return
 }
 
 func (forwarder *AlertForwarder) prePopulateAlertMap() {
-	fileData, err := ioutil.ReadFile(sentMatrixEventMapFile)
+	fileData, err := ioutil.ReadFile(alertMapFileName)
 	if err == nil {
 		err = json.Unmarshal(fileData, &forwarder.alertToSentEventMap)
 	}
 
 	if err != nil {
-		log.Printf("failed to load forward map - using blank map (%v)", err)
+		log.Printf("failed to load alert map - falling back on an empty map (%v)", err)
 	}
 }
 
-func (forwarder *AlertForwarder) saveForwardMap() {
-	if !forwarder.saveAlertMap {
+func (forwarder *AlertForwarder) persistAlertMap() {
+	if !forwarder.alertMapPersistenceEnabled {
 		return
 	}
 
 	jsonData, err := json.Marshal(forwarder.alertToSentEventMap)
 	if err == nil {
-		err = ioutil.WriteFile(sentMatrixEventMapFile, jsonData, os.ModePerm)
+		err = ioutil.WriteFile(alertMapFileName, jsonData, os.ModePerm)
 	}
 
 	if err != nil {
-		log.Printf("failed to save forwarded alert map - functionality disabled (%v)", err)
-		forwarder.saveAlertMap = false
+		log.Printf("failed to persist alert map - functionality disabled (%v)", err)
+		forwarder.alertMapPersistenceEnabled = false
 	}
 }
