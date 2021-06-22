@@ -7,6 +7,24 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 ## [Unreleased]
 
 
+## [0.6.0] - 2021-06-22
+### Features
+- (c9adf61) feat: option to persist alert map ([#30](https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/issues/30))
+- (7e592e6) feat: support saving event map to file ([#24](https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/issues/24))
+- (4499c99) feat: support forwarding alert to multiple rooms ([#10](https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/issues/10))
+- (26f66ef) feat: include global tags in forwarded alert ([#26](https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/issues/26))
+
+### Merge Requests
+- (8136ee1) Merge branch '30-option-to-disable-persisting-alert-to-matrix-message-map' into 'main'
+- (8cfdc2d) Merge branch 'refactor/split-forwarder-code' into 'main'
+- (4e22239) Merge branch 'refactor/split-forwarder-into-new-folder' into 'main'
+- (4e7e960) Merge branch '24-persistent-alert-to-message-event-map' into 'main'
+- (684f192) Merge branch '10-support-multiple-room-ids-in-the-url' into 'main'
+- (4d70b48) Merge branch '14-support-for-e2ee-rooms' into 'main'
+- (9e1601d) Merge branch '26-include-tags-in-forwarded-alert' into 'main'
+- (357ca58) Merge branch 'release/v0.5.0' into 'main'
+
+
 ## [0.5.0] - 2021-03-27
 ### Features
 - (6b552e0) feat: cli flags overwrite environment variables
@@ -108,7 +126,8 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 [Keep a Changelog]: https://keepachangelog.com/en/1.0.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
 [git-chglog]: https://github.com/git-chglog/git-chglog
-[Unreleased]: https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/compare/0.5.0...main
+[Unreleased]: https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/compare/0.6.0...main
+[0.6.0]: https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/compare/0.5.0...0.6.0
 [0.5.0]: https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/compare/0.4.0...0.5.0
 [0.4.0]: https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/compare/0.3.0...0.4.0
 [0.3.0]: https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/compare/0.2.0...0.3.0
