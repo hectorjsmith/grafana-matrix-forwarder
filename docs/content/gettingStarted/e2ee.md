@@ -8,9 +8,9 @@ This tool does not natively support sending alerts to matrix rooms with encrypti
 However, encrypted rooms are supported by using [pantalaimon](https://github.com/matrix-org/pantalaimon) to act as a reverse proxy that handles the encryption.
 Information on setting up pantalaimon can be found on the project's Github page.
 
-This tool can be configured to forward messages through the pantalaimon proxy server by setting the `GMF_MATRIX_HOMESERVER` environment variable or `-homeserver` cli argument to your pantalaimon instance.
+The grafana alert forwarder can be configured to send messages through the pantalaimon proxy server by setting the `GMF_MATRIX_HOMESERVER` environment variable (or `-homeserver` cli argument) to point at your pantalaimon instance.
 
-## Docker Example
+## Example
 
 The following docker compose file demonstrates how to run both the forwarder and pantalaimon together.
 
@@ -35,5 +35,5 @@ services:
 {{< /highlight >}}
 
 {{< hint info >}}
-NOTE: Assumes that pantalaimon has been configured to run on port `8080`
+NOTE: This assumes that pantalaimon has been configured to run on port `8080`
 {{< /hint >}}
