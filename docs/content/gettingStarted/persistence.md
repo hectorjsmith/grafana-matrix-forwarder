@@ -8,7 +8,7 @@ By default, the tool will create a `grafanaToMatrixMap.json` file on each forwar
 This file is only a copy of the tool's internal state to support restarts. It does not need to be backed up.
 
 {{< hint info >}}
-The creation of this file can be disabled by using the `--persistAlertMap` CLI flag or the `GMF_PERSIST_ALERT_MAP` environment variable on startup.
+The creation of this file can be disabled by setting the `--persistAlertMap` CLI flag (or `GMF_PERSIST_ALERT_MAP` environment variable) to `false` on startup.
 {{< /hint >}}
 
 ## Technical Explanation

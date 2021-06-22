@@ -38,7 +38,7 @@ services:
         - GMF_MATRIX_PASSWORD=password
         - GMF_MATRIX_HOMESERVER=matrix.org
         ports:
-- "6000:6000"
+        - "6000:6000"
 {{< /highlight >}}
 
 {{< /tab >}}
