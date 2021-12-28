@@ -9,7 +9,6 @@ This metric counts the number of alerts which were forwarded on to a matrix room
 
 | Label Name | Description |
 |------------|-------------|
-| `gmf_forwards{result="total"}` | Total number of matrix messages forwarded |
 | `gmf_forwards{result="success"}` | Number of matrix messages which were forwarded successfully |
 | `gmf_forwards{result="error"}` | Number of matrix messages where the forwarding process failed  |
 
@@ -19,7 +18,6 @@ This metric counts the number of grafana alerts received by the tool. It splits 
 
 | Label Name | Description |
 |------------|-------------|
-| `gmf_alerts{state="total"}` | Total number of grafana alerts received |
 | `gmf_alerts{state="alerting"}` | Number of grafana alerts with the *alerting* state (i.e. the alert is firing) |
 | `gmf_alerts{state="no_data"}` | Number of grafana alerts with the *no_data* state (for example, when grafana failed to read data for that metric) |
 | `gmf_alerts{state="ok"}` | Number of grafana alerts with the *ok* state (i.e. resolved alerts) |
@@ -27,19 +25,17 @@ This metric counts the number of grafana alerts received by the tool. It splits 
 
 ### Raw Output Example
 {{< highlight bash "linenos=table" >}}
-# HELP gmf_up
+# HELP gmf_alerts Alert states being processed by the forwarder
+# TYPE gmf_alerts counter
+gmf_alerts{state="alerting"} 5
+gmf_alerts{state="no_data"} 1
+gmf_alerts{state="ok"} 3
+gmf_alerts{state="other"} 1
+# HELP gmf_forwards Successful and failed alert forwards
+# TYPE gmf_forwards counter
+gmf_forwards{result="fail"} 6
+gmf_forwards{result="success"} 4
+# HELP gmf_up Alert forwarder is up and running
 # TYPE gmf_up gauge
 gmf_up 1
-# HELP gmf_forwards
-# TYPE gmf_forwards gauge
-gmf_forwards{result="error"} 1
-gmf_forwards{result="success"} 5
-gmf_forwards{result="total"} 6
-# HELP gmf_alerts
-# TYPE gmf_alerts gauge
-gmf_alerts{state="alerting"} 1
-gmf_alerts{state="no_data"} 1
-gmf_alerts{state="ok"} 2
-gmf_alerts{state="other"} 1
-gmf_alerts{state="total"} 6
 {{< /highlight >}}
