@@ -3,6 +3,8 @@ package server
 import (
 	"context"
 	"fmt"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"grafana-matrix-forwarder/cfg"
 	"grafana-matrix-forwarder/forwarder"
 	"grafana-matrix-forwarder/matrix"
@@ -16,7 +18,6 @@ type Server struct {
 	ctx               context.Context
 	matrixWriteCloser matrix.WriteCloser
 	appSettings       cfg.AppSettings
-	metrics           serverMetrics
 	alertForwarder    *forwarder.AlertForwarder
 }
 
@@ -26,7 +27,6 @@ func BuildServer(ctx context.Context, matrixWriteCloser matrix.WriteCloser, appS
 		ctx:               ctx,
 		matrixWriteCloser: matrixWriteCloser,
 		appSettings:       appSettings,
-		metrics:           serverMetrics{},
 		alertForwarder:    forwarder.NewForwarder(appSettings, matrixWriteCloser.GetWriter()),
 	}
 }
@@ -39,26 +39,18 @@ func (server Server) Start() (err error) {
 	mux.Handle("/api/v0/forward", http.HandlerFunc(
 		func(response http.ResponseWriter, request *http.Request) {
 			err = server.handleGrafanaAlert(response, request)
-			server.metrics.totalForwardCount++
 			if err != nil {
-				server.metrics.failForwardCount++
+				collectorInstance.failForwardCount++
 				log.Print(err)
 				response.WriteHeader(http.StatusInternalServerError)
 			} else {
-				server.metrics.successForwardCount++
+				collectorInstance.successForwardCount++
 			}
 		},
 	))
-	mux.Handle("/metrics", http.HandlerFunc(
-		func(response http.ResponseWriter, request *http.Request) {
-			err = server.handleMetricsRequest(response)
-			if err != nil {
-				log.Print(err)
-				response.WriteHeader(500)
-			}
-		},
-	))
+	mux.Handle("/metrics", promhttp.Handler())
 
+	prometheus.MustRegister(collectorInstance)
 	serverAddr := fmt.Sprintf("%s:%d", server.appSettings.ServerHost, server.appSettings.ServerPort)
 	srv := &http.Server{
 		Addr:    serverAddr,

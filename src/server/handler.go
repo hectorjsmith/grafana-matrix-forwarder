@@ -29,7 +29,7 @@ func (server *Server) handleGrafanaAlert(response http.ResponseWriter, request *
 		return err
 	}
 
-	server.metrics.updateAlertCounters(alert)
+	updateAlertMetrics(alert)
 	log.Printf("alert received (%s) - forwarding to rooms: %v", alert.FullRuleID(), roomIDs)
 
 	for _, roomID := range roomIDs {
@@ -42,12 +42,6 @@ func (server *Server) handleGrafanaAlert(response http.ResponseWriter, request *
 	response.WriteHeader(http.StatusOK)
 	_, err = response.Write([]byte("OK"))
 	return err
-}
-
-func (server Server) handleMetricsRequest(response http.ResponseWriter) (err error) {
-	metric, err := server.metrics.buildMetrics()
-	_, err = response.Write([]byte(metric))
-	return
 }
 
 func logPayload(request *http.Request, bodyBytes []byte) {

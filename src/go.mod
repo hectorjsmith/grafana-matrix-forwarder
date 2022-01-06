@@ -2,4 +2,7 @@ module grafana-matrix-forwarder
 
 go 1.15
 
-require maunium.net/go/mautrix v0.7.13
+require (
+	github.com/prometheus/client_golang v1.11.0
+	maunium.net/go/mautrix v0.7.13
+)
