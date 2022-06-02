@@ -33,7 +33,7 @@ func (server *Server) handleGrafanaAlert(response http.ResponseWriter, request *
 	log.Printf("alert received (%s) - forwarding to rooms: %v", alert.FullRuleID(), roomIDs)
 
 	for _, roomID := range roomIDs {
-		err = server.alertForwarder.ForwardAlert(roomID, alert)
+		err = server.alertForwarder.ForwardAlert(roomID, alert.ToForwarderData())
 		if err != nil {
 			return err
 		}

@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"fmt"
 	"grafana-matrix-forwarder/cfg"
-	"grafana-matrix-forwarder/server/v0"
 	htmlTemplate "html/template"
 	"log"
 	"regexp"
@@ -15,7 +14,7 @@ type alertMessageData struct {
 	MetricRounding int
 	StateStr       string
 	StateEmoji     string
-	Payload        v0.AlertPayload
+	Payload        Data
 }
 
 const (
@@ -38,7 +37,7 @@ var (
 	resolveReplyTemplate = textTemplate.Must(textTemplate.New("resolveReply").Parse(resolveReplyStr))
 )
 
-func buildFormattedMessageBodyFromAlert(alert v0.AlertPayload, settings cfg.AppSettings) (message string, err error) {
+func buildFormattedMessageBodyFromAlert(alert Data, settings cfg.AppSettings) (message string, err error) {
 	var messageData = alertMessageData{
 		StateStr:       "UNKNOWN",
 		StateEmoji:     "❓",
@@ -46,13 +45,13 @@ func buildFormattedMessageBodyFromAlert(alert v0.AlertPayload, settings cfg.AppS
 		Payload:        alert,
 	}
 	switch alert.State {
-	case v0.AlertStateAlerting:
+	case AlertStateAlerting:
 		messageData.StateStr = "ALERT"
 		messageData.StateEmoji = "💔"
-	case v0.AlertStateResolved:
+	case AlertStateResolved:
 		messageData.StateStr = "RESOLVED"
 		messageData.StateEmoji = "💚"
-	case v0.AlertStateNoData:
+	case AlertStateNoData:
 		messageData.StateStr = "NO DATA"
 		messageData.StateEmoji = "❓"
 	default:
