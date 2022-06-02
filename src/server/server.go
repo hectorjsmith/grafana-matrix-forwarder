@@ -8,6 +8,7 @@ import (
 	"grafana-matrix-forwarder/cfg"
 	"grafana-matrix-forwarder/forwarder"
 	"grafana-matrix-forwarder/matrix"
+	"grafana-matrix-forwarder/server/metrics"
 	"log"
 	"net/http"
 	"time"
@@ -19,6 +20,7 @@ type Server struct {
 	matrixWriteCloser matrix.WriteCloser
 	appSettings       cfg.AppSettings
 	alertForwarder    *forwarder.AlertForwarder
+	metricsCollector  *metrics.Collector
 }
 
 // BuildServer builds a Server instance based on the provided context.Context, a matrix.WriteCloser, and the cfg.AppSettings
@@ -28,6 +30,7 @@ func BuildServer(ctx context.Context, matrixWriteCloser matrix.WriteCloser, appS
 		matrixWriteCloser: matrixWriteCloser,
 		appSettings:       appSettings,
 		alertForwarder:    forwarder.NewForwarder(appSettings, matrixWriteCloser.GetWriter()),
+		metricsCollector:  &metrics.Collector{},
 	}
 }
 
@@ -40,17 +43,17 @@ func (server Server) Start() (err error) {
 		func(response http.ResponseWriter, request *http.Request) {
 			err = server.handleGrafanaAlert(response, request)
 			if err != nil {
-				collectorInstance.failForwardCount++
+				server.metricsCollector.IncrementFailure()
 				log.Print(err)
 				response.WriteHeader(http.StatusInternalServerError)
 			} else {
-				collectorInstance.successForwardCount++
+				server.metricsCollector.IncrementSuccess()
 			}
 		},
 	))
 	mux.Handle("/metrics", promhttp.Handler())
 
-	prometheus.MustRegister(collectorInstance)
+	prometheus.MustRegister(server.metricsCollector)
 	serverAddr := fmt.Sprintf("%s:%d", server.appSettings.ServerHost, server.appSettings.ServerPort)
 	srv := &http.Server{
 		Addr:    serverAddr,
