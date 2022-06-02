@@ -1,31 +1,9 @@
-package server
+package metrics
 
 import (
 	"github.com/prometheus/client_golang/prometheus"
 	"grafana-matrix-forwarder/forwarder"
-	"grafana-matrix-forwarder/server/v0"
-)
-
-const namespace = "gmf"
-
-var (
-	collectorInstance = &Collector{}
-
-	upMetric = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, "", "up"),
-		"Alert forwarder is up and running",
-		nil, nil,
-	)
-	metricForwardCount = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, "", "forwards"),
-		"Successful and failed alert forwards",
-		[]string{"result"}, nil,
-	)
-	metricAlertCount = prometheus.NewDesc(
-		prometheus.BuildFQName(namespace, "", "alerts"),
-		"Alert states being processed by the forwarder",
-		[]string{"state"}, nil,
-	)
+	v0 "grafana-matrix-forwarder/server/v0"
 )
 
 type Collector struct {
@@ -73,14 +51,22 @@ func (c *Collector) collectAlertCount(ch chan<- prometheus.Metric) {
 	)
 }
 
-func updateAlertMetrics(alert v0.AlertPayload) {
+func (c *Collector) IncrementSuccess() {
+	c.successForwardCount++
+}
+
+func (c *Collector) IncrementFailure() {
+	c.failForwardCount++
+}
+
+func (c *Collector) RecordAlert(alert v0.AlertPayload) {
 	if alert.State == forwarder.AlertStateAlerting {
-		collectorInstance.alertingAlertCount++
+		c.alertingAlertCount++
 	} else if alert.State == forwarder.AlertStateResolved {
-		collectorInstance.resolvedAlertCount++
+		c.resolvedAlertCount++
 	} else if alert.State == forwarder.AlertStateNoData {
-		collectorInstance.noDataAlertCount++
+		c.noDataAlertCount++
 	} else {
-		collectorInstance.otherAlertCount++
+		c.otherAlertCount++
 	}
 }
