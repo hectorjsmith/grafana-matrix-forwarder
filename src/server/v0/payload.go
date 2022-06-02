@@ -1,14 +1,8 @@
 package v0
 
-import "fmt"
-
-const (
-	// AlertStateAlerting represents the state name grafana uses for alerts that are firing
-	AlertStateAlerting = "alerting"
-	// AlertStateResolved represents the state name grafana uses for alerts that have been resolved
-	AlertStateResolved = "ok"
-	// AlertStateNoData represents the state name grafana uses for alerts that are firing because of missing data
-	AlertStateNoData = "no_data"
+import (
+	"fmt"
+	"grafana-matrix-forwarder/forwarder"
 )
 
 // AlertPayload stores the request data sent with the grafana alert webhook
@@ -33,4 +27,20 @@ type AlertPayload struct {
 // FullRuleID is defined as the combination of the OrgID, DashboardID, PanelID, and RuleID
 func (payload AlertPayload) FullRuleID() string {
 	return fmt.Sprintf("%d.%d.%d.%d", payload.OrgID, payload.DashboardID, payload.PanelID, payload.RuleID)
+}
+
+func (payload AlertPayload) ToForwarderData() forwarder.Data {
+	return forwarder.Data{
+		Id:       payload.FullRuleID(),
+		State:    payload.State,
+		RuleURL:  payload.RuleURL,
+		RuleName: payload.RuleName,
+		Message:  payload.Message,
+		Tags:     payload.Tags,
+		EvalMatches: []struct {
+			Value  float64
+			Metric string
+			Tags   map[string]string
+		}(payload.EvalMatches),
+	}
 }

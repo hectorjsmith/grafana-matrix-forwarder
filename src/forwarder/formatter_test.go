@@ -2,13 +2,12 @@ package forwarder
 
 import (
 	"grafana-matrix-forwarder/cfg"
-	"grafana-matrix-forwarder/server/v0"
 	"testing"
 )
 
 func Test_buildFormattedMessageBodyFromAlert(t *testing.T) {
 	type args struct {
-		alert v0.AlertPayload
+		alert Data
 	}
 	tests := []struct {
 		name string
@@ -17,7 +16,7 @@ func Test_buildFormattedMessageBodyFromAlert(t *testing.T) {
 	}{
 		{
 			name: "alertingStateTest",
-			args: args{v0.AlertPayload{
+			args: args{Data{
 				State:    "alerting",
 				RuleURL:  "http://example.com",
 				RuleName: "sample",
@@ -27,15 +26,15 @@ func Test_buildFormattedMessageBodyFromAlert(t *testing.T) {
 		},
 		{
 			name: "alertingStateWithEvalMatchesTest",
-			args: args{v0.AlertPayload{
+			args: args{Data{
 				State:    "alerting",
 				RuleURL:  "http://example.com",
 				RuleName: "sample",
 				Message:  "sample message",
 				EvalMatches: []struct {
-					Value  float64           `json:"value"`
-					Metric string            `json:"metric"`
-					Tags   map[string]string `json:"tags"`
+					Value  float64
+					Metric string
+					Tags   map[string]string
 				}{
 					{
 						Value:  10.65124,
@@ -48,15 +47,15 @@ func Test_buildFormattedMessageBodyFromAlert(t *testing.T) {
 		},
 		{
 			name: "alertingStateWithEvalMatchesAndTagsTest",
-			args: args{v0.AlertPayload{
+			args: args{Data{
 				State:    "alerting",
 				RuleURL:  "http://example.com",
 				RuleName: "sample",
 				Message:  "sample message",
 				EvalMatches: []struct {
-					Value  float64           `json:"value"`
-					Metric string            `json:"metric"`
-					Tags   map[string]string `json:"tags"`
+					Value  float64
+					Metric string
+					Tags   map[string]string
 				}{
 					{
 						Value:  10.65124,
@@ -69,7 +68,7 @@ func Test_buildFormattedMessageBodyFromAlert(t *testing.T) {
 		},
 		{
 			name: "okStateTest",
-			args: args{v0.AlertPayload{
+			args: args{Data{
 				State:    "ok",
 				RuleURL:  "http://example.com",
 				RuleName: "sample",
@@ -79,7 +78,7 @@ func Test_buildFormattedMessageBodyFromAlert(t *testing.T) {
 		},
 		{
 			name: "noDataStateTest",
-			args: args{v0.AlertPayload{
+			args: args{Data{
 				State:    "no_data",
 				RuleURL:  "http://example.com",
 				RuleName: "sample",
@@ -89,7 +88,7 @@ func Test_buildFormattedMessageBodyFromAlert(t *testing.T) {
 		},
 		{
 			name: "unknownStateTest",
-			args: args{v0.AlertPayload{
+			args: args{Data{
 				State:    "invalid state",
 				RuleURL:  "http://example.com",
 				RuleName: "sample",
