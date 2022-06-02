@@ -2,13 +2,13 @@ package forwarder
 
 import (
 	"grafana-matrix-forwarder/cfg"
-	"grafana-matrix-forwarder/grafana"
+	"grafana-matrix-forwarder/server/v0"
 	"testing"
 )
 
 func Test_buildFormattedMessageBodyFromAlert(t *testing.T) {
 	type args struct {
-		alert grafana.AlertPayload
+		alert v0.AlertPayload
 	}
 	tests := []struct {
 		name string
@@ -17,7 +17,7 @@ func Test_buildFormattedMessageBodyFromAlert(t *testing.T) {
 	}{
 		{
 			name: "alertingStateTest",
-			args: args{grafana.AlertPayload{
+			args: args{v0.AlertPayload{
 				State:    "alerting",
 				RuleURL:  "http://example.com",
 				RuleName: "sample",
@@ -27,7 +27,7 @@ func Test_buildFormattedMessageBodyFromAlert(t *testing.T) {
 		},
 		{
 			name: "alertingStateWithEvalMatchesTest",
-			args: args{grafana.AlertPayload{
+			args: args{v0.AlertPayload{
 				State:    "alerting",
 				RuleURL:  "http://example.com",
 				RuleName: "sample",
@@ -48,7 +48,7 @@ func Test_buildFormattedMessageBodyFromAlert(t *testing.T) {
 		},
 		{
 			name: "alertingStateWithEvalMatchesAndTagsTest",
-			args: args{grafana.AlertPayload{
+			args: args{v0.AlertPayload{
 				State:    "alerting",
 				RuleURL:  "http://example.com",
 				RuleName: "sample",
@@ -69,7 +69,7 @@ func Test_buildFormattedMessageBodyFromAlert(t *testing.T) {
 		},
 		{
 			name: "okStateTest",
-			args: args{grafana.AlertPayload{
+			args: args{v0.AlertPayload{
 				State:    "ok",
 				RuleURL:  "http://example.com",
 				RuleName: "sample",
@@ -79,7 +79,7 @@ func Test_buildFormattedMessageBodyFromAlert(t *testing.T) {
 		},
 		{
 			name: "noDataStateTest",
-			args: args{grafana.AlertPayload{
+			args: args{v0.AlertPayload{
 				State:    "no_data",
 				RuleURL:  "http://example.com",
 				RuleName: "sample",
@@ -89,7 +89,7 @@ func Test_buildFormattedMessageBodyFromAlert(t *testing.T) {
 		},
 		{
 			name: "unknownStateTest",
-			args: args{grafana.AlertPayload{
+			args: args{v0.AlertPayload{
 				State:    "invalid state",
 				RuleURL:  "http://example.com",
 				RuleName: "sample",

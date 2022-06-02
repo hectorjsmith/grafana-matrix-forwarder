@@ -2,7 +2,7 @@ package server
 
 import (
 	"github.com/prometheus/client_golang/prometheus"
-	"grafana-matrix-forwarder/grafana"
+	"grafana-matrix-forwarder/server/v0"
 )
 
 const namespace = "gmf"
@@ -72,12 +72,12 @@ func (c *Collector) collectAlertCount(ch chan<- prometheus.Metric) {
 	)
 }
 
-func updateAlertMetrics(alert grafana.AlertPayload) {
-	if alert.State == grafana.AlertStateAlerting {
+func updateAlertMetrics(alert v0.AlertPayload) {
+	if alert.State == v0.AlertStateAlerting {
 		collectorInstance.alertingAlertCount++
-	} else if alert.State == grafana.AlertStateResolved {
+	} else if alert.State == v0.AlertStateResolved {
 		collectorInstance.resolvedAlertCount++
-	} else if alert.State == grafana.AlertStateNoData {
+	} else if alert.State == v0.AlertStateNoData {
 		collectorInstance.noDataAlertCount++
 	} else {
 		collectorInstance.otherAlertCount++
