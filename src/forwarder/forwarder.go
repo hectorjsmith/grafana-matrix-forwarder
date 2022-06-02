@@ -3,8 +3,8 @@ package forwarder
 import (
 	"encoding/json"
 	"grafana-matrix-forwarder/cfg"
-	"grafana-matrix-forwarder/grafana"
 	"grafana-matrix-forwarder/matrix"
+	"grafana-matrix-forwarder/server/v0"
 	"io/ioutil"
 	"log"
 	"os"
@@ -38,17 +38,17 @@ func NewForwarder(appSettings cfg.AppSettings, writer matrix.Writer) *AlertForwa
 }
 
 // ForwardAlert sends the provided grafana.AlertPayload to the provided matrix.Writer using the provided roomID
-func (forwarder *AlertForwarder) ForwardAlert(roomID string, alert grafana.AlertPayload) (err error) {
+func (forwarder *AlertForwarder) ForwardAlert(roomID string, alert v0.AlertPayload) (err error) {
 	resolveWithReaction := forwarder.AppSettings.ResolveMode == cfg.ResolveWithReaction
 	resolveWithReply := forwarder.AppSettings.ResolveMode == cfg.ResolveWithReply
 
 	alertID := alert.FullRuleID()
 	if sentEvent, ok := forwarder.alertToSentEventMap[alertID]; ok {
-		if alert.State == grafana.AlertStateResolved && resolveWithReaction {
+		if alert.State == v0.AlertStateResolved && resolveWithReaction {
 			delete(forwarder.alertToSentEventMap, alertID)
 			return forwarder.sendReaction(roomID, sentEvent.EventID)
 		}
-		if alert.State == grafana.AlertStateResolved && resolveWithReply {
+		if alert.State == v0.AlertStateResolved && resolveWithReply {
 			delete(forwarder.alertToSentEventMap, alertID)
 			return forwarder.sendReply(roomID, sentEvent)
 		}
@@ -70,7 +70,7 @@ func (forwarder *AlertForwarder) sendReply(roomID string, event sentMatrixEvent)
 	return
 }
 
-func (forwarder *AlertForwarder) sendRegularMessage(roomID string, alert grafana.AlertPayload, alertID string) (err error) {
+func (forwarder *AlertForwarder) sendRegularMessage(roomID string, alert v0.AlertPayload, alertID string) (err error) {
 	formattedMessageBody, err := buildFormattedMessageBodyFromAlert(alert, forwarder.AppSettings)
 	if err != nil {
 		return

@@ -3,7 +3,7 @@ package server
 import (
 	"encoding/json"
 	"fmt"
-	"grafana-matrix-forwarder/grafana"
+	"grafana-matrix-forwarder/server/v0"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -58,7 +58,7 @@ func getRoomIDsFromURL(url *url.URL) ([]string, error) {
 	return roomIDs, nil
 }
 
-func getAlertPayloadFromRequestBody(bodyBytes []byte) (alertPayload grafana.AlertPayload, err error) {
+func getAlertPayloadFromRequestBody(bodyBytes []byte) (alertPayload v0.AlertPayload, err error) {
 	err = json.Unmarshal(bodyBytes, &alertPayload)
 	return
 }
