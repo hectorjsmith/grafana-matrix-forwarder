@@ -36,8 +36,19 @@ func NewForwarder(appSettings cfg.AppSettings, writer matrix.Writer) *AlertForwa
 	return forwarder
 }
 
-// ForwardAlert sends the provided grafana.AlertPayload to the provided matrix.Writer using the provided roomID
-func (forwarder *AlertForwarder) ForwardAlert(roomID string, alert Data) (err error) {
+// ForwardAlertToRooms sends the provided grafana.AlertPayload to the provided matrix.Writer by iterating over all the provided room IDs.
+func (forwarder *AlertForwarder) ForwardAlertToRooms(roomIDs []string, alert Data) error {
+	for _, roomID := range roomIDs {
+		err := forwarder.ForwardAlertToRoom(roomID, alert)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// ForwardAlertToRoom sends the provided grafana.AlertPayload to the provided matrix.Writer using the provided roomID
+func (forwarder *AlertForwarder) ForwardAlertToRoom(roomID string, alert Data) (err error) {
 	resolveWithReaction := forwarder.AppSettings.ResolveMode == cfg.ResolveWithReaction
 	resolveWithReply := forwarder.AppSettings.ResolveMode == cfg.ResolveWithReply
 
