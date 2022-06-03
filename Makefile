@@ -33,8 +33,11 @@ build/release:
 	git --no-pager diff
 	./tools/goreleaser_linux_amd64 --rm-dist --skip-publish
 
-build/docker:
+build/docker/latest:
 	docker build -t registry.gitlab.com/hectorjsmith/grafana-matrix-forwarder:latest .
 
-build/dockerTag:
+build/docker/nightly:
+	docker build -t registry.gitlab.com/hectorjsmith/grafana-matrix-forwarder:nightly .
+
+build/docker/tag:
 	docker build -t registry.gitlab.com/hectorjsmith/grafana-matrix-forwarder:$(shell git describe --tags) .
