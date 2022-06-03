@@ -8,6 +8,19 @@ stages:
   before_script:
     - make go/downloadDependencies
 
+.docker_template:
+  image: docker:stable
+  services:
+    - docker:dind
+  before_script:
+    - apk add git
+    - apk add make
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  cache:
+    key: build-cache
+    paths:
+      - dist/
+
 format:
   extends: .golang_template
   stage: test
@@ -73,23 +86,21 @@ build_release:
     - git fetch --tags
     - make build/release
 
-docker_push_gitlab:
+docker/gitlab:
+  extends: .docker_template
+  stage: publish
+  only:
+    - tags
+  script:
+    - make build/docker/latest
+    - make build/docker/tag
+    - docker push registry.gitlab.com/hectorjsmith/grafana-matrix-forwarder
+
+docker/gitlab/nightly:
+  extends: .docker_template
   stage: publish
   only:
     - main
-    - tags
-  image: docker:stable
-  services:
-    - docker:dind
-  cache:
-    key: build-cache
-    paths:
-      - dist/
-  before_script:
-    - apk add git
-    - apk add make
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
-    - make build/docker
-    - docker tag registry.gitlab.com/hectorjsmith/grafana-matrix-forwarder registry.gitlab.com/hectorjsmith/grafana-matrix-forwarder:$(git describe --tags)
+    - make build/docker/nightly
     - docker push registry.gitlab.com/hectorjsmith/grafana-matrix-forwarder
