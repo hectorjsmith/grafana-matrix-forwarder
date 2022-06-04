@@ -1,4 +1,4 @@
-package forwarder
+package model
 
 const (
 	// AlertStateAlerting represents the state name grafana uses for alerts that are firing
