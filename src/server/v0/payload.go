@@ -2,7 +2,7 @@ package v0
 
 import (
 	"fmt"
-	"grafana-matrix-forwarder/forwarder"
+	"grafana-matrix-forwarder/model"
 )
 
 // AlertPayload stores the request data sent with the grafana alert webhook
@@ -29,8 +29,8 @@ func (payload AlertPayload) FullRuleID() string {
 	return fmt.Sprintf("%d.%d.%d.%d", payload.OrgID, payload.DashboardID, payload.PanelID, payload.RuleID)
 }
 
-func (payload AlertPayload) ToForwarderData() forwarder.Data {
-	return forwarder.Data{
+func (payload AlertPayload) ToForwarderData() model.Data {
+	return model.Data{
 		Id:       payload.FullRuleID(),
 		State:    payload.State,
 		RuleURL:  payload.RuleURL,

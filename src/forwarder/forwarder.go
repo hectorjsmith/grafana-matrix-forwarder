@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"grafana-matrix-forwarder/cfg"
 	"grafana-matrix-forwarder/matrix"
+	"grafana-matrix-forwarder/model"
 	"io/ioutil"
 	"log"
 	"os"
@@ -37,7 +38,7 @@ func NewForwarder(appSettings cfg.AppSettings, writer matrix.Writer) *AlertForwa
 }
 
 // ForwardAlertToRooms sends the provided grafana.AlertPayload to the provided matrix.Writer by iterating over all the provided room IDs.
-func (forwarder *AlertForwarder) ForwardAlertToRooms(roomIDs []string, alert Data) error {
+func (forwarder *AlertForwarder) ForwardAlertToRooms(roomIDs []string, alert model.Data) error {
 	for _, roomID := range roomIDs {
 		err := forwarder.ForwardAlertToRoom(roomID, alert)
 		if err != nil {
@@ -48,16 +49,16 @@ func (forwarder *AlertForwarder) ForwardAlertToRooms(roomIDs []string, alert Dat
 }
 
 // ForwardAlertToRoom sends the provided grafana.AlertPayload to the provided matrix.Writer using the provided roomID
-func (forwarder *AlertForwarder) ForwardAlertToRoom(roomID string, alert Data) (err error) {
+func (forwarder *AlertForwarder) ForwardAlertToRoom(roomID string, alert model.Data) (err error) {
 	resolveWithReaction := forwarder.AppSettings.ResolveMode == cfg.ResolveWithReaction
 	resolveWithReply := forwarder.AppSettings.ResolveMode == cfg.ResolveWithReply
 
 	if sentEvent, ok := forwarder.alertToSentEventMap[alert.Id]; ok {
-		if alert.State == AlertStateResolved && resolveWithReaction {
+		if alert.State == model.AlertStateResolved && resolveWithReaction {
 			delete(forwarder.alertToSentEventMap, alert.Id)
 			return forwarder.sendReaction(roomID, sentEvent.EventID)
 		}
-		if alert.State == AlertStateResolved && resolveWithReply {
+		if alert.State == model.AlertStateResolved && resolveWithReply {
 			delete(forwarder.alertToSentEventMap, alert.Id)
 			return forwarder.sendReply(roomID, sentEvent)
 		}
@@ -79,7 +80,7 @@ func (forwarder *AlertForwarder) sendReply(roomID string, event sentMatrixEvent)
 	return
 }
 
-func (forwarder *AlertForwarder) sendRegularMessage(roomID string, alert Data, alertID string) (err error) {
+func (forwarder *AlertForwarder) sendRegularMessage(roomID string, alert model.Data, alertID string) (err error) {
 	formattedMessageBody, err := buildFormattedMessageBodyFromAlert(alert, forwarder.AppSettings)
 	if err != nil {
 		return

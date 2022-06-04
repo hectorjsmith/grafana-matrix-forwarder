@@ -2,7 +2,7 @@ package metrics
 
 import (
 	"github.com/prometheus/client_golang/prometheus"
-	"grafana-matrix-forwarder/forwarder"
+	"grafana-matrix-forwarder/model"
 	v0 "grafana-matrix-forwarder/server/v0"
 )
 
@@ -60,11 +60,11 @@ func (c *Collector) IncrementFailure() {
 }
 
 func (c *Collector) RecordAlert(alert v0.AlertPayload) {
-	if alert.State == forwarder.AlertStateAlerting {
+	if alert.State == model.AlertStateAlerting {
 		c.alertingAlertCount++
-	} else if alert.State == forwarder.AlertStateResolved {
+	} else if alert.State == model.AlertStateResolved {
 		c.resolvedAlertCount++
-	} else if alert.State == forwarder.AlertStateNoData {
+	} else if alert.State == model.AlertStateNoData {
 		c.noDataAlertCount++
 	} else {
 		c.otherAlertCount++
