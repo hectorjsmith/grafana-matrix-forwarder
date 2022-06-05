@@ -2,17 +2,13 @@ package metrics
 
 import (
 	"github.com/prometheus/client_golang/prometheus"
-	"grafana-matrix-forwarder/model"
 	v0 "grafana-matrix-forwarder/server/v0"
 )
 
 type Collector struct {
 	successForwardCount int
 	failForwardCount    int
-	alertingAlertCount  int
-	resolvedAlertCount  int
-	noDataAlertCount    int
-	otherAlertCount     int
+	alertCountByState   map[string]int
 }
 
 func (c *Collector) Describe(ch chan<- *prometheus.Desc) {
@@ -37,18 +33,11 @@ func (c *Collector) collectForwardCount(ch chan<- prometheus.Metric) {
 }
 
 func (c *Collector) collectAlertCount(ch chan<- prometheus.Metric) {
-	ch <- prometheus.MustNewConstMetric(
-		metricAlertCount, prometheus.CounterValue, float64(c.alertingAlertCount), "alerting",
-	)
-	ch <- prometheus.MustNewConstMetric(
-		metricAlertCount, prometheus.CounterValue, float64(c.resolvedAlertCount), "ok",
-	)
-	ch <- prometheus.MustNewConstMetric(
-		metricAlertCount, prometheus.CounterValue, float64(c.noDataAlertCount), "no_data",
-	)
-	ch <- prometheus.MustNewConstMetric(
-		metricAlertCount, prometheus.CounterValue, float64(c.otherAlertCount), "other",
-	)
+	for state, count := range c.alertCountByState {
+		ch <- prometheus.MustNewConstMetric(
+			metricAlertCount, prometheus.CounterValue, float64(count), state,
+		)
+	}
 }
 
 func (c *Collector) IncrementSuccess() {
@@ -60,13 +49,9 @@ func (c *Collector) IncrementFailure() {
 }
 
 func (c *Collector) RecordAlert(alert v0.AlertPayload) {
-	if alert.State == model.AlertStateAlerting {
-		c.alertingAlertCount++
-	} else if alert.State == model.AlertStateResolved {
-		c.resolvedAlertCount++
-	} else if alert.State == model.AlertStateNoData {
-		c.noDataAlertCount++
+	if count, ok := c.alertCountByState[alert.State]; !ok {
+		c.alertCountByState[alert.State] = 1
 	} else {
-		c.otherAlertCount++
+		c.alertCountByState[alert.State] = count + 1
 	}
 }
