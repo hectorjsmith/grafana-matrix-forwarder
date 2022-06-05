@@ -55,10 +55,12 @@ gmf_up 1
 			serverMetrics := &Collector{
 				successForwardCount: tt.fields.successForwardCount,
 				failForwardCount:    tt.fields.failForwardCount,
-				alertingAlertCount:  tt.fields.alertingAlertCount,
-				resolvedAlertCount:  tt.fields.resolvedAlertCount,
-				noDataAlertCount:    tt.fields.noDataAlertCount,
-				otherAlertCount:     tt.fields.otherAlertCount,
+				alertCountByState: map[string]int{
+					"alerting": tt.fields.alertingAlertCount,
+					"ok":       tt.fields.resolvedAlertCount,
+					"no_data":  tt.fields.noDataAlertCount,
+					"other":    tt.fields.otherAlertCount,
+				},
 			}
 			registry := prometheus.NewRegistry()
 			registry.MustRegister(serverMetrics)
