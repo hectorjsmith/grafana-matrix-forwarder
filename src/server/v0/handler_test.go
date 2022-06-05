@@ -1,4 +1,4 @@
-package server
+package v0
 
 import (
 	"net/url"

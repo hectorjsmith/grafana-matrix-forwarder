@@ -2,7 +2,7 @@ package metrics
 
 import (
 	"github.com/prometheus/client_golang/prometheus"
-	v0 "grafana-matrix-forwarder/server/v0"
+	"grafana-matrix-forwarder/model"
 )
 
 type Collector struct {
@@ -48,7 +48,7 @@ func (c *Collector) IncrementFailure() {
 	c.failForwardCount++
 }
 
-func (c *Collector) RecordAlert(alert v0.AlertPayload) {
+func (c *Collector) RecordAlert(alert model.Data) {
 	if count, ok := c.alertCountByState[alert.State]; !ok {
 		c.alertCountByState[alert.State] = 1
 	} else {

@@ -9,6 +9,7 @@ import (
 	"grafana-matrix-forwarder/forwarder"
 	"grafana-matrix-forwarder/matrix"
 	"grafana-matrix-forwarder/server/metrics"
+	v0 "grafana-matrix-forwarder/server/v0"
 	"log"
 	"net/http"
 	"time"
@@ -41,14 +42,7 @@ func (server Server) Start() (err error) {
 	mux := http.NewServeMux()
 	mux.Handle("/api/v0/forward", http.HandlerFunc(
 		func(response http.ResponseWriter, request *http.Request) {
-			err = server.handleGrafanaAlert(response, request)
-			if err != nil {
-				server.metricsCollector.IncrementFailure()
-				log.Print(err)
-				response.WriteHeader(http.StatusInternalServerError)
-			} else {
-				server.metricsCollector.IncrementSuccess()
-			}
+			server.HandleGrafanaAlert(&v0.Handler{}, response, request)
 		},
 	))
 	mux.Handle("/metrics", promhttp.Handler())
