@@ -1,4 +1,4 @@
-package v0
+package v1
 
 import (
 	"encoding/json"
@@ -24,12 +24,12 @@ func (h Handler) ParseRequest(request *http.Request, logPayload bool) (roomIDs [
 		return
 	}
 
-	alertPayload, err := getAlertPayloadFromRequestBody(bodyBytes)
+	payload, err := getAlertPayloadFromRequestBody(bodyBytes)
 	if err != nil {
 		return
 	}
 
-	alert = alertPayload.ToForwarderData()
+	alert = payload.ToForwarderData()
 	return
 }
 
