@@ -30,13 +30,23 @@ func fullRuleID(p alertPayload, a alert) string {
 	return fmt.Sprintf("unified.%d.%s", p.OrgID, a.Fingerprint)
 }
 
+func normaliseStatus(status string) string {
+	switch status {
+	case "firing":
+		return model.AlertStateAlerting
+	case "resolved":
+		return model.AlertStateResolved
+	default:
+		return status
+	}
+}
+
 func (payload alertPayload) ToForwarderData() []model.AlertData {
 	data := make([]model.AlertData, len(payload.Alerts))
 	for i, alert := range payload.Alerts {
-
 		data[i] = model.AlertData{
 			Id:       fullRuleID(payload, alert),
-			State:    payload.State,
+			State:    normaliseStatus(alert.Status),
 			RuleURL:  alert.PanelUrl,
 			RuleName: alert.Labels["alertname"],
 			Message:  alert.Annotations["summary"],
