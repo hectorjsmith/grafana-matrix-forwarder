@@ -27,7 +27,7 @@ func (server *Server) handleGrafanaAlertInner(handler RequestHandler, response h
 	log.Printf("alert received (%s) - forwarding to rooms: %v", alert.Id, roomIDs)
 	server.metricsCollector.RecordAlert(alert)
 
-	err = server.alertForwarder.ForwardAlertToRooms(roomIDs, alert)
+	err = server.alertForwarder.ForwardEvent(roomIDs, alert)
 	if err != nil {
 		return err
 	}
