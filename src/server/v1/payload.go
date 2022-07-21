@@ -28,8 +28,8 @@ func (payload alertPayload) FullRuleID() string {
 	return fmt.Sprintf("unified.%d.%s", payload.OrgID, payload.Alerts[0].Fingerprint)
 }
 
-func (payload alertPayload) ToForwarderData() model.Data {
-	return model.Data{
+func (payload alertPayload) ToForwarderData() model.AlertData {
+	return model.AlertData{
 		Id:       payload.FullRuleID(),
 		State:    payload.State,
 		RuleURL:  payload.Alerts[0].DashboardUrl,

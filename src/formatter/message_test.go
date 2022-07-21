@@ -7,7 +7,7 @@ import (
 
 func TestGenerateMessage(t *testing.T) {
 	type args struct {
-		alert          model.Data
+		alert          model.AlertData
 		metricRounding int
 	}
 	tests := []struct {
@@ -20,7 +20,7 @@ func TestGenerateMessage(t *testing.T) {
 		{
 			name: "alertingStateTest",
 			args: args{
-				alert: model.Data{
+				alert: model.AlertData{
 					State:    "alerting",
 					RuleURL:  "http://example.com",
 					RuleName: "sample",
@@ -33,7 +33,7 @@ func TestGenerateMessage(t *testing.T) {
 		{
 			name: "alertingStateWithEvalMatchesTest",
 			args: args{
-				alert: model.Data{
+				alert: model.AlertData{
 					State:    "alerting",
 					RuleURL:  "http://example.com",
 					RuleName: "sample",
@@ -59,7 +59,7 @@ func TestGenerateMessage(t *testing.T) {
 		{
 			name: "alertingStateWithEvalMatchesAndTagsTest",
 			args: args{
-				alert: model.Data{
+				alert: model.AlertData{
 					State:    "alerting",
 					RuleURL:  "http://example.com",
 					RuleName: "sample",
@@ -85,7 +85,7 @@ func TestGenerateMessage(t *testing.T) {
 		{
 			name: "okStateTest",
 			args: args{
-				alert: model.Data{
+				alert: model.AlertData{
 					State:    "ok",
 					RuleURL:  "http://example.com",
 					RuleName: "sample",
@@ -99,7 +99,7 @@ func TestGenerateMessage(t *testing.T) {
 		{
 			name: "noDataStateTest",
 			args: args{
-				alert: model.Data{
+				alert: model.AlertData{
 					State:    "no_data",
 					RuleURL:  "http://example.com",
 					RuleName: "sample",
@@ -113,7 +113,7 @@ func TestGenerateMessage(t *testing.T) {
 		{
 			name: "unknownStateTest",
 			args: args{
-				alert: model.Data{
+				alert: model.AlertData{
 					State:    "invalid state",
 					RuleURL:  "http://example.com",
 					RuleName: "sample",
