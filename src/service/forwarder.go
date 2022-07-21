@@ -5,6 +5,7 @@ import (
 	"grafana-matrix-forwarder/formatter"
 	"grafana-matrix-forwarder/matrix"
 	"grafana-matrix-forwarder/model"
+	"log"
 )
 
 type Forwarder struct {
@@ -23,17 +24,21 @@ func NewForwarder(appSettings cfg.AppSettings, writer matrix.Writer) Forwarder {
 	}
 }
 
-func (f *Forwarder) ForwardEvent(roomIds []string, alert model.AlertData) error {
+func (f *Forwarder) ForwardEvents(roomIds []string, alerts []model.AlertData) error {
 	for _, id := range roomIds {
-		err := f.forwardSingleEvent(id, alert)
-		if err != nil {
-			return err
+		for _, alert := range alerts {
+			err := f.forwardSingleEvent(id, alert)
+			if err != nil {
+				return err
+			}
 		}
 	}
 	return nil
 }
 
 func (f *Forwarder) forwardSingleEvent(roomID string, alert model.AlertData) error {
+	log.Printf("alert received (%s) - forwarding to room: %v", alert.Id, roomID)
+
 	resolveWithReaction := f.AppSettings.ResolveMode == cfg.ResolveWithReaction
 	resolveWithReply := f.AppSettings.ResolveMode == cfg.ResolveWithReply
 
