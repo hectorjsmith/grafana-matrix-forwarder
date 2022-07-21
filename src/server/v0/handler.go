@@ -10,7 +10,7 @@ import (
 type Handler struct {
 }
 
-func (h Handler) ParseRequest(request *http.Request, logPayload bool) (roomIDs []string, alert model.Data, err error) {
+func (h Handler) ParseRequest(request *http.Request, logPayload bool) (roomIDs []string, alert model.AlertData, err error) {
 	bodyBytes, err := util.GetRequestBodyAsBytes(request)
 	if err != nil {
 		return

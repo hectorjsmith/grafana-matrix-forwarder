@@ -9,7 +9,7 @@ const (
 	AlertStateNoData = "no_data"
 )
 
-type Data struct {
+type AlertData struct {
 	Id          string
 	State       string
 	RuleURL     string
