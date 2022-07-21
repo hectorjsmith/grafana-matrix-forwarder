@@ -7,7 +7,7 @@ import (
 )
 
 type RequestHandler interface {
-	ParseRequest(request *http.Request, logPayload bool) (roomIDs []string, alert model.AlertData, err error)
+	ParseRequest(request *http.Request, logPayload bool) (roomIDs []string, alerts []model.AlertData, err error)
 }
 
 func (server *Server) HandleGrafanaAlert(handler RequestHandler, response http.ResponseWriter, request *http.Request) {
@@ -22,12 +22,11 @@ func (server *Server) HandleGrafanaAlert(handler RequestHandler, response http.R
 }
 
 func (server *Server) handleGrafanaAlertInner(handler RequestHandler, response http.ResponseWriter, request *http.Request) error {
-	roomIDs, alert, err := handler.ParseRequest(request, server.appSettings.LogPayload)
+	roomIDs, alerts, err := handler.ParseRequest(request, server.appSettings.LogPayload)
 
-	log.Printf("alert received (%s) - forwarding to rooms: %v", alert.Id, roomIDs)
-	server.metricsCollector.RecordAlert(alert)
+	server.metricsCollector.RecordAlerts(alerts)
 
-	err = server.alertForwarder.ForwardEvent(roomIDs, alert)
+	err = server.alertForwarder.ForwardEvents(roomIDs, alerts)
 	if err != nil {
 		return err
 	}
