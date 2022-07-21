@@ -31,7 +31,7 @@ func BuildServer(ctx context.Context, matrixWriteCloser matrix.WriteCloser, appS
 		matrixWriteCloser: matrixWriteCloser,
 		appSettings:       appSettings,
 		alertForwarder:    forwarder.NewForwarder(appSettings, matrixWriteCloser.GetWriter()),
-		metricsCollector:  &metrics.Collector{},
+		metricsCollector:  metrics.NewCollector(),
 	}
 }
 
