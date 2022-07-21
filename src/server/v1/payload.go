@@ -26,8 +26,8 @@ type alert struct {
 }
 
 // FullRuleID is defined as the combination of the OrgID, DashboardID, PanelID, and RuleID
-func (payload alertPayload) FullRuleID() string {
-	return fmt.Sprintf("unified.%d.%s", payload.OrgID, payload.Alerts[0].Fingerprint)
+func fullRuleID(p alertPayload, a alert) string {
+	return fmt.Sprintf("unified.%d.%s", p.OrgID, a.Fingerprint)
 }
 
 func (payload alertPayload) ToForwarderData() []model.AlertData {
@@ -35,12 +35,12 @@ func (payload alertPayload) ToForwarderData() []model.AlertData {
 	for i, alert := range payload.Alerts {
 
 		data[i] = model.AlertData{
-			Id:       payload.FullRuleID(),
+			Id:       fullRuleID(payload, alert),
 			State:    payload.State,
 			RuleURL:  alert.PanelUrl,
 			RuleName: alert.Labels["alertname"],
 			Message:  alert.Annotations["summary"],
-			Tags:     alert.Labels,
+			Tags:     map[string]string{},
 			EvalMatches: []struct {
 				Value  float64
 				Metric string
