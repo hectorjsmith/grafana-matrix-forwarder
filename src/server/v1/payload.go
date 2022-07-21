@@ -17,9 +17,11 @@ type alertPayload struct {
 }
 
 type alert struct {
+	Status       string            `json:"status"`
 	Annotations  map[string]string `json:"annotations"`
 	Labels       map[string]string `json:"labels"`
 	DashboardUrl string            `json:"dashboardURL"`
+	PanelUrl     string            `json:"panelURL"`
 	Fingerprint  string            `json:"fingerprint"`
 }
 
@@ -28,18 +30,23 @@ func (payload alertPayload) FullRuleID() string {
 	return fmt.Sprintf("unified.%d.%s", payload.OrgID, payload.Alerts[0].Fingerprint)
 }
 
-func (payload alertPayload) ToForwarderData() model.AlertData {
-	return model.AlertData{
-		Id:       payload.FullRuleID(),
-		State:    payload.State,
-		RuleURL:  payload.Alerts[0].DashboardUrl,
-		RuleName: payload.CommonLabels["alertname"],
-		Message:  payload.CommonAnnotations["description"],
-		Tags:     payload.CommonLabels,
-		EvalMatches: []struct {
-			Value  float64
-			Metric string
-			Tags   map[string]string
-		}{},
+func (payload alertPayload) ToForwarderData() []model.AlertData {
+	data := make([]model.AlertData, len(payload.Alerts))
+	for i, alert := range payload.Alerts {
+
+		data[i] = model.AlertData{
+			Id:       payload.FullRuleID(),
+			State:    payload.State,
+			RuleURL:  alert.PanelUrl,
+			RuleName: alert.Labels["alertname"],
+			Message:  alert.Annotations["summary"],
+			Tags:     alert.Labels,
+			EvalMatches: []struct {
+				Value  float64
+				Metric string
+				Tags   map[string]string
+			}{},
+		}
 	}
+	return data
 }
