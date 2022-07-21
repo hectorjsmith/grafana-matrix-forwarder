@@ -5,8 +5,8 @@ import (
 	"grafana-matrix-forwarder/model"
 )
 
-// AlertPayload stores the request data sent with the grafana alert webhook
-type AlertPayload struct {
+// alertPayload stores the request data sent with the grafana alert webhook
+type alertPayload struct {
 	Title       string `json:"title"`
 	Message     string `json:"message"`
 	State       string `json:"state"`
@@ -25,11 +25,11 @@ type AlertPayload struct {
 }
 
 // FullRuleID is defined as the combination of the OrgID, DashboardID, PanelID, and RuleID
-func (payload AlertPayload) FullRuleID() string {
+func (payload alertPayload) FullRuleID() string {
 	return fmt.Sprintf("%d.%d.%d.%d", payload.OrgID, payload.DashboardID, payload.PanelID, payload.RuleID)
 }
 
-func (payload AlertPayload) ToForwarderData() model.Data {
+func (payload alertPayload) ToForwarderData() model.Data {
 	return model.Data{
 		Id:       payload.FullRuleID(),
 		State:    payload.State,
