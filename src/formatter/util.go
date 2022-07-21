@@ -5,7 +5,6 @@ import (
 	htmlTemplate "html/template"
 	"regexp"
 	"strings"
-	textTemplate "text/template"
 )
 
 var (
@@ -26,11 +25,5 @@ func stripHtmlTagsFromString(input string) string {
 func executeHtmlTemplate(template *htmlTemplate.Template, data alertMessageData) (string, error) {
 	buffer := new(bytes.Buffer)
 	err := template.Execute(buffer, data)
-	return buffer.String(), err
-}
-
-func executeTextTemplate(template *textTemplate.Template, content string) (string, error) {
-	buffer := new(bytes.Buffer)
-	err := template.Execute(buffer, content)
 	return buffer.String(), err
 }
