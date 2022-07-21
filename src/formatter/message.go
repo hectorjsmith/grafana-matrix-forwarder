@@ -9,10 +9,10 @@ type alertMessageData struct {
 	MetricRounding int
 	StateStr       string
 	StateEmoji     string
-	Payload        model.Data
+	Payload        model.AlertData
 }
 
-func GenerateMessage(alert model.Data, metricRounding int) (plainMessage string, formattedMessage string, err error) {
+func GenerateMessage(alert model.AlertData, metricRounding int) (plainMessage string, formattedMessage string, err error) {
 	var messageData = alertMessageData{
 		StateStr:       "UNKNOWN",
 		StateEmoji:     "❓",
@@ -37,7 +37,7 @@ func GenerateMessage(alert model.Data, metricRounding int) (plainMessage string,
 	return
 }
 
-func GenerateReply(alert model.Data) (plainReply string, formattedReply string, err error) {
+func GenerateReply(alert model.AlertData) (plainReply string, formattedReply string, err error) {
 	if alert.State == model.AlertStateResolved {
 		formattedReply = resolveReplyStr
 		plainReply = formattedMessageToPlainMessage(formattedReply)

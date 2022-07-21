@@ -2,7 +2,7 @@ package formatter
 
 import "grafana-matrix-forwarder/model"
 
-func GenerateReaction(alert model.Data) string {
+func GenerateReaction(alert model.AlertData) string {
 	if alert.State == model.AlertStateResolved {
 		return resolvedReactionStr
 	}

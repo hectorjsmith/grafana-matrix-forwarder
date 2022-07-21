@@ -29,8 +29,8 @@ func (payload alertPayload) FullRuleID() string {
 	return fmt.Sprintf("%d.%d.%d.%d", payload.OrgID, payload.DashboardID, payload.PanelID, payload.RuleID)
 }
 
-func (payload alertPayload) ToForwarderData() model.Data {
-	return model.Data{
+func (payload alertPayload) ToForwarderData() model.AlertData {
+	return model.AlertData{
 		Id:       payload.FullRuleID(),
 		State:    payload.State,
 		RuleURL:  payload.RuleURL,

@@ -56,7 +56,7 @@ func (c *Collector) IncrementFailure() {
 	c.failForwardCount++
 }
 
-func (c *Collector) RecordAlert(alert model.Data) {
+func (c *Collector) RecordAlert(alert model.AlertData) {
 	if count, ok := c.alertCountByState[alert.State]; !ok {
 		c.alertCountByState[alert.State] = 1
 	} else {

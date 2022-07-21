@@ -7,7 +7,7 @@ import (
 )
 
 type RequestHandler interface {
-	ParseRequest(request *http.Request, logPayload bool) (roomIDs []string, alert model.Data, err error)
+	ParseRequest(request *http.Request, logPayload bool) (roomIDs []string, alert model.AlertData, err error)
 }
 
 func (server *Server) HandleGrafanaAlert(handler RequestHandler, response http.ResponseWriter, request *http.Request) {
