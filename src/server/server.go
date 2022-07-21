@@ -6,11 +6,12 @@ import (
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"grafana-matrix-forwarder/cfg"
-	"grafana-matrix-forwarder/forwarder"
 	"grafana-matrix-forwarder/matrix"
 	"grafana-matrix-forwarder/server/metrics"
-	v0 "grafana-matrix-forwarder/server/v0"
-	v1 "grafana-matrix-forwarder/server/v1"
+	"grafana-matrix-forwarder/server/v0"
+	"grafana-matrix-forwarder/server/v1"
+	"grafana-matrix-forwarder/service"
+
 	"log"
 	"net/http"
 	"time"
@@ -21,7 +22,7 @@ type Server struct {
 	ctx               context.Context
 	matrixWriteCloser matrix.WriteCloser
 	appSettings       cfg.AppSettings
-	alertForwarder    *forwarder.AlertForwarder
+	alertForwarder    service.Forwarder
 	metricsCollector  *metrics.Collector
 }
 
@@ -31,8 +32,8 @@ func BuildServer(ctx context.Context, matrixWriteCloser matrix.WriteCloser, appS
 		ctx:               ctx,
 		matrixWriteCloser: matrixWriteCloser,
 		appSettings:       appSettings,
-		alertForwarder:    forwarder.NewForwarder(appSettings, matrixWriteCloser.GetWriter()),
-		metricsCollector:  &metrics.Collector{},
+		alertForwarder:    service.NewForwarder(appSettings, matrixWriteCloser.GetWriter()),
+		metricsCollector:  metrics.NewCollector(),
 	}
 }
 

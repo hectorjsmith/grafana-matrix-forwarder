@@ -11,6 +11,14 @@ type Collector struct {
 	alertCountByState   map[string]int
 }
 
+func NewCollector() *Collector {
+	return &Collector{
+		successForwardCount: 0,
+		failForwardCount:    0,
+		alertCountByState:   map[string]int{},
+	}
+}
+
 func (c *Collector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- metricForwardCount
 	ch <- metricAlertCount
