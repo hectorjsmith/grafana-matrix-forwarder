@@ -1,6 +1,7 @@
 package v0
 
 import (
+	"grafana-matrix-forwarder/server/util"
 	"net/url"
 	"reflect"
 	"testing"
@@ -41,7 +42,7 @@ func Test_getRoomIDsFromURL(t *testing.T) {
 			if err != nil {
 				t.Fatalf("Invalid test data - not a valid url")
 			}
-			got, err := getRoomIDsFromURL(inputUrl)
+			got, err := util.GetRoomIDsFromURL(inputUrl)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("getRoomIDsFromURL() error = %v, wantErr %v", err, tt.wantErr)
 				return

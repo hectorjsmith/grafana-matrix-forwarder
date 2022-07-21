@@ -9,7 +9,9 @@ import (
 	"grafana-matrix-forwarder/matrix"
 	"grafana-matrix-forwarder/server/metrics"
 	"grafana-matrix-forwarder/server/v0"
+	"grafana-matrix-forwarder/server/v1"
 	"grafana-matrix-forwarder/service"
+
 	"log"
 	"net/http"
 	"time"
@@ -43,6 +45,16 @@ func (server Server) Start() (err error) {
 	mux.Handle("/api/v0/forward", http.HandlerFunc(
 		func(response http.ResponseWriter, request *http.Request) {
 			server.HandleGrafanaAlert(&v0.Handler{}, response, request)
+		},
+	))
+	mux.Handle("/api/v1/standard", http.HandlerFunc(
+		func(response http.ResponseWriter, request *http.Request) {
+			server.HandleGrafanaAlert(&v0.Handler{}, response, request)
+		},
+	))
+	mux.Handle("/api/v1/unified", http.HandlerFunc(
+		func(response http.ResponseWriter, request *http.Request) {
+			server.HandleGrafanaAlert(&v1.Handler{}, response, request)
 		},
 	))
 	mux.Handle("/metrics", promhttp.Handler())

@@ -10,7 +10,7 @@ func TestAlertPayload(t *testing.T) {
 	tests := []struct {
 		name     string
 		jsonData string
-		want     *AlertPayload
+		want     *alertPayload
 	}{
 		{
 			name: "GIVEN standard grafana alert payload WHEN converted to struct THEN data matches expected",
@@ -39,7 +39,7 @@ func TestAlertPayload(t *testing.T) {
   },
   "title": "[Alerting] My Test Alert"
 }`,
-			want: &AlertPayload{
+			want: &alertPayload{
 				Title:       "[Alerting] My Test Alert",
 				Message:     "This is a sample alert - please ignore",
 				State:       "alerting",
@@ -79,8 +79,8 @@ func TestAlertPayload(t *testing.T) {
 	}
 }
 
-func convertJsonToPayload(jsonData string) (*AlertPayload, error) {
-	var alertPayload *AlertPayload
+func convertJsonToPayload(jsonData string) (*alertPayload, error) {
+	var alertPayload *alertPayload
 	err := json.Unmarshal([]byte(jsonData), &alertPayload)
 	return alertPayload, err
 }
