@@ -47,7 +47,7 @@ func (f *Forwarder) forwardSingleEvent(roomID string, alert model.AlertData) err
 			return f.sendResolvedReaction(roomID, sentEvent.EventID, alert)
 		}
 		if alert.State == model.AlertStateResolved && resolveWithReply {
-			return f.sendResolvedReply(roomID, sentEvent.EventID, alert)
+			return f.sendResolvedReply(roomID, sentEvent, alert)
 		}
 	}
 	return f.sendAlertMessage(roomID, alert)
@@ -60,13 +60,13 @@ func (f *Forwarder) sendResolvedReaction(roomID, eventID string, alert model.Ale
 	return err
 }
 
-func (f *Forwarder) sendResolvedReply(roomID, eventID string, alert model.AlertData) error {
-	rawReply, formattedReply, err := formatter.GenerateReply(alert)
+func (f *Forwarder) sendResolvedReply(roomID string, sentEvent sentMatrixEvent, alert model.AlertData) error {
+	rawReply, formattedReply, err := formatter.GenerateReply(sentEvent.SentFormattedBody, alert)
 	if err != nil {
 		return err
 	}
 	f.deleteMatrixEvent(alert.Id)
-	_, err = f.MatrixWriter.Reply(roomID, eventID, rawReply, formattedReply)
+	_, err = f.MatrixWriter.Reply(roomID, sentEvent.EventID, rawReply, formattedReply)
 	return err
 }
 
