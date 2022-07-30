@@ -15,6 +15,7 @@ type AlertData struct {
 	RuleURL     string
 	RuleName    string
 	Message     string
+	RawData     string
 	Tags        map[string]string
 	EvalMatches []struct {
 		Value  float64

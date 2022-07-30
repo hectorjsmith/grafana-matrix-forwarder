@@ -23,6 +23,7 @@ type alert struct {
 	DashboardUrl string            `json:"dashboardURL"`
 	PanelUrl     string            `json:"panelURL"`
 	Fingerprint  string            `json:"fingerprint"`
+	ValueString  string            `json:"valueString"`
 }
 
 // FullRuleID is defined as the combination of the OrgID, DashboardID, PanelID, and RuleID
@@ -50,6 +51,7 @@ func (payload alertPayload) ToForwarderData() []model.AlertData {
 			RuleURL:  alert.PanelUrl,
 			RuleName: alert.Labels["alertname"],
 			Message:  alert.Annotations["summary"],
+			RawData:  alert.ValueString,
 			Tags:     map[string]string{},
 			EvalMatches: []struct {
 				Value  float64
