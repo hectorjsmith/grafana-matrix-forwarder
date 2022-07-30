@@ -3,6 +3,7 @@ package v1
 import (
 	"fmt"
 	"grafana-matrix-forwarder/model"
+	"strings"
 )
 
 type alertPayload struct {
@@ -23,6 +24,7 @@ type alert struct {
 	DashboardUrl string            `json:"dashboardURL"`
 	PanelUrl     string            `json:"panelURL"`
 	Fingerprint  string            `json:"fingerprint"`
+	ValueString  string            `json:"valueString"`
 }
 
 // FullRuleID is defined as the combination of the OrgID, DashboardID, PanelID, and RuleID
@@ -44,12 +46,14 @@ func normaliseStatus(status string) string {
 func (payload alertPayload) ToForwarderData() []model.AlertData {
 	data := make([]model.AlertData, len(payload.Alerts))
 	for i, alert := range payload.Alerts {
+		rawData := strings.ReplaceAll(alert.ValueString, "], [", "],\r\n[")
 		data[i] = model.AlertData{
 			Id:       fullRuleID(payload, alert),
 			State:    normaliseStatus(alert.Status),
 			RuleURL:  alert.PanelUrl,
 			RuleName: alert.Labels["alertname"],
 			Message:  alert.Annotations["summary"],
+			RawData:  rawData,
 			Tags:     map[string]string{},
 			EvalMatches: []struct {
 				Value  float64
