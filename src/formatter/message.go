@@ -37,10 +37,10 @@ func GenerateMessage(alert model.AlertData, metricRounding int) (plainMessage st
 	return
 }
 
-func GenerateReply(alert model.AlertData) (plainReply string, formattedReply string, err error) {
+func GenerateReply(originalFormattedMessage string, alert model.AlertData) (plainReply string, formattedReply string, err error) {
 	if alert.State == model.AlertStateResolved {
-		formattedReply = resolveReplyStr
-		plainReply = formattedMessageToPlainMessage(formattedReply)
+		formattedReply, err = executeTextTemplate(resolveReplyTemplate, originalFormattedMessage)
+		plainReply = resolveReplyPlainStr
 	}
 	return
 }
