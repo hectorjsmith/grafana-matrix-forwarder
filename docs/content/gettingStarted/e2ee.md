@@ -1,6 +1,6 @@
 ---
 title: End to End Encryption
-weight: 50
+weight: 60
 ---
 
 This tool does not natively support sending alerts to matrix rooms with encryption enabled.

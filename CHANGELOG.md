@@ -6,6 +6,39 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 
 ## [Unreleased]
 
+## [0.7.0] - 2023-02-13
+### Features
+- (b267c16) feat: add new raw data field to message
+- (aad2690) feat: support multiple alerts at once
+- (56e1f06) feat: support unified alerts ([#33](https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/issues/33))
+
+### Bug Fixes
+- (7f95815) fix: html format of raw data
+- (3e2c76a) fix: formatting of matrix replies
+- (30d2894) fix: error in metric collector
+
+### Merge Requests
+- (82c6e8e) Merge branch 'chore/dependency-updates' into 'main'
+- (d7a0224) Merge branch 'chore/update-matrix-client-version' into 'main'
+- (bac27a1) Merge branch 'fix-html-format-of-raw-data' into 'main'
+- (d7b60de) Merge branch 'add-new-raw-data-field-to-message' into 'main'
+- (22555e0) Merge branch 'fix-formatting-of-matrix-replies' into 'main'
+- (be1c44f) Merge branch 'support-multiple-alerts-in-a-single-webhook' into 'main'
+- (cfe814f) Merge branch 'rename-internal-alert-data-struct' into 'main'
+- (86febe8) Merge branch '33-support-new-json-format-from-grafana' into 'main'
+- (4dd3c39) Merge branch 'split-formatter-and-forwarder-code' into 'main'
+- (55626c6) Merge branch 'fix-error-in-metrics-collector' into 'main'
+- (0fc40a6) Merge branch 'split-request-handler-code-into-shared-and-version-specific-packages' into 'main'
+- (b221749) Merge branch 'update-metric-collector-to-handle-any-alert-state' into 'main'
+- (3e957c8) Merge branch 'add-model-package-for-shared-structs' into 'main'
+- (e439b64) Merge branch 'better-handling-of-forwarding-alert-to-multiple-rooms' into 'main'
+- (50a6b9b) Merge branch 'only-publish-stable-images-to-the-latest-tag' into 'main'
+- (0926489) Merge branch 'move-metric-collection-code-to-new-package' into 'main'
+- (d8a185a) Merge branch 'refactor-forwarder-to-use-data-struct-instead-of-raw-payload' into 'main'
+- (a758137) Merge branch 'move-payload-structs-to-new-v0-package' into 'main'
+- (269d742) Merge branch '31-add-prometheus-library-for-metrics' into 'main'
+- (5cceebd) Merge branch 'release/0.6.0' into 'main'
+
 
 ## [0.6.0] - 2021-06-22
 ### Features
@@ -126,7 +159,8 @@ The format is based on [Keep a Changelog], and this project adheres to [Semantic
 [Keep a Changelog]: https://keepachangelog.com/en/1.0.0/
 [Semantic Versioning]: https://semver.org/spec/v2.0.0.html
 [git-chglog]: https://github.com/git-chglog/git-chglog
-[Unreleased]: https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/compare/0.6.0...main
+[Unreleased]: https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/compare/0.7.0...main
+[0.7.0]: https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/compare/0.6.0...0.7.0
 [0.6.0]: https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/compare/0.5.0...0.6.0
 [0.5.0]: https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/compare/0.4.0...0.5.0
 [0.4.0]: https://gitlab.com/hectorjsmith/grafana-matrix-forwarder/compare/0.3.0...0.4.0
