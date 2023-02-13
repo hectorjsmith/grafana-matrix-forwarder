@@ -1,6 +1,6 @@
 ---
 title: Persistence
-weight: 60
+weight: 70
 ---
 
 By default, the tool will create a `grafanaToMatrixMap.json` file on each forwarded alert. This file contains a map from grafana alert to matrix message.
