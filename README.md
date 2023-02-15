@@ -25,6 +25,7 @@ This tool will convert the incoming webhook to a Matrix message and send it on t
     * Export metrics to track successful and failed forwards
 
 ## 2. How to use
+*This applies to unified alerts, check the [documentation](https://hectorjsmith.gitlab.io/grafana-matrix-forwarder/gettingStarted/grafana-legacy/) for legacy alerts*
 
 **Step 1**
 
@@ -36,7 +37,7 @@ $ ./grafana-matrix-forwarder --user @userId:matrix.org --password xxx --homeserv
 
 **Step 2**
 
-Add a new **POST webhook** alert channel with the following target URL: 
+Add a new **Contact Point** in Grafana with the **POST webhook** type. Use the following URL: 
 ```
 http://<ip address>:6000/api/v0/forward?roomId=<roomId>
 ```
@@ -45,7 +46,13 @@ http://<ip address>:6000/api/v0/forward?roomId=<roomId>
 
 **Step 3**
 
-Setup alerts in grafana that are sent to the new alert channel.
+Add a new Notification Policy in Grafana to send alerts to the new contact point.
+
+*If you use the root policy, all alerts will be sent to that contact point*
+
+**Step 4**
+
+Create alert rules in grafana and add text to the a "Summary" field to be displayed in the Matrix message.
 
 ## 3. Docker
 
