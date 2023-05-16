@@ -17,6 +17,7 @@ const (
 	resolveModeFlagName     = "resolveMode"
 	envFlagName             = "env"
 	persistAlertMapFlagName = "persistAlertMap"
+	authBearerTokenFlagName = "auth.bearertoken"
 )
 
 func (settings *AppSettings) updateSettingsFromCommandLine() {
@@ -30,6 +31,7 @@ func (settings *AppSettings) updateSettingsFromCommandLine() {
 	logPayloadFlag := flag.Bool(logPayloadFlagName, false, "print the contents of every alert request received from grafana")
 	persistAlertMapFlag := flag.Bool(persistAlertMapFlagName, defaultPersistAlertMap,
 		"persist the internal map between grafana alerts and matrix messages - this is used to support resolving alerts using replies")
+	authBearerTokenFlag := flag.String(authBearerTokenFlagName, "", "required bearer token to forward alerts")
 
 	var resolveModeStr string
 	flag.StringVar(&resolveModeStr, resolveModeFlagName, string(defaultResolveMode),
@@ -67,6 +69,11 @@ func (settings *AppSettings) updateSettingsFromCommandLine() {
 		}
 		if wasCliFlagProvided(persistAlertMapFlagName) {
 			settings.PersistAlertMap = *persistAlertMapFlag
+		}
+		if wasCliFlagProvided(authBearerTokenFlagName) {
+			if authBearerTokenFlag != nil && *authBearerTokenFlag != "" {
+				settings.AuthBearerToken = authBearerTokenFlag
+			}
 		}
 	}
 }

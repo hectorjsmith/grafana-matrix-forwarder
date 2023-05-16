@@ -23,6 +23,7 @@ type AppSettings struct {
 	LogPayload      bool
 	ResolveMode     ResolveMode
 	PersistAlertMap bool
+	AuthBearerToken *string
 }
 
 const (
