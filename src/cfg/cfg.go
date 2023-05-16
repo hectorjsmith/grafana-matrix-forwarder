@@ -23,7 +23,8 @@ type AppSettings struct {
 	LogPayload      bool
 	ResolveMode     ResolveMode
 	PersistAlertMap bool
-	AuthBearerToken *string
+	AuthScheme      string
+	AuthCredentials string
 }
 
 const (
@@ -92,6 +93,10 @@ func (settings *AppSettings) validateConfiguration() {
 		if settings.ServerPort < minServerPort || settings.ServerPort > maxServerPort {
 			fmt.Printf("invalid server port, must be within %d and %d (found %d)\n",
 				minServerPort, maxServerPort, settings.ServerPort)
+			flagsValid = false
+		}
+		if (settings.AuthScheme == "") != (settings.AuthCredentials == "") {
+			fmt.Println("invalid auth setup - both scheme and credentials should be set")
 			flagsValid = false
 		}
 	}

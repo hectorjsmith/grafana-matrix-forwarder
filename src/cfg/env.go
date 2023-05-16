@@ -17,7 +17,8 @@ const (
 	metricRoundingEnvName  = "GMF_METRIC_ROUNDING"
 	logPayloadEnvName      = "GMF_LOG_PAYLOAD"
 	persistAlertMapEnvName = "GMF_PERSIST_ALERT_MAP"
-	authBearerTokenEnvName = "GMF_AUTH_BEARER_TOKEN"
+	authSchemeEnvName      = "GMF_AUTH_SCHEME"
+	authCredentialsEnvName = "GMF_AUTH_CREDENTIALS"
 )
 
 func (settings *AppSettings) updateSettingsFromEnvironment() {
@@ -67,9 +68,10 @@ func (settings *AppSettings) updateSettingsFromEnvironment() {
 			settings.PersistAlertMap = true
 		}
 	}
-	if envValue, envExists = os.LookupEnv(authBearerTokenEnvName); envExists {
-		if envValue != "" {
-			settings.AuthBearerToken = &envValue
-		}
+	if envValue, envExists = os.LookupEnv(authSchemeEnvName); envExists {
+		settings.AuthScheme = envValue
+	}
+	if envValue, envExists = os.LookupEnv(authCredentialsEnvName); envExists {
+		settings.AuthCredentials = envValue
 	}
 }
