@@ -1,9 +1,11 @@
 package server
 
 import (
+	"fmt"
 	"grafana-matrix-forwarder/model"
 	"log"
 	"net/http"
+	"strings"
 )
 
 type RequestHandler interface {
@@ -11,6 +13,11 @@ type RequestHandler interface {
 }
 
 func (server *Server) HandleGrafanaAlert(handler RequestHandler, response http.ResponseWriter, request *http.Request) {
+	if !server.isAuthorised(request) {
+		log.Print("unauthorised request (credentials do not match)")
+		response.WriteHeader(http.StatusUnauthorized)
+		return
+	}
 	err := server.handleGrafanaAlertInner(handler, response, request)
 	if err != nil {
 		server.metricsCollector.IncrementFailure()
@@ -23,6 +30,9 @@ func (server *Server) HandleGrafanaAlert(handler RequestHandler, response http.R
 
 func (server *Server) handleGrafanaAlertInner(handler RequestHandler, response http.ResponseWriter, request *http.Request) error {
 	roomIDs, alerts, err := handler.ParseRequest(request, server.appSettings.LogPayload)
+	if err != nil {
+		return err
+	}
 
 	server.metricsCollector.RecordAlerts(alerts)
 
@@ -34,4 +44,13 @@ func (server *Server) handleGrafanaAlertInner(handler RequestHandler, response h
 	response.WriteHeader(http.StatusOK)
 	_, err = response.Write([]byte("OK"))
 	return err
+}
+
+func (server *Server) isAuthorised(request *http.Request) bool {
+	if strings.ToLower(server.appSettings.AuthScheme) == "bearer" {
+		authHeader := request.Header.Get("Authorization")
+		requiredToken := fmt.Sprintf("Bearer %s", server.appSettings.AuthCredentials)
+		return authHeader == requiredToken
+	}
+	return true
 }
