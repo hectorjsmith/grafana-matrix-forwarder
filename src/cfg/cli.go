@@ -72,10 +72,10 @@ func (settings *AppSettings) updateSettingsFromCommandLine() {
 		if wasCliFlagProvided(persistAlertMapFlagName) {
 			settings.PersistAlertMap = *persistAlertMapFlag
 		}
-		if wasCliFlagProvided(*authSchemeFlag) {
+		if wasCliFlagProvided(authSchemeFlagName) {
 			settings.AuthScheme = *authSchemeFlag
 		}
-		if wasCliFlagProvided(*authCredentialsFlag) {
+		if wasCliFlagProvided(authCredentialsFlagName) {
 			settings.AuthCredentials = *authCredentialsFlag
 		}
 	}

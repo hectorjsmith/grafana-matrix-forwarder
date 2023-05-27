@@ -99,7 +99,7 @@ func (settings *AppSettings) validateConfiguration() {
 			fmt.Println("invalid auth setup - both scheme and credentials should be set")
 			flagsValid = false
 		}
-		if strings.ToLower(settings.AuthScheme) != "bearer" {
+		if strings.ToLower(settings.AuthScheme) != "" && strings.ToLower(settings.AuthScheme) != "bearer" {
 			fmt.Println("unsupported auth scheme (supported: bearer)")
 			flagsValid = false
 		}
