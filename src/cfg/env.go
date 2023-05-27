@@ -17,6 +17,8 @@ const (
 	metricRoundingEnvName  = "GMF_METRIC_ROUNDING"
 	logPayloadEnvName      = "GMF_LOG_PAYLOAD"
 	persistAlertMapEnvName = "GMF_PERSIST_ALERT_MAP"
+	authSchemeEnvName      = "GMF_AUTH_SCHEME"
+	authCredentialsEnvName = "GMF_AUTH_CREDENTIALS"
 )
 
 func (settings *AppSettings) updateSettingsFromEnvironment() {
@@ -65,5 +67,11 @@ func (settings *AppSettings) updateSettingsFromEnvironment() {
 		if envValue != "" && lowerEnvValue != "false" && lowerEnvValue != "no" {
 			settings.PersistAlertMap = true
 		}
+	}
+	if envValue, envExists = os.LookupEnv(authSchemeEnvName); envExists {
+		settings.AuthScheme = envValue
+	}
+	if envValue, envExists = os.LookupEnv(authCredentialsEnvName); envExists {
+		settings.AuthCredentials = envValue
 	}
 }
