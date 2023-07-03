@@ -30,7 +30,7 @@ func Parse() AppSettings {
 			"default_host":              "0.0.0.0",
 			"default_port":              "6000",
 			"default_homeserver":        "matrix.org",
-			"default_metrix_rounding":   "3",
+			"default_metric_rounding":   "3",
 			"default_persist_alert_map": "true",
 			"default_resolve_mode":      string(ResolveWithMessage),
 			"resolve_mode_options":      strings.Join(AvailableResolveModesStr(), ", "),
