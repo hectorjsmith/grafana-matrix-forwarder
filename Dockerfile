@@ -1,9 +1,10 @@
 FROM alpine
 
+# Create main app folder to run from
 WORKDIR /app
-COPY dist/grafana-matrix-forwarder_linux_amd64/grafana-matrix-forwarder /app
-COPY docker/run.sh /app
 
-RUN chmod +x /app/*
+# Copy compiled binary to release image
+# (must build the binary before running docker build)
+COPY grafana_matrix_forwarder /app/grafana_matrix_forwarder
 
-ENTRYPOINT /app/run.sh
+ENTRYPOINT ["/app/grafana_matrix_forwarder"]
