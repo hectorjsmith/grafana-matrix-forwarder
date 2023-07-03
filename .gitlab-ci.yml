@@ -1,39 +1,48 @@
 stages:
   - test
   - build
-  - publish
+  - release
 
-.golang_template:
+.go_template:
   image: golang:latest
-  before_script:
-    - make go/downloadDependencies
 
-.docker_template:
-  image: docker:stable
-  services:
-    - docker:dind
-  before_script:
-    - apk add git
-    - apk add make
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-  cache:
-    key: build-cache
-    paths:
-      - dist/
+sast:
+  stage: test
+
+include:
+- template: Security/SAST.gitlab-ci.yml
+- template: Security/Dependency-Scanning.gitlab-ci.yml
 
 format:
-  extends: .golang_template
+  extends: .go_template
   stage: test
   script:
-    - make go/format
+    - make check/fmt
+
+vet:
+  extends: .go_template
+  stage: test
+  allow_failure: true
+  script:
+    - make vet
 
 test:
-  extends: .golang_template
+  extends: .go_template
   stage: test
   script:
-    - make go/test
+    - make test
 
-build_pages:
+build:
+  extends: .go_template
+  stage: build
+  script:
+    - make build
+  artifacts:
+    paths:
+      - grafana-matrix-forwarder
+    expire_in: 1 day
+
+build pages:
   stage: build
   image: registry.gitlab.com/pages/hugo/hugo:latest
   script:
@@ -45,7 +54,7 @@ build_pages:
       - _docs/public/
 
 pages:
-  stage: publish
+  stage: release
   image: alpine
   only:
     - main
@@ -55,52 +64,37 @@ pages:
     paths:
       - public/
 
-.build_template:
-  extends: .golang_template
-  stage: build
-  cache:
-    key: build-cache
-    paths:
-      - dist/
-  artifacts:
-    paths:
-      - dist/*.tar.gz
-      - dist/checksums.txt
-    expire_in: 1 day
+release:
+  stage: release
+  image: docker:stable
+  services:
+    - docker:dind
+  variables:
+    DOCKER_REGISTRY: $CI_REGISTRY
+    DOCKER_USERNAME: $CI_REGISTRY_USER
+    DOCKER_PASSWORD: $CI_REGISTRY_PASSWORD
+    GIT_DEPTH: 0
+  rules:
+    - if: $CI_COMMIT_TAG =~ /^v.*$/
+  script: |
+    docker run --rm --privileged \
+      -v $PWD:/go/src/gitlab.com/hectorjsmith/grafana-matrix-forwarder \
+      -w /go/src/gitlab.com/hectorjsmith/grafana-matrix-forwarder \
+      -v /var/run/docker.sock:/var/run/docker.sock \
+      -e DOCKER_USERNAME -e DOCKER_PASSWORD -e DOCKER_REGISTRY  \
+      -e GITLAB_TOKEN \
+      goreleaser/goreleaser release --clean
 
-build_snapshot:
-  extends: .build_template
-  only:
-    - main
-    - triggers
-    - schedules
+tag images:
+  stage: release
+  image: docker:stable
+  services:
+    - docker:dind
+  needs:
+    - release
+  rules:
+    - if: $CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+$/
+  variables:
+    IMAGE_NAME: registry.gitlab.com/hectorjsmith/grafana-matrix-forwarder
   script:
-    - git fetch --tags
-    - make build/snapshot
-
-build_release:
-  extends: .build_template
-  only:
-    - tags
-  script:
-    - git fetch --tags
-    - make build/release
-
-docker/gitlab:
-  extends: .docker_template
-  stage: publish
-  only:
-    - tags
-  script:
-    - make build/docker/latest
-    - make build/docker/tag
-    - docker push registry.gitlab.com/hectorjsmith/grafana-matrix-forwarder
-
-docker/gitlab/nightly:
-  extends: .docker_template
-  stage: publish
-  only:
-    - main
-  script:
-    - make build/docker/nightly
-    - docker push registry.gitlab.com/hectorjsmith/grafana-matrix-forwarder
+    - ./.gitlab-ci/tagLatestImage.sh
