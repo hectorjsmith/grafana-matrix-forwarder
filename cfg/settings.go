@@ -33,6 +33,35 @@ type AppSettings struct {
 	AuthCredentials string
 }
 
+func ToResolveMode(raw string) (ResolveMode, error) {
+	resolveModeStrLower := strings.ToLower(raw)
+	if resolveModeStrLower == string(ResolveWithReaction) {
+		return ResolveWithReaction, nil
+	} else if resolveModeStrLower == string(ResolveWithMessage) {
+		return ResolveWithMessage, nil
+	} else if resolveModeStrLower == string(ResolveWithReply) {
+		return ResolveWithReply, nil
+	}
+	return ResolveWithMessage, fmt.Errorf("invalid resolve mode '%s'", raw)
+}
+
+func AvailableResolveModes() []ResolveMode {
+	return []ResolveMode{
+		ResolveWithMessage,
+		ResolveWithReaction,
+		ResolveWithReply,
+	}
+}
+
+func AvailableResolveModesStr() []string {
+	modes := AvailableResolveModes()
+	modesStr := make([]string, len(modes))
+	for i, m := range modes {
+		modesStr[i] = string(m)
+	}
+	return modesStr
+}
+
 // Parse the AppSettings data from the command line
 func Parse() AppSettings {
 	appSettings := &AppSettings{}
