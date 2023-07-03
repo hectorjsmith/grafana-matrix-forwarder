@@ -41,7 +41,15 @@ func Parse() AppSettings {
 		kong.UsageOnError(),
 	)
 
-	validateFlags(ctx)
+	flagsValid, messages := validateFlags()
+	if !flagsValid {
+		ctx.PrintUsage(false)
+		fmt.Println()
+		for i := 0; i < len(messages); i++ {
+			fmt.Println(messages[i])
+		}
+		os.Exit(1)
+	}
 	return AppSettings{
 		VersionMode:     cli.VersionMode,
 		ServerHost:      cli.Host,
@@ -58,7 +66,7 @@ func Parse() AppSettings {
 	}
 }
 
-func validateFlags(cliCtx *kong.Context) {
+func validateFlags() (bool, []string) {
 	var flagsValid = false
 	var messages = []string{}
 	if !cli.VersionMode {
@@ -92,12 +100,5 @@ func validateFlags(cliCtx *kong.Context) {
 			flagsValid = false
 		}
 	}
-	if !flagsValid {
-		cliCtx.PrintUsage(false)
-		fmt.Println()
-		for i := 0; i < len(messages); i++ {
-			fmt.Println(messages[i])
-		}
-		os.Exit(1)
-	}
+	return flagsValid, messages
 }
