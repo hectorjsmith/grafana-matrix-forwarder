@@ -21,7 +21,7 @@ var (
 func main() {
 	ctx, _ := listenForInterrupt()
 
-	appSettings := cfg.Load()
+	appSettings := cfg.Parse()
 	if appSettings.VersionMode {
 		printAppVersion()
 	} else {

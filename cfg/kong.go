@@ -19,20 +19,22 @@ var cli struct {
 	Password        string `name:"password" group:"matrix" env:"GMF_MATRIX_PASSWORD" help:"password used to login to matrix"`
 	ResolveMode     string `name:"resolveMode" group:"alerts" env:"GMF_RESOLVE_MODE" help:"set how to handle resolved alerts - valid options are: ${resolve_mode_options}" default:"${default_resolve_mode}"`
 	LogPayload      bool   `name:"logPayload" group:"debug" env:"GMF_LOG_PAYLOAD" help:"print the contents of every alert request received from grafana"`
-	PersistAlertMap bool   `name:"persistAlertMap" group:"alerts" env:"GMF_PERSIST_ALERT_MAP" help:"persist the internal map between grafana alerts and matrix messages - this is used to support resolving alerts using replies" default:"true"`
-	MetricRounding  int    `name:"metricRounding" group:"alerts" env:"GMF_METRIC_ROUNDING" help:"round metric values to the specified decimal places" default:"3"`
+	PersistAlertMap bool   `name:"persistAlertMap" group:"alerts" env:"GMF_PERSIST_ALERT_MAP" help:"persist the internal map between grafana alerts and matrix messages - this is used to support resolving alerts using replies" default:"${default_persist_alert_map}"`
+	MetricRounding  int    `name:"metricRounding" group:"alerts" env:"GMF_METRIC_ROUNDING" help:"round metric values to the specified decimal places" default:"${default_metric_rounding}"`
 }
 
-func Load() AppSettings {
+func Parse() AppSettings {
 	ctx := kong.Parse(
 		&cli,
 		kong.Vars{
-			"default_host":         "0.0.0.0",
-			"default_port":         "6000",
-			"default_homeserver":   "https://matrix.org",
-			"default_resolve_mode": string(ResolveWithMessage),
-			"resolve_mode_options": strings.Join(AvailableResolveModesStr(), ", "),
-			"auth_scheme_options":  "bearer",
+			"default_host":              defaultServerHost,
+			"default_port":              defaultServerPort,
+			"default_homeserver":        defaultHomeServerUrl,
+			"default_metrix_rounding":   defaultMetricRounding,
+			"default_persist_alert_map": defaultPersistAlertMap,
+			"default_resolve_mode":      string(defaultResolveMode),
+			"resolve_mode_options":      strings.Join(AvailableResolveModesStr(), ", "),
+			"auth_scheme_options":       "bearer",
 		},
 		kong.Name("grafana_matrix_forwarder"),
 		kong.Description("Forward alerts from Grafana to a Matrix room"),
