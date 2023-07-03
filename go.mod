@@ -8,6 +8,7 @@ require (
 )
 
 require (
+	github.com/alecthomas/kong v0.8.0
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cespare/xxhash/v2 v2.2.0 // indirect
 	github.com/golang/protobuf v1.5.3 // indirect
