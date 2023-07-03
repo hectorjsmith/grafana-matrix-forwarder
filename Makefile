@@ -1,27 +1,27 @@
 go/downloadDependencies:
-	cd src/ && go mod download
+	go mod download
 
 # Standard go test
 go/test:
-	cd src/ && go test ./... -v -race
+	go test ./... -v -race
 
 # Make sure no unnecessary dependencies are present
 go/tidyDependencies:
-	cd src/ && go mod tidy -v
+	go mod tidy -v
 	git --no-pager diff
 	git diff-index --quiet HEAD
 
 go/format:
-	cd src/ && go fmt $(go list ./... | grep -v /vendor/)
-	cd src/ && go vet $(go list ./... | grep -v /vendor/)
+	go fmt $(go list ./... | grep -v /vendor/)
+	go vet $(go list ./... | grep -v /vendor/)
 
 docs/downloadTheme:
 	wget -O geekdoc.tar.gz https://github.com/thegeeklab/hugo-geekdoc/releases/download/v0.10.1/hugo-geekdoc.tar.gz
-	mkdir -p docs/themes/hugo-geekdoc
-	tar -xf geekdoc.tar.gz -C docs/themes/hugo-geekdoc/
+	mkdir -p _docs/themes/hugo-geekdoc
+	tar -xf geekdoc.tar.gz -C _docs/themes/hugo-geekdoc/
 
 docs/build:
-	cd docs/ && hugo
+	cd _docs/ && hugo
 
 docs/generateChangelog:
 	./tools/git-chglog_linux_amd64 --config tools/chglog/config.yml 0.1.0.. > CHANGELOG.md
