@@ -1,19 +1,19 @@
 go/downloadDependencies:
-	cd src/ && go mod download
+	go mod download
 
 # Standard go test
 go/test:
-	cd src/ && go test ./... -v -race
+	go test ./... -v -race
 
 # Make sure no unnecessary dependencies are present
 go/tidyDependencies:
-	cd src/ && go mod tidy -v
+	go mod tidy -v
 	git --no-pager diff
 	git diff-index --quiet HEAD
 
 go/format:
-	cd src/ && go fmt $(go list ./... | grep -v /vendor/)
-	cd src/ && go vet $(go list ./... | grep -v /vendor/)
+	go fmt $(go list ./... | grep -v /vendor/)
+	go vet $(go list ./... | grep -v /vendor/)
 
 docs/downloadTheme:
 	wget -O geekdoc.tar.gz https://github.com/thegeeklab/hugo-geekdoc/releases/download/v0.10.1/hugo-geekdoc.tar.gz
