@@ -42,7 +42,7 @@ build_pages:
     - make docs/build
   artifacts:
     paths:
-      - docs/public/
+      - _docs/public/
 
 pages:
   stage: publish
@@ -50,7 +50,7 @@ pages:
   only:
     - main
   script:
-    - mv docs/public/ public/
+    - mv _docs/public/ public/
   artifacts:
     paths:
       - public/
