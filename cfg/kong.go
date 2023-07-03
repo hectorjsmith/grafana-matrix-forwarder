@@ -12,7 +12,7 @@ var cli struct {
 	VersionMode     bool   `name:"version" short:"v" help:"show version info and exit"`
 	Host            string `name:"host" group:"server" env:"GMF_SERVER_HOST" help:"host address the server connects to" default:"${default_host}"`
 	Port            int    `name:"port" group:"server" env:"GMF_SERVER_PORT" help:"port to run the webserver on" default:"${default_port}"`
-	AuthScheme      string `name:"auth.scheme" group:"server" env:"GMF_AUTH_SCHEME" help:"set the scheme for required authentication"`
+	AuthScheme      string `name:"auth.scheme" group:"server" env:"GMF_AUTH_SCHEME" help:"set the scheme for required authentication - valid options are: ${auth_scheme_options}"`
 	AuthCredentials string `name:"auth.credentials" group:"server" env:"GMF_AUTH_CREDENTIALS" help:"credentials required to forward alerts"`
 	HomeserverURL   string `name:"homeserver" group:"matrix" env:"GMF_MATRIX_HOMESERVER" help:"url of the homeserver to connect to" default:"${default_homeserver}"`
 	User            string `name:"user" group:"matrix" env:"GMF_MATRIX_USER" help:"username used to login to matrix"`
@@ -32,6 +32,7 @@ func Load() AppSettings {
 			"default_homeserver":   "https://matrix.org",
 			"default_resolve_mode": string(ResolveWithMessage),
 			"resolve_mode_options": strings.Join(AvailableResolveModesStr(), ", "),
+			"auth_scheme_options":  "bearer",
 		},
 		kong.Name("grafana_matrix_forwarder"),
 		kong.Description("Forward alerts from Grafana to a Matrix room"),
@@ -58,20 +59,37 @@ func Load() AppSettings {
 func validateFlags(cliCtx *kong.Context) {
 	var flagsValid = false
 	var messages = []string{}
-	// if !cli.VersionMode {
-	// 	if cli.F2bSocketPath == "" {
-	// 		messages = append(messages, "error: fail2ban socket path must not be blank")
-	// 		flagsValid = false
-	// 	}
-	// 	if cli.ServerAddress == "" {
-	// 		messages = append(messages, "error: invalid server address, must not be blank")
-	// 		flagsValid = false
-	// 	}
-	// 	if (len(cli.BasicAuthUser) > 0) != (len(cli.BasicAuthPass) > 0) {
-	// 		messages = append(messages, "error: to enable basic auth both the username and the password must be provided")
-	// 		flagsValid = false
-	// 	}
-	// }
+	if !cli.VersionMode {
+		if cli.User == "" {
+			messages = append(messages, "error: matrix username must not be blank")
+			flagsValid = false
+		}
+		if cli.Password == "" {
+			messages = append(messages, "error: matrix password must not be blank")
+			flagsValid = false
+		}
+		if cli.HomeserverURL == "" {
+			messages = append(messages, "error: matrix homeserver url must not be blank")
+			flagsValid = false
+		}
+		if cli.Port < minServerPort || cli.Port > maxServerPort {
+			messages = append(messages, "error: invalid server port selected")
+			flagsValid = false
+		}
+		if (cli.AuthScheme == "") != (cli.AuthCredentials == "") {
+			messages = append(messages, "error: invalid auth setup - both scheme and credentials should be set")
+			flagsValid = false
+		}
+		if strings.ToLower(cli.AuthScheme) != "" && strings.ToLower(cli.AuthScheme) != "bearer" {
+			messages = append(messages, "error: unsupported auth scheme selected")
+			flagsValid = false
+		}
+		_, err := ToResolveMode(cli.ResolveMode)
+		if err != nil {
+			messages = append(messages, "error: invalid resolve mode selected")
+			flagsValid = false
+		}
+	}
 	if !flagsValid {
 		cliCtx.PrintUsage(false)
 		fmt.Println()
