@@ -39,7 +39,7 @@ $ ./grafana-matrix-forwarder --user @userId:matrix.org --password xxx --homeserv
 
 Add a new **Contact Point** in Grafana with the **POST webhook** type. Use the following URL: 
 ```
-http://<ip address>:6000/api/v0/forward?roomId=<roomId>
+http://<ip address>:6000/api/v1/unified?roomId=<roomId>
 ```
 
 *Replace with the server ID and matrix room ID.*
