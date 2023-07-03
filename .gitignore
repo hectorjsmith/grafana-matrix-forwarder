@@ -4,5 +4,5 @@ vendor/
 
 build/
 dist/
-docs/public/
-docs/themes/
+_docs/public/
+_docs/themes/
