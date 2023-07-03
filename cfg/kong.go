@@ -27,12 +27,12 @@ func Parse() AppSettings {
 	ctx := kong.Parse(
 		&cli,
 		kong.Vars{
-			"default_host":              defaultServerHost,
-			"default_port":              defaultServerPort,
-			"default_homeserver":        defaultHomeServerUrl,
-			"default_metrix_rounding":   defaultMetricRounding,
-			"default_persist_alert_map": defaultPersistAlertMap,
-			"default_resolve_mode":      string(defaultResolveMode),
+			"default_host":              "0.0.0.0",
+			"default_port":              "6000",
+			"default_homeserver":        "matrix.org",
+			"default_metrix_rounding":   "3",
+			"default_persist_alert_map": "true",
+			"default_resolve_mode":      string(ResolveWithMessage),
 			"resolve_mode_options":      strings.Join(AvailableResolveModesStr(), ", "),
 			"auth_scheme_options":       "bearer",
 		},
@@ -64,41 +64,4 @@ func Parse() AppSettings {
 		PersistAlertMap: cli.PersistAlertMap,
 		MetricRounding:  cli.MetricRounding,
 	}
-}
-
-func validateFlags() (bool, []string) {
-	var flagsValid = false
-	var messages = []string{}
-	if !cli.VersionMode {
-		if cli.User == "" {
-			messages = append(messages, "error: matrix username must not be blank")
-			flagsValid = false
-		}
-		if cli.Password == "" {
-			messages = append(messages, "error: matrix password must not be blank")
-			flagsValid = false
-		}
-		if cli.HomeserverURL == "" {
-			messages = append(messages, "error: matrix homeserver url must not be blank")
-			flagsValid = false
-		}
-		if cli.Port < minServerPort || cli.Port > maxServerPort {
-			messages = append(messages, "error: invalid server port selected")
-			flagsValid = false
-		}
-		if (cli.AuthScheme == "") != (cli.AuthCredentials == "") {
-			messages = append(messages, "error: invalid auth setup - both scheme and credentials should be set")
-			flagsValid = false
-		}
-		if strings.ToLower(cli.AuthScheme) != "" && strings.ToLower(cli.AuthScheme) != "bearer" {
-			messages = append(messages, "error: unsupported auth scheme selected")
-			flagsValid = false
-		}
-		_, err := ToResolveMode(cli.ResolveMode)
-		if err != nil {
-			messages = append(messages, "error: invalid resolve mode selected")
-			flagsValid = false
-		}
-	}
-	return flagsValid, messages
 }
