@@ -11,6 +11,12 @@ import (
 // ResolveMode determines how the application will handle resolved alerts
 type ResolveMode string
 
+const (
+	ResolveWithReaction ResolveMode = "reaction"
+	ResolveWithMessage  ResolveMode = "message"
+	ResolveWithReply    ResolveMode = "reply"
+)
+
 // AppSettings includes all application parameters
 type AppSettings struct {
 	VersionMode     bool
@@ -26,20 +32,6 @@ type AppSettings struct {
 	AuthScheme      string
 	AuthCredentials string
 }
-
-const (
-	ResolveWithReaction    ResolveMode = "reaction"
-	ResolveWithMessage     ResolveMode = "message"
-	ResolveWithReply       ResolveMode = "reply"
-	minServerPort                      = 1000
-	maxServerPort                      = 65535
-	defaultServerPort                  = 6000
-	defaultServerHost                  = "0.0.0.0"
-	defaultHomeServerUrl               = "matrix.org"
-	defaultResolveMode                 = ResolveWithMessage
-	defaultMetricRounding              = 3
-	defaultPersistAlertMap             = true
-)
 
 // Parse the AppSettings data from the command line
 func Parse() AppSettings {
