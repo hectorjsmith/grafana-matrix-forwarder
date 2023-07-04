@@ -86,6 +86,11 @@ func Parse() AppSettings {
 		os.Exit(1)
 	}
 
+	resolveMode, err := ToResolveMode(cli.ResolveMode)
+	if err != nil {
+		// This should have already been validated
+		panic(err)
+	}
 	return AppSettings{
 		VersionMode:     cli.VersionMode,
 		ServerHost:      cli.Host,
@@ -95,7 +100,7 @@ func Parse() AppSettings {
 		HomeserverURL:   cli.HomeserverURL,
 		UserID:          cli.User,
 		UserPassword:    cli.Password,
-		ResolveMode:     ResolveMode(cli.ResolveMode),
+		ResolveMode:     resolveMode,
 		LogPayload:      cli.LogPayload,
 		PersistAlertMap: cli.PersistAlertMap,
 		MetricRounding:  cli.MetricRounding,
