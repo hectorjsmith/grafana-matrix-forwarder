@@ -11,6 +11,9 @@ func validateFlags() (bool, []string) {
 	var flagsValid = false
 	var messages = []string{}
 	if !cli.VersionMode {
+		if cli.Env {
+			messages = append(messages, "warn: the env flag has been deprecated and no longer has any function")
+		}
 		if cli.User == "" {
 			messages = append(messages, "error: matrix username must not be blank")
 			flagsValid = false
