@@ -2,6 +2,7 @@ package matrix
 
 import (
 	"log"
+
 	"maunium.net/go/mautrix"
 	"maunium.net/go/mautrix/event"
 	"maunium.net/go/mautrix/id"
@@ -69,21 +70,23 @@ func buildFormattedMessagePayload(body string, formattedBody string) *event.Mess
 	}
 }
 
-func (w writer) Send(roomID string, body string, formattedBody string) (*mautrix.RespSendEvent, error) {
+func (w writer) Send(roomID string, body string, formattedBody string) (string, error) {
 	payload := buildFormattedMessagePayload(body, formattedBody)
-	return w.sendPayload(roomID, event.EventMessage, payload)
+	resp, err := w.sendPayload(roomID, event.EventMessage, payload)
+	return resp.EventID.String(), err
 }
 
-func (w writer) Reply(roomID string, eventID string, body string, formattedBody string) (*mautrix.RespSendEvent, error) {
+func (w writer) Reply(roomID string, eventID string, body string, formattedBody string) (string, error) {
 	payload := buildFormattedMessagePayload(body, formattedBody)
 	payload.RelatesTo = &event.RelatesTo{
 		EventID: id.EventID(eventID),
 		Type:    event.RelReference,
 	}
-	return w.sendPayload(roomID, event.EventMessage, &payload)
+	resp, err := w.sendPayload(roomID, event.EventMessage, &payload)
+	return resp.EventID.String(), err
 }
 
-func (w writer) React(roomID string, eventID string, reaction string) (*mautrix.RespSendEvent, error) {
+func (w writer) React(roomID string, eventID string, reaction string) (string, error) {
 	// Temporary fix to support sending reactions. The key is to pass a pointer to the send method.
 	// PR that addresses issue and fix: https://github.com/tulir/mautrix-go/pull/21
 	// Fixed by: https://github.com/tulir/mautrix-go/commit/617e6c94cc3a2f046434bf262fadd993daf02141
@@ -94,7 +97,8 @@ func (w writer) React(roomID string, eventID string, reaction string) (*mautrix.
 			Key:     reaction,
 		},
 	}
-	return w.sendPayload(roomID, event.EventReaction, &payload)
+	resp, err := w.sendPayload(roomID, event.EventReaction, &payload)
+	return resp.EventID.String(), err
 }
 
 func (w writer) sendPayload(roomID string, eventType event.Type, messagePayload interface{}) (*mautrix.RespSendEvent, error) {

@@ -72,9 +72,12 @@ func (f *Forwarder) sendResolvedReply(roomID string, sentEvent sentMatrixEvent, 
 
 func (f *Forwarder) sendAlertMessage(roomID string, alert model.AlertData) error {
 	rawMessage, formattedMessage, err := formatter.GenerateMessage(alert, f.AppSettings.MetricRounding)
+	if err != nil {
+		return err
+	}
 	resp, err := f.MatrixWriter.Send(roomID, rawMessage, formattedMessage)
 	if err == nil {
-		f.storeMatrixEvent(alert.Id, resp.EventID.String(), formattedMessage)
+		f.storeMatrixEvent(alert.Id, resp, formattedMessage)
 	}
 	return err
 }

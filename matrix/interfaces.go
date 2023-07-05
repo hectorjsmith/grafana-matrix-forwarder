@@ -1,9 +1,5 @@
 package matrix
 
-import (
-	"maunium.net/go/mautrix"
-)
-
 // WriteCloser allows writing JSON data to a matrix room and closing the connection
 type WriteCloser interface {
 	// Close the matrix connection
@@ -14,9 +10,9 @@ type WriteCloser interface {
 
 type Writer interface {
 	// Send a message payload to a given room and get back the response data
-	Send(roomID string, body string, formattedBody string) (*mautrix.RespSendEvent, error)
+	Send(roomID string, body string, formattedBody string) (string, error)
 	// Reply to the provided event ID with the provided plain text and formatted body
-	Reply(roomID string, eventID string, body string, formattedBody string) (*mautrix.RespSendEvent, error)
+	Reply(roomID string, eventID string, body string, formattedBody string) (string, error)
 	// React to a given message
-	React(roomID string, eventID string, reaction string) (*mautrix.RespSendEvent, error)
+	React(roomID string, eventID string, reaction string) (string, error)
 }
