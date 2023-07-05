@@ -8,6 +8,7 @@ type WriteCloser interface {
 	GetWriter() Writer
 }
 
+// Writer handles writing data to a matrix room
 type Writer interface {
 	// Send a message payload to a given room and get back the event ID if successful
 	Send(roomID string, body FormattedMessage) (string, error)
@@ -17,6 +18,8 @@ type Writer interface {
 	React(roomID string, eventID string, reaction string) (string, error)
 }
 
+// FormattedMessage contains the plain and formatted versions of a message that get rendered in matrix clients.
+// They should both represent the same thing.
 type FormattedMessage struct {
 	TextBody string
 	HtmlBody string
