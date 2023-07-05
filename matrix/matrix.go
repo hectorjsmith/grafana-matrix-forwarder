@@ -53,23 +53,23 @@ func (wc writeCloser) Close() error {
 	return err
 }
 
-func buildFormattedMessagePayload(body string, formattedBody string) *event.MessageEventContent {
+func buildFormattedMessagePayload(body FormattedMessage) *event.MessageEventContent {
 	return &event.MessageEventContent{
 		MsgType:       "m.text",
-		Body:          body,
+		Body:          body.TextBody,
 		Format:        "org.matrix.custom.html",
-		FormattedBody: formattedBody,
+		FormattedBody: body.HtmlBody,
 	}
 }
 
-func (w writer) Send(roomID string, body string, formattedBody string) (string, error) {
-	payload := buildFormattedMessagePayload(body, formattedBody)
+func (w writer) Send(roomID string, body FormattedMessage) (string, error) {
+	payload := buildFormattedMessagePayload(body)
 	resp, err := w.sendPayload(roomID, event.EventMessage, payload)
 	return resp.EventID.String(), err
 }
 
-func (w writer) Reply(roomID string, eventID string, body string, formattedBody string) (string, error) {
-	payload := buildFormattedMessagePayload(body, formattedBody)
+func (w writer) Reply(roomID string, eventID string, body FormattedMessage) (string, error) {
+	payload := buildFormattedMessagePayload(body)
 	payload.RelatesTo = &event.RelatesTo{
 		EventID: id.EventID(eventID),
 		Type:    event.RelReference,

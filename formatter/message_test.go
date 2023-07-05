@@ -127,16 +127,16 @@ func TestGenerateMessage(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotPlainMessage, gotFormattedMessage, err := GenerateMessage(tt.args.alert, tt.args.metricRounding)
+			gotMessage, err := GenerateMessage(tt.args.alert, tt.args.metricRounding)
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GenerateMessage() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if gotPlainMessage != tt.wantPlainMessage {
-				t.Errorf("GenerateMessage() gotPlainMessage = %v, want %v", gotPlainMessage, tt.wantPlainMessage)
+			if gotMessage.TextBody != tt.wantPlainMessage {
+				t.Errorf("GenerateMessage() gotPlainMessage = %v, want %v", gotMessage.TextBody, tt.wantPlainMessage)
 			}
-			if gotFormattedMessage != tt.wantFormattedMessage {
-				t.Errorf("GenerateMessage() gotFormattedMessage = %v, want %v", gotFormattedMessage, tt.wantFormattedMessage)
+			if gotMessage.HtmlBody != tt.wantFormattedMessage {
+				t.Errorf("GenerateMessage() gotFormattedMessage = %v, want %v", gotMessage.HtmlBody, tt.wantFormattedMessage)
 			}
 		})
 	}

@@ -61,23 +61,23 @@ func (f *Forwarder) sendResolvedReaction(roomID, eventID string, alert model.Ale
 }
 
 func (f *Forwarder) sendResolvedReply(roomID string, sentEvent sentMatrixEvent, alert model.AlertData) error {
-	rawReply, formattedReply, err := formatter.GenerateReply(sentEvent.SentFormattedBody, alert)
+	reply, err := formatter.GenerateReply(sentEvent.SentFormattedBody, alert)
 	if err != nil {
 		return err
 	}
 	f.deleteMatrixEvent(alert.Id)
-	_, err = f.MatrixWriter.Reply(roomID, sentEvent.EventID, rawReply, formattedReply)
+	_, err = f.MatrixWriter.Reply(roomID, sentEvent.EventID, reply)
 	return err
 }
 
 func (f *Forwarder) sendAlertMessage(roomID string, alert model.AlertData) error {
-	rawMessage, formattedMessage, err := formatter.GenerateMessage(alert, f.AppSettings.MetricRounding)
+	message, err := formatter.GenerateMessage(alert, f.AppSettings.MetricRounding)
 	if err != nil {
 		return err
 	}
-	resp, err := f.MatrixWriter.Send(roomID, rawMessage, formattedMessage)
+	resp, err := f.MatrixWriter.Send(roomID, message)
 	if err == nil {
-		f.storeMatrixEvent(alert.Id, resp, formattedMessage)
+		f.storeMatrixEvent(alert.Id, resp, message.HtmlBody)
 	}
 	return err
 }
