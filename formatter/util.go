@@ -13,7 +13,7 @@ var (
 	htmlParagraphRegex = regexp.MustCompile(`</?p>`)
 )
 
-func formattedMessageToPlainMessage(input string) string {
+func htmlMessageToTextMessage(input string) string {
 	return strings.TrimSpace(stripHtmlTagsFromString(input))
 }
 
