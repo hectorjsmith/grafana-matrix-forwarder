@@ -8,14 +8,6 @@ import (
 	"maunium.net/go/mautrix/id"
 )
 
-// EventFormattedMessage is the JSON payload required to send a formatted message in matrix
-type EventFormattedMessage struct {
-	MsgType       string `json:"msgtype"`
-	Body          string `json:"body"`
-	Format        string `json:"format"`
-	FormattedBody string `json:"formatted_body"`
-}
-
 // NewMatrixWriteCloser logs in to the provided matrix server URL using the provided user ID and password
 // and returns a matrix WriteCloser
 func NewMatrixWriteCloser(userID, userPassword, homeserverURL string) (WriteCloser, error) {
