@@ -2,18 +2,11 @@ package matrix
 
 import (
 	"log"
+
 	"maunium.net/go/mautrix"
 	"maunium.net/go/mautrix/event"
 	"maunium.net/go/mautrix/id"
 )
-
-// EventFormattedMessage is the JSON payload required to send a formatted message in matrix
-type EventFormattedMessage struct {
-	MsgType       string `json:"msgtype"`
-	Body          string `json:"body"`
-	Format        string `json:"format"`
-	FormattedBody string `json:"formatted_body"`
-}
 
 // NewMatrixWriteCloser logs in to the provided matrix server URL using the provided user ID and password
 // and returns a matrix WriteCloser
@@ -60,30 +53,32 @@ func (wc writeCloser) Close() error {
 	return err
 }
 
-func buildFormattedMessagePayload(body string, formattedBody string) *event.MessageEventContent {
+func buildFormattedMessagePayload(body FormattedMessage) *event.MessageEventContent {
 	return &event.MessageEventContent{
 		MsgType:       "m.text",
-		Body:          body,
+		Body:          body.TextBody,
 		Format:        "org.matrix.custom.html",
-		FormattedBody: formattedBody,
+		FormattedBody: body.HtmlBody,
 	}
 }
 
-func (w writer) Send(roomID string, body string, formattedBody string) (*mautrix.RespSendEvent, error) {
-	payload := buildFormattedMessagePayload(body, formattedBody)
-	return w.sendPayload(roomID, event.EventMessage, payload)
+func (w writer) Send(roomID string, body FormattedMessage) (string, error) {
+	payload := buildFormattedMessagePayload(body)
+	resp, err := w.sendPayload(roomID, event.EventMessage, payload)
+	return resp.EventID.String(), err
 }
 
-func (w writer) Reply(roomID string, eventID string, body string, formattedBody string) (*mautrix.RespSendEvent, error) {
-	payload := buildFormattedMessagePayload(body, formattedBody)
+func (w writer) Reply(roomID string, eventID string, body FormattedMessage) (string, error) {
+	payload := buildFormattedMessagePayload(body)
 	payload.RelatesTo = &event.RelatesTo{
 		EventID: id.EventID(eventID),
 		Type:    event.RelReference,
 	}
-	return w.sendPayload(roomID, event.EventMessage, &payload)
+	resp, err := w.sendPayload(roomID, event.EventMessage, &payload)
+	return resp.EventID.String(), err
 }
 
-func (w writer) React(roomID string, eventID string, reaction string) (*mautrix.RespSendEvent, error) {
+func (w writer) React(roomID string, eventID string, reaction string) (string, error) {
 	// Temporary fix to support sending reactions. The key is to pass a pointer to the send method.
 	// PR that addresses issue and fix: https://github.com/tulir/mautrix-go/pull/21
 	// Fixed by: https://github.com/tulir/mautrix-go/commit/617e6c94cc3a2f046434bf262fadd993daf02141
@@ -94,7 +89,8 @@ func (w writer) React(roomID string, eventID string, reaction string) (*mautrix.
 			Key:     reaction,
 		},
 	}
-	return w.sendPayload(roomID, event.EventReaction, &payload)
+	resp, err := w.sendPayload(roomID, event.EventReaction, &payload)
+	return resp.EventID.String(), err
 }
 
 func (w writer) sendPayload(roomID string, eventType event.Type, messagePayload interface{}) (*mautrix.RespSendEvent, error) {
