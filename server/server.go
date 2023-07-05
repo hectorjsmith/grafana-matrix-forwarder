@@ -3,14 +3,15 @@ package server
 import (
 	"context"
 	"fmt"
-	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"grafana-matrix-forwarder/cfg"
 	"grafana-matrix-forwarder/matrix"
 	"grafana-matrix-forwarder/server/metrics"
-	"grafana-matrix-forwarder/server/v0"
-	"grafana-matrix-forwarder/server/v1"
+	v0 "grafana-matrix-forwarder/server/v0"
+	v1 "grafana-matrix-forwarder/server/v1"
 	"grafana-matrix-forwarder/service"
+
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 
 	"log"
 	"net/http"
@@ -62,10 +63,13 @@ func (server Server) Start() (err error) {
 	prometheus.MustRegister(server.metricsCollector)
 	serverAddr := fmt.Sprintf("%s:%d", server.appSettings.ServerHost, server.appSettings.ServerPort)
 	srv := &http.Server{
-		Addr:    serverAddr,
-		Handler: mux,
+		Addr:              serverAddr,
+		Handler:           mux,
+		ReadHeaderTimeout: 10 * time.Second,
+		ReadTimeout:       10 * time.Second,
+		WriteTimeout:      10 * time.Second,
+		IdleTimeout:       30 * time.Second,
 	}
-
 	go func() {
 		if err = srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatalf("server error: %+s\n", err)
