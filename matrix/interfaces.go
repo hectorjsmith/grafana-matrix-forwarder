@@ -9,11 +9,11 @@ type WriteCloser interface {
 }
 
 type Writer interface {
-	// Send a message payload to a given room and get back the response data, returns the event ID if successful
+	// Send a message payload to a given room and get back the event ID if successful
 	Send(roomID string, body FormattedMessage) (string, error)
-	// Reply to the provided event ID with the provided plain text and formatted body, returns the event ID if successful
+	// Reply to the provided event ID with the provided message, returns the event ID if successful
 	Reply(roomID string, eventID string, body FormattedMessage) (string, error)
-	// React to a given message, returns the event ID if successful
+	// React to a given event ID, returns the new event ID if successful
 	React(roomID string, eventID string, reaction string) (string, error)
 }
 
