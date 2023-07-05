@@ -11,11 +11,11 @@ func TestGenerateMessage(t *testing.T) {
 		metricRounding int
 	}
 	tests := []struct {
-		name                 string
-		args                 args
-		wantPlainMessage     string
-		wantFormattedMessage string
-		wantErr              bool
+		name            string
+		args            args
+		wantMessageText string
+		wantMessageHtml string
+		wantErr         bool
 	}{
 		{
 			name: "alertingStateTest",
@@ -26,9 +26,9 @@ func TestGenerateMessage(t *testing.T) {
 					RuleName: "sample",
 					Message:  "sample message",
 				}, metricRounding: 0},
-			wantFormattedMessage: "💔 <b>ALERT</b><p>Rule: <a href=\"http://example.com\">sample</a> | sample message</p>",
-			wantPlainMessage:     "💔 ALERT Rule: sample | sample message",
-			wantErr:              false,
+			wantMessageHtml: "💔 <b>ALERT</b><p>Rule: <a href=\"http://example.com\">sample</a> | sample message</p>",
+			wantMessageText: "💔 ALERT Rule: sample | sample message",
+			wantErr:         false,
 		},
 		{
 			name: "alertingStateWithEvalMatchesTest",
@@ -52,9 +52,9 @@ func TestGenerateMessage(t *testing.T) {
 				},
 				metricRounding: 5,
 			},
-			wantFormattedMessage: "💔 <b>ALERT</b><p>Rule: <a href=\"http://example.com\">sample</a> | sample message</p><ul><li><b>sample</b>: 10.65124</li></ul>",
-			wantPlainMessage:     "💔 ALERT Rule: sample | sample message sample: 10.65124",
-			wantErr:              false,
+			wantMessageHtml: "💔 <b>ALERT</b><p>Rule: <a href=\"http://example.com\">sample</a> | sample message</p><ul><li><b>sample</b>: 10.65124</li></ul>",
+			wantMessageText: "💔 ALERT Rule: sample | sample message sample: 10.65124",
+			wantErr:         false,
 		},
 		{
 			name: "alertingStateWithEvalMatchesAndTagsTest",
@@ -78,9 +78,9 @@ func TestGenerateMessage(t *testing.T) {
 				},
 				metricRounding: 5,
 			},
-			wantFormattedMessage: "💔 <b>ALERT</b><p>Rule: <a href=\"http://example.com\">sample</a> | sample message</p><ul><li><b>sample</b>: 10.65124</li></ul><p>Tags:</p><ul><li><b>key1</b>: value1</li><li><b>key2</b>: value2</li></ul>",
-			wantPlainMessage:     "💔 ALERT Rule: sample | sample message sample: 10.65124 Tags: key1: value1key2: value2",
-			wantErr:              false,
+			wantMessageHtml: "💔 <b>ALERT</b><p>Rule: <a href=\"http://example.com\">sample</a> | sample message</p><ul><li><b>sample</b>: 10.65124</li></ul><p>Tags:</p><ul><li><b>key1</b>: value1</li><li><b>key2</b>: value2</li></ul>",
+			wantMessageText: "💔 ALERT Rule: sample | sample message sample: 10.65124 Tags: key1: value1key2: value2",
+			wantErr:         false,
 		},
 		{
 			name: "okStateTest",
@@ -92,9 +92,9 @@ func TestGenerateMessage(t *testing.T) {
 					Message:  "sample message",
 				},
 			},
-			wantFormattedMessage: "💚 <b>RESOLVED</b><p>Rule: <a href=\"http://example.com\">sample</a> | sample message</p>",
-			wantPlainMessage:     "💚 RESOLVED Rule: sample | sample message",
-			wantErr:              false,
+			wantMessageHtml: "💚 <b>RESOLVED</b><p>Rule: <a href=\"http://example.com\">sample</a> | sample message</p>",
+			wantMessageText: "💚 RESOLVED Rule: sample | sample message",
+			wantErr:         false,
 		},
 		{
 			name: "noDataStateTest",
@@ -106,9 +106,9 @@ func TestGenerateMessage(t *testing.T) {
 					Message:  "sample message",
 				},
 			},
-			wantFormattedMessage: "❓ <b>NO DATA</b><p>Rule: <a href=\"http://example.com\">sample</a> | sample message</p>",
-			wantPlainMessage:     "❓ NO DATA Rule: sample | sample message",
-			wantErr:              false,
+			wantMessageHtml: "❓ <b>NO DATA</b><p>Rule: <a href=\"http://example.com\">sample</a> | sample message</p>",
+			wantMessageText: "❓ NO DATA Rule: sample | sample message",
+			wantErr:         false,
 		},
 		{
 			name: "unknownStateTest",
@@ -120,9 +120,9 @@ func TestGenerateMessage(t *testing.T) {
 					Message:  "sample message",
 				},
 			},
-			wantFormattedMessage: "❓ <b>UNKNOWN</b><p>Rule: <a href=\"http://example.com\">sample</a> | sample message</p>",
-			wantPlainMessage:     "❓ UNKNOWN Rule: sample | sample message",
-			wantErr:              false,
+			wantMessageHtml: "❓ <b>UNKNOWN</b><p>Rule: <a href=\"http://example.com\">sample</a> | sample message</p>",
+			wantMessageText: "❓ UNKNOWN Rule: sample | sample message",
+			wantErr:         false,
 		},
 	}
 	for _, tt := range tests {
@@ -132,11 +132,11 @@ func TestGenerateMessage(t *testing.T) {
 				t.Errorf("GenerateMessage() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
-			if gotMessage.TextBody != tt.wantPlainMessage {
-				t.Errorf("GenerateMessage() gotPlainMessage = %v, want %v", gotMessage.TextBody, tt.wantPlainMessage)
+			if gotMessage.TextBody != tt.wantMessageText {
+				t.Errorf("GenerateMessage() text = %v, want %v", gotMessage.TextBody, tt.wantMessageText)
 			}
-			if gotMessage.HtmlBody != tt.wantFormattedMessage {
-				t.Errorf("GenerateMessage() gotFormattedMessage = %v, want %v", gotMessage.HtmlBody, tt.wantFormattedMessage)
+			if gotMessage.HtmlBody != tt.wantMessageHtml {
+				t.Errorf("GenerateMessage() html = %v, want %v", gotMessage.HtmlBody, tt.wantMessageHtml)
 			}
 		})
 	}
