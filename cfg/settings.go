@@ -19,6 +19,7 @@ type AppSettings struct {
 	VersionMode     bool
 	UserID          string
 	UserPassword    string
+	UserToken       string
 	HomeserverURL   string
 	ServerHost      string
 	MetricRounding  int
