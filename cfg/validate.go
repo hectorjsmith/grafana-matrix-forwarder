@@ -8,7 +8,7 @@ const (
 )
 
 func validateFlags() (bool, []string) {
-	var flagsValid = false
+	var flagsValid = true
 	var messages = []string{}
 	if !cli.VersionMode {
 		if cli.Env {
