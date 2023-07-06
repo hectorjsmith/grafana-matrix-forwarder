@@ -97,4 +97,4 @@ tag images:
   variables:
     IMAGE_NAME: registry.gitlab.com/hectorjsmith/grafana-matrix-forwarder
   script:
-    - ./.gitlab-ci/tagLatestImage.sh
+    - ./.gitlab/ci/tagLatestImage.sh
