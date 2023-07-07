@@ -5,6 +5,6 @@ WORKDIR /app
 
 # Copy compiled binary to release image
 # (must build the binary before running docker build)
-COPY grafana_matrix_forwarder /app/grafana_matrix_forwarder
+COPY grafana-matrix-forwarder /app/grafana-matrix-forwarder
 
-ENTRYPOINT ["/app/grafana_matrix_forwarder"]
+ENTRYPOINT ["/app/grafana-matrix-forwarder"]
