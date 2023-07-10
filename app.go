@@ -52,7 +52,14 @@ func printAppVersion() {
 }
 
 func run(ctx context.Context, appSettings cfg.AppSettings) error {
-	writeCloser, err := matrix.NewMatrixWriteCloser(appSettings.UserID, appSettings.UserPassword, appSettings.HomeserverURL)
+	log.Print("starting matrix client ...")
+	var err error
+	var writeCloser matrix.WriteCloser
+	if len(appSettings.UserToken) > 0 {
+		writeCloser, err = matrix.NewMatrixWriteCloserWithToken(appSettings.UserID, appSettings.UserToken, appSettings.HomeserverURL)
+	} else {
+		writeCloser, err = matrix.NewMatrixWriteCloser(appSettings.UserID, appSettings.UserPassword, appSettings.HomeserverURL)
+	}
 	if err != nil {
 		return err
 	}

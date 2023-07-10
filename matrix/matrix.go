@@ -11,13 +11,12 @@ import (
 // NewMatrixWriteCloser logs in to the provided matrix server URL using the provided user ID and password
 // and returns a matrix WriteCloser
 func NewMatrixWriteCloser(userID, userPassword, homeserverURL string) (WriteCloser, error) {
-	log.Print("starting matrix client ...")
-
 	client, err := mautrix.NewClient(homeserverURL, id.UserID(userID), "")
 	if err != nil {
 		return nil, err
 	}
 
+	log.Print("logging into matrix with username + password")
 	_, err = client.Login(&mautrix.ReqLogin{
 		Type: "m.login.password",
 		Identifier: mautrix.UserIdentifier{
@@ -28,6 +27,16 @@ func NewMatrixWriteCloser(userID, userPassword, homeserverURL string) (WriteClos
 		InitialDeviceDisplayName: "",
 		StoreCredentials:         true,
 	})
+	return buildMatrixWriteCloser(client), err
+}
+
+// NewMatrixWriteCloser creates a new WriteCloser with the provided user ID and token
+func NewMatrixWriteCloserWithToken(userID, token, homeserverURL string) (WriteCloser, error) {
+	log.Print("using matrix auth token")
+	client, err := mautrix.NewClient(homeserverURL, id.UserID(userID), token)
+	if err != nil {
+		return nil, err
+	}
 	return buildMatrixWriteCloser(client), err
 }
 
