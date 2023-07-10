@@ -74,6 +74,9 @@ func buildFormattedMessagePayload(body FormattedMessage) *event.MessageEventCont
 func (w writer) Send(roomID string, body FormattedMessage) (string, error) {
 	payload := buildFormattedMessagePayload(body)
 	resp, err := w.sendPayload(roomID, event.EventMessage, payload)
+	if err != nil {
+		return "", err
+	}
 	return resp.EventID.String(), err
 }
 
@@ -84,6 +87,9 @@ func (w writer) Reply(roomID string, eventID string, body FormattedMessage) (str
 		Type:    event.RelReference,
 	}
 	resp, err := w.sendPayload(roomID, event.EventMessage, &payload)
+	if err != nil {
+		return "", err
+	}
 	return resp.EventID.String(), err
 }
 
@@ -99,6 +105,9 @@ func (w writer) React(roomID string, eventID string, reaction string) (string, e
 		},
 	}
 	resp, err := w.sendPayload(roomID, event.EventReaction, &payload)
+	if err != nil {
+		return "", err
+	}
 	return resp.EventID.String(), err
 }
 
