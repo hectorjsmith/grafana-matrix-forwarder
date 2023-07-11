@@ -11,13 +11,12 @@ import (
 // NewMatrixWriteCloser logs in to the provided matrix server URL using the provided user ID and password
 // and returns a matrix WriteCloser
 func NewMatrixWriteCloser(userID, userPassword, homeserverURL string) (WriteCloser, error) {
-	log.Print("starting matrix client ...")
-
 	client, err := mautrix.NewClient(homeserverURL, id.UserID(userID), "")
 	if err != nil {
 		return nil, err
 	}
 
+	log.Print("logging into matrix with username + password")
 	_, err = client.Login(&mautrix.ReqLogin{
 		Type: "m.login.password",
 		Identifier: mautrix.UserIdentifier{
@@ -28,16 +27,32 @@ func NewMatrixWriteCloser(userID, userPassword, homeserverURL string) (WriteClos
 		InitialDeviceDisplayName: "",
 		StoreCredentials:         true,
 	})
-	return buildMatrixWriteCloser(client), err
+	return buildMatrixWriteCloser(client, true), err
+}
+
+// NewMatrixWriteCloser creates a new WriteCloser with the provided user ID and token
+func NewMatrixWriteCloserWithToken(userID, token, homeserverURL string) (WriteCloser, error) {
+	log.Print("using matrix auth token")
+	client, err := mautrix.NewClient(homeserverURL, id.UserID(userID), token)
+	if err != nil {
+		return nil, err
+	}
+	return buildMatrixWriteCloser(client, false), err
 }
 
 // buildMatrixWriteCloser builds a WriteCloser from a raw matrix client
-func buildMatrixWriteCloser(matrixClient *mautrix.Client) WriteCloser {
-	return writeCloser{writer: writer{matrixClient: matrixClient}}
+func buildMatrixWriteCloser(matrixClient *mautrix.Client, closeable bool) WriteCloser {
+	return writeCloser{
+		writer: writer{
+			matrixClient: matrixClient,
+		},
+		closeable: closeable,
+	}
 }
 
 type writeCloser struct {
-	writer writer
+	writer    writer
+	closeable bool
 }
 
 type writer struct {
@@ -49,6 +64,9 @@ func (wc writeCloser) GetWriter() Writer {
 }
 
 func (wc writeCloser) Close() error {
+	if !wc.closeable {
+		return nil
+	}
 	_, err := wc.writer.matrixClient.Logout()
 	return err
 }
@@ -65,6 +83,9 @@ func buildFormattedMessagePayload(body FormattedMessage) *event.MessageEventCont
 func (w writer) Send(roomID string, body FormattedMessage) (string, error) {
 	payload := buildFormattedMessagePayload(body)
 	resp, err := w.sendPayload(roomID, event.EventMessage, payload)
+	if err != nil {
+		return "", err
+	}
 	return resp.EventID.String(), err
 }
 
@@ -75,6 +96,9 @@ func (w writer) Reply(roomID string, eventID string, body FormattedMessage) (str
 		Type:    event.RelReference,
 	}
 	resp, err := w.sendPayload(roomID, event.EventMessage, &payload)
+	if err != nil {
+		return "", err
+	}
 	return resp.EventID.String(), err
 }
 
@@ -90,6 +114,9 @@ func (w writer) React(roomID string, eventID string, reaction string) (string, e
 		},
 	}
 	resp, err := w.sendPayload(roomID, event.EventReaction, &payload)
+	if err != nil {
+		return "", err
+	}
 	return resp.EventID.String(), err
 }
 

@@ -18,8 +18,10 @@ func validateFlags() (bool, []string) {
 			messages = append(messages, "error: matrix username must not be blank")
 			flagsValid = false
 		}
-		if cli.Password == "" {
-			messages = append(messages, "error: matrix password must not be blank")
+		passwordSet := cli.Password != ""
+		tokenSet := cli.Token != ""
+		if passwordSet == tokenSet {
+			messages = append(messages, "error: must set either password or token (only one, not both)")
 			flagsValid = false
 		}
 		if cli.HomeserverURL == "" {
