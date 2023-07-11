@@ -27,7 +27,7 @@ func NewMatrixWriteCloser(userID, userPassword, homeserverURL string) (WriteClos
 		InitialDeviceDisplayName: "",
 		StoreCredentials:         true,
 	})
-	return buildMatrixWriteCloser(client), err
+	return buildMatrixWriteCloser(client, true), err
 }
 
 // NewMatrixWriteCloser creates a new WriteCloser with the provided user ID and token
@@ -37,16 +37,22 @@ func NewMatrixWriteCloserWithToken(userID, token, homeserverURL string) (WriteCl
 	if err != nil {
 		return nil, err
 	}
-	return buildMatrixWriteCloser(client), err
+	return buildMatrixWriteCloser(client, false), err
 }
 
 // buildMatrixWriteCloser builds a WriteCloser from a raw matrix client
-func buildMatrixWriteCloser(matrixClient *mautrix.Client) WriteCloser {
-	return writeCloser{writer: writer{matrixClient: matrixClient}}
+func buildMatrixWriteCloser(matrixClient *mautrix.Client, closeable bool) WriteCloser {
+	return writeCloser{
+		writer: writer{
+			matrixClient: matrixClient,
+		},
+		closeable: closeable,
+	}
 }
 
 type writeCloser struct {
-	writer writer
+	writer    writer
+	closeable bool
 }
 
 type writer struct {
@@ -58,6 +64,9 @@ func (wc writeCloser) GetWriter() Writer {
 }
 
 func (wc writeCloser) Close() error {
+	if !wc.closeable {
+		return nil
+	}
 	_, err := wc.writer.matrixClient.Logout()
 	return err
 }
