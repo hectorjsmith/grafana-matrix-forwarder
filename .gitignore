@@ -6,3 +6,5 @@ build/
 dist/
 _docs/public/
 _docs/themes/
+
+grafana-matrix-forwarder
