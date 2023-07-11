@@ -39,7 +39,7 @@ func Parse() AppSettings {
 			"resolve_mode_options":      strings.Join(AvailableResolveModesStr(), ", "),
 			"auth_scheme_options":       "bearer",
 		},
-		kong.Name("grafana_matrix_forwarder"),
+		kong.Name("grafana-matrix-forwarder"),
 		kong.Description("Forward alerts from Grafana to a Matrix room"),
 		kong.UsageOnError(),
 		kong.ExplicitGroups(
