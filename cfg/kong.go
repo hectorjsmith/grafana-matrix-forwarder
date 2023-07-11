@@ -17,6 +17,7 @@ var cli struct {
 	HomeserverURL   string `name:"homeserver" group:"matrix" env:"GMF_MATRIX_HOMESERVER" help:"URL of the homeserver to connect to" default:"${default_homeserver}"`
 	User            string `name:"user" group:"matrix" env:"GMF_MATRIX_USER" help:"Username used to login to matrix"`
 	Password        string `name:"password" group:"matrix" env:"GMF_MATRIX_PASSWORD" help:"Password used to login to matrix"`
+	Token           string `name:"token" group:"matrix" env:"GMF_MATRIX_TOKEN" help:"Auth token used to authenticate with matrix"`
 	ResolveMode     string `name:"resolveMode" group:"alerts" env:"GMF_RESOLVE_MODE" help:"Set how to handle resolved alerts - valid options are: ${resolve_mode_options}" default:"${default_resolve_mode}"`
 	PersistAlertMap bool   `name:"persistAlertMap" group:"alerts" env:"GMF_PERSIST_ALERT_MAP" help:"Persist the internal map between grafana alerts and matrix messages - this is used to support resolving alerts using replies" default:"${default_persist_alert_map}" negatable:"true"`
 	MetricRounding  int    `name:"metricRounding" group:"alerts" env:"GMF_METRIC_ROUNDING" help:"Round metric values to the specified decimal places" default:"${default_metric_rounding}"`
@@ -100,6 +101,7 @@ func Parse() AppSettings {
 		HomeserverURL:   cli.HomeserverURL,
 		UserID:          cli.User,
 		UserPassword:    cli.Password,
+		UserToken:       cli.Token,
 		ResolveMode:     resolveMode,
 		LogPayload:      cli.LogPayload,
 		PersistAlertMap: cli.PersistAlertMap,
