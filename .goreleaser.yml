@@ -16,7 +16,8 @@ builds:
       - "7"
 
 dockers:
-- image_templates: ["registry.gitlab.com/hectorjsmith/grafana-matrix-forwarder:{{ .Version }}"]
+- image_templates: 
+  - "registry.gitlab.com/hectorjsmith/grafana-matrix-forwarder:{{ .Version }}"
   dockerfile: Dockerfile
   build_flag_templates:
   - --label=org.opencontainers.image.title={{ .ProjectName }}
