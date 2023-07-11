@@ -87,7 +87,7 @@ Don't forget to change the `user`, `password`, and homeserver URL for the accoun
 The output will look something like:
 
 ```
-{"user_id":"@mysername:matrix.org","access_token":"xxxxx","home_server":"matrix.org","device_id":"something","well_known":{"m.homeserver":{"base_url":"https://matrix-client.matrix.org/"}}}% 
+{"user_id":"@mysername:matrix.org","access_token":"xxxxx","home_server":"matrix.org","device_id":"something","well_known":{"m.homeserver":{"base_url":"https://matrix-client.matrix.org/"}}}
 ```
 
 Then just copy the value for `access_token` and use it.
