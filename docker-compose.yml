@@ -1,0 +1,16 @@
+services:
+  grafana-matrix-forwarder:
+    build:
+      context: .
+      dockerfile: Dockerfile.build
+    container_name: grafana-matrix-forwarder
+    restart: unless-stopped
+    platform: linux/arm64 # if this doesn't work try linux/arm/v7 or linux/arm/v6
+    ports:
+      - "6000:6000"
+    environment:
+      - GMF_MATRIX_HOMESERVER=<URL> # eg https://matrix.org
+      - GMF_MATRIX_USER=<USER> # eg @monitoring:matrix.org
+      - GMF_MATRIX_PASSWORD=<PASSWORD>
+      - GMF_MATRIX_ROOM=<ROOM_ID> # eg !hashH45H:matrix.org
+      - GMF_LOG_PAYLOAD=false

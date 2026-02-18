@@ -37,7 +37,7 @@ $ ./grafana-matrix-forwarder --user @userId:matrix.org --password xxx --homeserv
 
 **Step 2**
 
-Add a new **Contact Point** in Grafana with the **POST webhook** type. Use the following URL: 
+Add a new **Contact Point** in Grafana with the **POST webhook** type. Use the following URL:
 ```
 http://<ip address>:6000/api/v1/unified?roomId=<roomId>
 ```
@@ -74,6 +74,22 @@ docker run -d \
 ```
 
 Read the [documentation](https://hctrdev.gitlab.io/grafana-matrix-forwarder/) for more detail on using Docker.
+
+## 4. Docker-Compose
+
+For running with Docker compose, you must first configure the Matrix user and room details in `docker-compose.yml`:
+
+1. At the end of the file add the URL to your home server, such as `https://matrix.org`
+2. Add your username - the format is `@<username>:<homeserver>`, such as `@monitoring:matrix.org`
+3. Add your user's password
+4. Add the Room ID. The easiest way to get this is to get a Share Link from your favourite Matrix client, which looks like `https://matrix.org/#/!RoomHashKey:matrix.org`. Your Room ID is the end part, `!RoomHashKey:matrix.org`
+5. Change the `GMF_LOG_PAYLOAD` to `true` if you want to see the requests logged.
+
+Then bring the container up with:
+
+```
+docker-compose up -d --build
+```
 
 ## Thanks
 

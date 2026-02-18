@@ -1,6 +1,7 @@
 package matrix
 
 import (
+	"context"
 	"log"
 
 	"maunium.net/go/mautrix"
@@ -17,7 +18,7 @@ func NewMatrixWriteCloser(userID, userPassword, homeserverURL string) (WriteClos
 	}
 
 	log.Print("logging into matrix with username + password")
-	_, err = client.Login(&mautrix.ReqLogin{
+	_, err = client.Login(context.Background(), &mautrix.ReqLogin{
 		Type: "m.login.password",
 		Identifier: mautrix.UserIdentifier{
 			Type: "m.id.user",
@@ -67,7 +68,7 @@ func (wc writeCloser) Close() error {
 	if !wc.closeable {
 		return nil
 	}
-	_, err := wc.writer.matrixClient.Logout()
+	_, err := wc.writer.matrixClient.Logout(context.Background())
 	return err
 }
 
@@ -121,5 +122,5 @@ func (w writer) React(roomID string, eventID string, reaction string) (string, e
 }
 
 func (w writer) sendPayload(roomID string, eventType event.Type, messagePayload interface{}) (*mautrix.RespSendEvent, error) {
-	return w.matrixClient.SendMessageEvent(id.RoomID(roomID), eventType, messagePayload)
+	return w.matrixClient.SendMessageEvent(context.Background(), id.RoomID(roomID), eventType, messagePayload)
 }

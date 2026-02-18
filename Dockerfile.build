@@ -1,0 +1,22 @@
+FROM --platform=$BUILDPLATFORM golang:1.26 AS builder
+
+ENV GOOS=linux
+ENV GOARCH=arm64
+ENV CGO_ENABLED=0
+
+WORKDIR /app
+
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY . .
+
+RUN go build -o /grafana-matrix-forwarder .
+
+FROM --platform=$TARGETPLATFORM alpine:latest
+
+RUN apk --no-cache add ca-certificates
+
+COPY --from=builder /grafana-matrix-forwarder /grafana-matrix-forwarder
+
+ENTRYPOINT ["/grafana-matrix-forwarder"]
